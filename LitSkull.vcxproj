@@ -42,9 +42,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <ExecutablePath>$(ExecutablePath);C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Utilities\bin\x86</ExecutablePath>
-    <IncludePath>$(IncludePath);C:\VGDDX\3DGameProg\DVD\Code\Common;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include</IncludePath>
-    <LibraryPath>$(LibraryPath);C:\VGDDX\3DGameProg\DVD\Code\Common;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86</LibraryPath>
+    <ExecutablePath>$(ExecutablePath);$(DXSDK_DIR)Utilities\bin\x86</ExecutablePath>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include;C:\PuckMan3D\Common</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86;C:\PuckMan3D\Common</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -97,38 +97,35 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\DVD\Code\Common\Camera.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\d3dApp.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\d3dUtil.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\GameTimer.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\GeometryGenerator.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\LightHelper.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\MathHelper.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\TextureMgr.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\Waves.cpp" />
-    <ClCompile Include="..\..\..\DVD\Code\Common\xnacollision.cpp" />
+    <ClCompile Include="Common\Camera.cpp" />
+    <ClCompile Include="Common\d3dApp.cpp" />
+    <ClCompile Include="Common\d3dUtil.cpp" />
+    <ClCompile Include="Common\GameTimer.cpp" />
+    <ClCompile Include="Common\GeometryGenerator.cpp" />
+    <ClCompile Include="Common\LightHelper.cpp" />
+    <ClCompile Include="Common\MathHelper.cpp" />
+    <ClCompile Include="Common\TextureMgr.cpp" />
+    <ClCompile Include="Common\Waves.cpp" />
+    <ClCompile Include="Common\xnacollision.cpp" />
     <ClCompile Include="Effects.cpp" />
     <ClCompile Include="Pac3D.cpp" />
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\DVD\Code\Common\Camera.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\d3dApp.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\d3dUtil.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\d3dx11effect.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\GameTimer.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\GeometryGenerator.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\LightHelper.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\MathHelper.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\TextureMgr.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\Waves.h" />
-    <ClInclude Include="..\..\..\DVD\Code\Common\xnacollision.h" />
+    <ClInclude Include="Common\Camera.h" />
+    <ClInclude Include="Common\d3d11.h" />
+    <ClInclude Include="Common\d3dApp.h" />
+    <ClInclude Include="Common\d3dUtil.h" />
+    <ClInclude Include="Common\d3dx11effect.h" />
+    <ClInclude Include="Common\GameTimer.h" />
+    <ClInclude Include="Common\GeometryGenerator.h" />
+    <ClInclude Include="Common\LightHelper.h" />
+    <ClInclude Include="Common\MathHelper.h" />
+    <ClInclude Include="Common\TextureMgr.h" />
+    <ClInclude Include="Common\Waves.h" />
+    <ClInclude Include="Common\xnacollision.h" />
     <ClInclude Include="Effects.h" />
     <ClInclude Include="Vertex.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\..\DVD\Code\Common\Effects11.lib" />
-    <Library Include="..\..\..\DVD\Code\Common\Effects11d.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

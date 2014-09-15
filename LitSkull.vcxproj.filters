@@ -17,7 +17,7 @@
       <UniqueIdentifier>{8afab071-2cea-4cf7-a9bd-4aa321b593e3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Common">
-      <UniqueIdentifier>{80a1359f-31ca-4c55-8cb7-28a003ffb26d}</UniqueIdentifier>
+      <UniqueIdentifier>{06490ccf-280a-4dd3-b791-d745941000a0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -32,38 +32,38 @@
     <ClCompile Include="Effects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\Camera.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\d3dApp.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\d3dUtil.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\GameTimer.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\GeometryGenerator.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\LightHelper.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\MathHelper.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\TextureMgr.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\Waves.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DVD\Code\Common\xnacollision.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Pac3D.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Camera.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\d3dApp.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\d3dUtil.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\GameTimer.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\GeometryGenerator.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\LightHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\MathHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TextureMgr.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Waves.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\xnacollision.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -73,37 +73,40 @@
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\Camera.h">
+    <ClInclude Include="Common\Camera.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\d3dApp.h">
+    <ClInclude Include="Common\d3d11.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\d3dUtil.h">
+    <ClInclude Include="Common\d3dApp.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\d3dx11effect.h">
+    <ClInclude Include="Common\d3dUtil.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\GameTimer.h">
+    <ClInclude Include="Common\d3dx11effect.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\GeometryGenerator.h">
+    <ClInclude Include="Common\GameTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\LightHelper.h">
+    <ClInclude Include="Common\GeometryGenerator.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\MathHelper.h">
+    <ClInclude Include="Common\LightHelper.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\TextureMgr.h">
+    <ClInclude Include="Common\MathHelper.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\Waves.h">
+    <ClInclude Include="Common\TextureMgr.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\DVD\Code\Common\xnacollision.h">
+    <ClInclude Include="Common\Waves.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\xnacollision.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
@@ -111,13 +114,5 @@
     <CustomBuild Include="FX\Basic.fx">
       <Filter>FX</Filter>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\..\DVD\Code\Common\Effects11.lib">
-      <Filter>Common</Filter>
-    </Library>
-    <Library Include="..\..\..\DVD\Code\Common\Effects11d.lib">
-      <Filter>Common</Filter>
-    </Library>
   </ItemGroup>
 </Project>
