@@ -67,6 +67,7 @@ public:
 			XMStoreFloat3(&this->vel, vel);
 		}
 	};
+
 public:
 	struct AABox
 	{
@@ -302,6 +303,9 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 
 	////Positioning the Ghost
 	mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mGhost.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mGhost.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	for (int i = 0; i < mGhost.size(); ++i)
 	{
