@@ -1,105 +1,6 @@
 #pragma once
 #include "d3dUtil.h"
-#include <cmath>
-
-struct Node
-{
-	int row;
-	int col;
-	int gCost;
-	int hCost;
-	int fCost;
-	bool isWalkable;
-	bool isOpen;
-	bool isClosed;
-	std::string facing;
-	Node* mParent;
-
-	Node combineNode(Node initial, Node* target)
-	{
-		initial.col = target->col;
-		initial.row = target->row;
-		initial.gCost = target->gCost;
-		initial.fCost = target->fCost;
-		initial.facing = target->facing;
-
-		return initial;
-	}
-
-	Node* getParent()
-	{
-		return mParent;
-	}
-
-	int getGCost(Node* n)
-	{
-		return n->gCost + ((col == n->col || row == n->row) ? 10 : 14);
-	}
-
-	int getHCost(Node* n)
-	{
-		return (abs(n->col - col) + abs(n->row - row)) * 10;
-	}
-
-	int getRow()
-	{
-		return row;
-	}
-
-	int getCol()
-	{
-		return col;
-	}
-
-	void setParent(Node* parent)
-	{
-		mParent = parent;
-	}
-
-	void calculateCosts(Node* goal)
-	{
-		gCost = getGCost(mParent);
-		hCost = getHCost(mParent);
-		fCost = gCost + hCost;
-	}
-
-	//May not need these overloads, currently work in progress
-	bool operator==(const Node& rhs)
-	{
-		if (row == rhs.row && col == rhs.col && gCost == rhs.gCost && fCost == rhs.fCost && facing == rhs.facing)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	bool operator!=(const Node& rhs)
-	{
-		if (row != rhs.row && col != rhs.col)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	bool operator=(const Node& rhs)
-	{
-		row = rhs.row;
-		col = rhs.col;
-		gCost = rhs.gCost;
-		fCost = rhs.fCost;
-		facing = rhs.facing;
-		isWalkable = rhs.isWalkable;
-		isOpen = rhs.isOpen;
-		isClosed = rhs.isOpen;
-	}
-};
+#include "PathNode.h"
 
 class Ghost
 {
@@ -119,14 +20,14 @@ protected:
 
 protected:
 	//Pathfinding stuff -- make different class or keep as is?
-	std::vector<Node*> mOpenList;
-	std::vector<Node*> mClosedList;
+	std::vector<PathNode*> mOpenList;
+	std::vector<PathNode*> mClosedList;
 
-	std::vector<Node*> FindPath(Node* start, Node* goal);
-	void AddChild(Node* childNode, Node* currNode, Node* goal);
-	float GetDistance(Node* currNode, Node* parent);
-	bool InClosedList(Node* n);
-	bool InOpenList(Node* n);
+	std::vector<PathNode*> FindPath(PathNode* start, PathNode* goal);
+	void AddChild(PathNode* childNode, PathNode* currNode, PathNode* goal);
+	float GetDistance(PathNode* currNode, PathNode* parent);
+	bool InClosedList(PathNode* n);
+	bool InOpenList(PathNode* n);
 
 public:
 	Ghost();

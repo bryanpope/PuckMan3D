@@ -20,15 +20,15 @@ void Ghost::Update()
 	
 }
 
-std::vector<Node*> Ghost::FindPath(Node* start, Node* goal)
+std::vector<PathNode*> Ghost::FindPath(PathNode* start, PathNode* goal)
 {
-	std::vector<Node*> path;
+	std::vector<PathNode*> path;
 
 	mClosedList.clear();
 	mOpenList.clear();
 
-	Node* childNode;
-	Node* currentNode;
+	PathNode* childNode;
+	PathNode* currentNode;
 	currentNode->combineNode(*currentNode, start);
 
 	mOpenList.push_back(start);
@@ -90,12 +90,10 @@ std::vector<Node*> Ghost::FindPath(Node* start, Node* goal)
 				//If it's already in the open list
 				if (childNode->isOpen)
 				{
-					//If it has a wroste g score than the one that pass through the current point
-						// then its path is improved when it's parent is the current point
 					if (childNode->gCost > childNode->gCost + currentNode->gCost)
 					{
 						childNode->setParent(currentNode);
-						//childNode->
+						childNode->calculateCosts(goal);
 					}
 				}
 				else
