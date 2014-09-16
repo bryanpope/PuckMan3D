@@ -1,6 +1,6 @@
 #pragma once
 #include <cmath>
-#include "string.h"
+#include <iostream>
 
 class PathNode
 {
@@ -16,7 +16,7 @@ public:
 	std::string facing;
 	PathNode* mParent;
 
-	PathNode();
+	PathNode(int row, int col, int gCost, int fCost, PathNode* parentNode, std::string facing);
 	~PathNode();
 
 	PathNode* getParent()

@@ -22,7 +22,7 @@ void Ghost::Update()
 
 std::vector<PathNode*> Ghost::FindPath(PathNode* start, PathNode* goal)
 {
-	std::vector<PathNode*> path;
+	std::vector<PathNode*> tempPath;
 
 	mClosedList.clear();
 	mOpenList.clear();
@@ -74,19 +74,19 @@ std::vector<PathNode*> Ghost::FindPath(PathNode* start, PathNode* goal)
 				}
 
 				//If we hit a corner
-				if (col != 0 && row != 0)
+				/*if (col != 0 && row != 0)
 				{
 					//Check surroundings for walkable tiles and if in closed list
-					/*if (!isWalkable(currentNode->getCol(), currentNode->getRow() + row) || getNode(currentNode->getCol(), currentNode->getRow() + row)->closed)
+					if (!isWalkable(currentNode->getCol(), currentNode->getRow() + row) || getNode(currentNode->getCol(), currentNode->getRow() + row)->closed)
 					{
 						continue;
 					}
 					if (!isWalkable(currentNode->getCol() + col, currentNode->getRow()) || getNode(currentNode->getCol() + col, currentNode->getRow())->closed)
 					{
 						continue;
-					}*/
+					}
 				}
-
+				*/
 				//If it's already in the open list
 				if (childNode->isOpen)
 				{
@@ -120,8 +120,8 @@ std::vector<PathNode*> Ghost::FindPath(PathNode* start, PathNode* goal)
 	//Populate the path vector
 	while (currentNode->mParent != NULL && currentNode != start)
 	{
-		path.push_back(currentNode);
+		tempPath.push_back(currentNode);
 		currentNode = currentNode->getParent();
 	}
-	return path;
+	return tempPath;
 }

@@ -17,6 +17,9 @@ protected:
 	XMFLOAT3 mPos; //Originally set as XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f)
 	XMFLOAT3 mVel; //Originally set as XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)
 	float mRadius; //Originally set as 0.75f
+	int mLevelNumber;
+
+	GHOST_STATES mGhostStates;
 
 protected:
 	//Pathfinding stuff -- make different class or keep as is?

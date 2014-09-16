@@ -12,80 +12,79 @@ Clyde::~Clyde()
 
 void Clyde::Update()
 {
-	/*switch (GHOST_STATES)
+	switch (mGhostStates)
 	{
 	case SCATTER:
-		if(level 1)
+		if (mLevelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.75;
+			vel = vel * 0.75f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if(level 2-4)
+		else if (mLevelNumber >= 2 || mLevelNumber <= 4)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.85;
+			vel = vel * 0.85f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if(level 5+)
+		else if (mLevelNumber >= 5)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.95;
+			vel = vel * 0.95f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
 	case CHASE:
-		//Calculate the Euclidean distance between Clyde's tile and Pac-Man's tile, if the distance between them is 8+ tiles, target Pac-Man
-			//If the distance is less than eight tiles, Clyde enters Scatter mode until he is far enough away to target Pac-Man again
+		//A simple call to pathfinding will suffice
 		break;
 	case FRIGHTENED:
-		if(level 1)
+		if (mLevelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50;
+			vel = vel * 0.50f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if(level 2-4)
+		else if (mLevelNumber >= 2 || mLevelNumber <= 4)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.55;
+			vel = vel * 0.55f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if(level 5+)
+		else if (mLevelNumber >= 5)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.60;
+			vel = vel * 0.60f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
 	case DEAD:
 		//Spawn in box
 		break;
-	case IN_TUNNEL:
-		if(level 1)
+	/*case IN_TUNNEL:
+		if (mLevelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.40;
+			vel = vel * 0.40f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if(level 2-4)
+		else if(mLevelNumber >= 2 || mLevelNumber <= 4)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.45;
+			vel = vel * 0.45f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if(level 5+)
+		else if(mLevelNumber >= 5)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50;
+			vel = vel * 0.50f;
 			XMStoreFloat3(&mVel, vel);
 			break;
-		}
-	}*/
+		}*/
+	}
 }
