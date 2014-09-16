@@ -20,7 +20,7 @@
 
 
 
-class Pac3D : public D3DApp 
+class Pac3D : public D3DApp
 {
 public:
 	struct PowerUp
@@ -47,7 +47,7 @@ public:
 	{
 		XMFLOAT3 pos;
 		XMFLOAT3 vel;
-		
+
 		PacMan(FXMVECTOR pos, FXMVECTOR vel)
 		{
 			XMStoreFloat3(&this->pos, pos);
@@ -98,7 +98,7 @@ public:
 	bool Init();
 	void OnResize();
 	void UpdateScene(float dt);
-	void DrawScene(); 
+	void DrawScene();
 
 private:
 	void BuildShapeGeometryBuffers();
@@ -186,28 +186,28 @@ private:
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
-				   PSTR cmdLine, int showCmd)
+	PSTR cmdLine, int showCmd)
 {
 	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
-	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
 	Pac3D theApp(hInstance);
-	
-	if( !theApp.Init() )
+
+	if (!theApp.Init())
 		return 0;
-	
+
 	return theApp.Run();
 }
- 
+
 
 Pac3D::Pac3D(HINSTANCE hInstance)
 : D3DApp(hInstance), mShapesVB(0), mShapesIB(0), mLightCount(3),
-  mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper::Pi), mRadius(45.0f)
+mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper::Pi), mRadius(45.0f)
 {
 	mMainWndCaption = L"Pac3D Demo";
-	
+
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
 
@@ -291,9 +291,8 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -13.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -13.5f, 0.0f)));
 
-<<<<<<< HEAD
-	////Third Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -12.5f, 0.0f)));
+		////Third Row
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -12.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -12.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -12.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -12.5f, 0.0f)));
@@ -454,13 +453,10 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 
 	////Add Pellets to the world
 	for (int i = 0; i < 240; ++i)
-=======
-	for (int i = 0; i < 29; ++i)
->>>>>>> parent of 8589c54... Added all the munchies for PuckMan
 	{
 		XMStoreFloat4x4(&mPelletWorld[i], XMMatrixTranslation(mPellet[i].pos.x, mPellet[i].pos.y, mPellet[i].pos.z));
 	}
-	
+
 
 	////Positioning the PacMans
 	mPacMan.push_back(PacMan(XMVectorSet(0.0f, 0.75f, -8.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
@@ -497,30 +493,30 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 	{
 		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mClyde[i].pos.x, mClyde[i].pos.y, mClyde[i].pos.z));
 	}
-	
+
 	////Positioning the PowerUps
 	mPowerUp.push_back(PowerUp(XMVectorSet(-12.5f, 0.75f, -8.5f, 0.0f)));
 	mPowerUp.push_back(PowerUp(XMVectorSet(-12.5f, 0.75f, 11.5f, 0.0f)));
 	mPowerUp.push_back(PowerUp(XMVectorSet(12.5f, 0.75f, -8.5f, 0.0f)));
 	mPowerUp.push_back(PowerUp(XMVectorSet(12.5f, 0.75f, 11.5f, 0.0f)));
-	
+
 	for (int i = 0; i < mPowerUp.size(); ++i)
 	{
 		XMStoreFloat4x4(&mPowerUpWorld[i], XMMatrixTranslation(mPowerUp[i].pos.x, mPowerUp[i].pos.y, mPowerUp[i].pos.z));
 	}
 
-	mDirLights[0].Ambient  = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	mDirLights[0].Diffuse  = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
+	mDirLights[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mDirLights[0].Diffuse = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
 	mDirLights[0].Specular = XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f);
 	mDirLights[0].Direction = XMFLOAT3(0.57735f, -0.57735f, 0.6f);
 
-	mDirLights[1].Ambient  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	mDirLights[1].Diffuse  = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
+	mDirLights[1].Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	mDirLights[1].Diffuse = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
 	mDirLights[1].Specular = XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f);
 	mDirLights[1].Direction = XMFLOAT3(-0.57735f, -0.57735f, 0.57735f);
 
-	mDirLights[2].Ambient  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	mDirLights[2].Diffuse  = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mDirLights[2].Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	mDirLights[2].Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLights[2].Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	mDirLights[2].Direction = XMFLOAT3(0.57735f, -0.57735f, -0.57735f);
 
@@ -532,7 +528,7 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 	mPelletMat.Diffuse = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
 	mPelletMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
-	mPowerUpMat.Ambient = XMFLOAT4(1.0f, 0.9f,0.9f, 1.0f);
+	mPowerUpMat.Ambient = XMFLOAT4(1.0f, 0.9f, 0.9f, 1.0f);
 	mPowerUpMat.Diffuse = XMFLOAT4(1.0f, 0.9f, 0.9f, 1.0f);
 	mPowerUpMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
@@ -549,23 +545,15 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 	mPinkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
 	mInkyMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-<<<<<<< HEAD
 	mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
 	mInkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
 	mClydeMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
-=======
-	mInkyMat.Diffuse = XMFLOAT4(0.0f, 105.0f, 225.0f, 1.0f);
-	mInkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
-
-	mClydeMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	mClydeMat.Diffuse = XMFLOAT4(247.0f, 169.0f, 2.0f, 1.0f);
->>>>>>> parent of 8589c54... Added all the munchies for PuckMan
 	mClydeMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
-	mBoxMat.Ambient  = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
-	mBoxMat.Diffuse  = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
+	mBoxMat.Ambient = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
+	mBoxMat.Diffuse = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
 
 }
@@ -574,14 +562,14 @@ Pac3D::~Pac3D()
 {
 	ReleaseCOM(mShapesVB);
 	ReleaseCOM(mShapesIB);
-	
+
 	Effects::DestroyAll();
-	InputLayouts::DestroyAll(); 
+	InputLayouts::DestroyAll();
 }
 
 bool Pac3D::Init()
 {
-	if(!D3DApp::Init())
+	if (!D3DApp::Init())
 		return false;
 
 	// Must init Effects first since InputLayouts depend on shader signatures.
@@ -589,7 +577,7 @@ bool Pac3D::Init()
 	InputLayouts::InitAll(md3dDevice);
 
 	BuildShapeGeometryBuffers();
-	
+
 
 	return true;
 }
@@ -607,10 +595,10 @@ void Pac3D::UpdateScene(float dt)
 	float eyeOffset = 25.0f;
 
 	UpdateKeyboardInput(dt);
-	
+
 
 	XMVECTOR pos = XMLoadFloat3(&mPacMan[0].pos);
-	XMVECTOR vel = XMLoadFloat3(&mPacMan[0].vel);	
+	XMVECTOR vel = XMLoadFloat3(&mPacMan[0].vel);
 
 	pos = pos + (vel * mSpeed * dt);
 
@@ -641,7 +629,7 @@ void Pac3D::UpdateScene(float dt)
 	for (int i = 0; i < mPellet.size(); ++i)
 	{
 		XMVECTOR pelPos = XMLoadFloat3(&mPellet[i].pos);
-		
+
 		if (PacManPelletOverlapTest(pos, pelPos) == true)
 		{
 			mPellet.erase(mPellet.begin() + i);
@@ -673,7 +661,7 @@ void Pac3D::UpdateScene(float dt)
 		mPacMan[0].pos.x = -14;
 	}
 
-	
+
 
 	// Camera X, Y, Z Positioning.
 	float x = mPacMan[0].pos.x;
@@ -709,25 +697,25 @@ void Pac3D::UpdateScene(float dt)
 void Pac3D::DrawScene()
 {
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	md3dImmediateContext->IASetInputLayout(InputLayouts::PosNormal);
-    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
- 
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	UINT stride = sizeof(Vertex::PosNormal);
-    UINT offset = 0;
- 
-	XMMATRIX view  = XMLoadFloat4x4(&mView);
-	XMMATRIX proj  = XMLoadFloat4x4(&mProj);
+	UINT offset = 0;
+
+	XMMATRIX view = XMLoadFloat4x4(&mView);
+	XMMATRIX proj = XMLoadFloat4x4(&mProj);
 	XMMATRIX viewProj = view*proj;
 
 	//// Set per frame constants.
 	Effects::BasicFX->SetDirLights(mDirLights);
 	Effects::BasicFX->SetEyePosW(mEyePosW);
- 
+
 	//// Figure out which technique to use.
 	ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light1Tech;
-	switch(mLightCount)
+	switch (mLightCount)
 	{
 	case 1:
 		activeTech = Effects::BasicFX->Light1Tech;
@@ -740,10 +728,10 @@ void Pac3D::DrawScene()
 		break;
 	}
 
-    D3DX11_TECHNIQUE_DESC techDesc;
-    activeTech->GetDesc( &techDesc );
-    for(UINT p = 0; p < techDesc.Passes; ++p)
-    {
+	D3DX11_TECHNIQUE_DESC techDesc;
+	activeTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mShapesVB, &stride, &offset);
 		md3dImmediateContext->IASetIndexBuffer(mShapesIB, DXGI_FORMAT_R32_UINT, 0);
 
@@ -780,9 +768,9 @@ void Pac3D::DrawScene()
 			vertexOffset += 24;
 			indexOffset += 36;
 		}
-	
+
 		//// Draw the Pellets.
-		for(int i = 0; i < mPellet.size(); ++i)
+		for (int i = 0; i < mPellet.size(); ++i)
 		{
 			world = XMMatrixTranslation(mPellet[i].pos.x, mPellet[i].pos.y, mPellet[i].pos.z);
 			worldInvTranspose = MathHelper::InverseTranspose(world);
@@ -824,7 +812,7 @@ void Pac3D::DrawScene()
 			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
 			Effects::BasicFX->SetWorldViewProj(worldViewProj);
 			Effects::BasicFX->SetMaterial(mPacManMat);
-			
+
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
@@ -891,8 +879,8 @@ void Pac3D::DrawScene()
 			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
 		}
 
-	
-    }
+
+	}
 
 	HR(mSwapChain->Present(0, 0));
 }
@@ -900,7 +888,7 @@ void Pac3D::DrawScene()
 
 void Pac3D::UpdateKeyboardInput(float dt)
 {
-	
+
 	// Move Forward
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
@@ -916,7 +904,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 		mPacMan[0].vel.y = 0.0f;
 		mPacMan[0].vel.z = 0.0f;
 	}
-		
+
 	// Move Backwards	
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
@@ -925,7 +913,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = -1.0f * dt;
 	}
-	
+
 	// Move Left
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
@@ -934,7 +922,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = 0.0f * dt;
 	}
-	
+
 	// Move Right
 	if (GetAsyncKeyState('D') & 0x8000)
 	{
@@ -944,7 +932,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 		mPacMan[0].vel.z = 0.0f * dt;
 	}
 
-	
+
 
 }
 
@@ -957,7 +945,7 @@ XMVECTOR Pac3D::PacManAABoxOverLap(XMVECTOR s1Center)
 		XMVECTOR min = XMLoadFloat3(&mBoxData[i].min);
 		XMVECTOR max = XMLoadFloat3(&mBoxData[i].max);
 
-		XMVECTOR A = XMVectorClamp(s1Center, min , max);
+		XMVECTOR A = XMVectorClamp(s1Center, min, max);
 
 		XMVECTOR d = s1Center - A; //difference between the closest point on the box  and sphere center
 
@@ -1004,9 +992,9 @@ bool Pac3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
 	float s2Radius = pelletR;
 
 	XMVECTOR d = s1Center - s2Center; // difference between the two spheres centers
-	float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) + (d.m128_f32[1] * d.m128_f32[1])  + (d.m128_f32[2] * d.m128_f32[2])); //magnitude of the difference
+	float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) + (d.m128_f32[1] * d.m128_f32[1]) + (d.m128_f32[2] * d.m128_f32[2])); //magnitude of the difference
 	float sumRadius = s1Radius + s2Radius; //sum of the 2 spheres radii
-	
+
 	if (distance < sumRadius) // have collision
 	{
 		return true;
@@ -1015,8 +1003,8 @@ bool Pac3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
 	{
 		return false;
 	}
-	
-	
+
+
 }
 
 bool Pac3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
@@ -1106,7 +1094,7 @@ void Pac3D::BuildShapeGeometryBuffers()
 	GeometryGenerator::MeshData powerUp;
 	GeometryGenerator::MeshData pacMan;
 	GeometryGenerator::MeshData ghost;
-	
+
 
 	// Dimensions the blocks for the Pac-Man maze
 	GeometryGenerator geoGen;
@@ -1181,70 +1169,70 @@ void Pac3D::BuildShapeGeometryBuffers()
 
 	// Ghost
 	geoGen.CreateSphere(ghostR, 10, 10, ghost);
-	
+
 
 	// Cache the vertex offsets to each object in the concatenated vertex buffer.
-	mBoxVertexOffset      = 0;
+	mBoxVertexOffset = 0;
 	mGridVertexOffset = box1.Vertices.size() + box2.Vertices.size() + box3.Vertices.size() + box4.Vertices.size() + box5.Vertices.size()
-						+ box6.Vertices.size() + box7.Vertices.size() + box8.Vertices.size() + box9.Vertices.size() + box10.Vertices.size()
-						+ box11.Vertices.size() + box12.Vertices.size() + box13.Vertices.size() + box14.Vertices.size() + box15.Vertices.size()
-						+ box16.Vertices.size() + box17.Vertices.size() + box18.Vertices.size() + box19.Vertices.size() + box20.Vertices.size()
-						+ box21.Vertices.size() + box22.Vertices.size() + box23.Vertices.size() + box24.Vertices.size() + box25.Vertices.size()
-						+ box26.Vertices.size() + box27.Vertices.size() + box28.Vertices.size() + box29.Vertices.size() + box30.Vertices.size()
-						+ box31.Vertices.size() + box32.Vertices.size() + box33.Vertices.size() + box34.Vertices.size() + box35.Vertices.size()
-						+ box36.Vertices.size()	+ box37.Vertices.size() + box38.Vertices.size() + box39.Vertices.size() + box40.Vertices.size()
-						+ box41.Vertices.size() + box42.Vertices.size() + box43.Vertices.size() + box44.Vertices.size() + box45.Vertices.size()
-						+ box46.Vertices.size() + box47.Vertices.size() + box48.Vertices.size() + box49.Vertices.size() + box50.Vertices.size()
-						+ box51.Vertices.size() + box52.Vertices.size() + box53.Vertices.size() + box54.Vertices.size()	+ box55.Vertices.size();
+		+ box6.Vertices.size() + box7.Vertices.size() + box8.Vertices.size() + box9.Vertices.size() + box10.Vertices.size()
+		+ box11.Vertices.size() + box12.Vertices.size() + box13.Vertices.size() + box14.Vertices.size() + box15.Vertices.size()
+		+ box16.Vertices.size() + box17.Vertices.size() + box18.Vertices.size() + box19.Vertices.size() + box20.Vertices.size()
+		+ box21.Vertices.size() + box22.Vertices.size() + box23.Vertices.size() + box24.Vertices.size() + box25.Vertices.size()
+		+ box26.Vertices.size() + box27.Vertices.size() + box28.Vertices.size() + box29.Vertices.size() + box30.Vertices.size()
+		+ box31.Vertices.size() + box32.Vertices.size() + box33.Vertices.size() + box34.Vertices.size() + box35.Vertices.size()
+		+ box36.Vertices.size() + box37.Vertices.size() + box38.Vertices.size() + box39.Vertices.size() + box40.Vertices.size()
+		+ box41.Vertices.size() + box42.Vertices.size() + box43.Vertices.size() + box44.Vertices.size() + box45.Vertices.size()
+		+ box46.Vertices.size() + box47.Vertices.size() + box48.Vertices.size() + box49.Vertices.size() + box50.Vertices.size()
+		+ box51.Vertices.size() + box52.Vertices.size() + box53.Vertices.size() + box54.Vertices.size() + box55.Vertices.size();
 
 	mPelletVertexOffset = mGridVertexOffset + grid.Vertices.size();
 	mPacManVertexOffset = mPelletVertexOffset + pellet.Vertices.size();
 	mPowerUpVertexOffset = mPacManVertexOffset + pacMan.Vertices.size();
 	mGhostVertexOffset = mPowerUpVertexOffset + powerUp.Vertices.size();
-	
+
 
 	// Cache the index count of each object.
-	mBoxIndexCount		= box1.Indices.size() + box2.Indices.size() + box3.Indices.size() + box4.Indices.size() + box5.Indices.size()
-						+ box6.Indices.size() + box7.Indices.size() + box8.Indices.size() + box9.Indices.size() + box10.Indices.size()
-						+ box11.Indices.size() + box12.Indices.size() + box13.Indices.size() + box14.Indices.size() + box15.Indices.size()
-						+ box16.Indices.size() + box17.Indices.size() + box18.Indices.size() + box19.Indices.size() + box20.Indices.size()
-						+ box21.Indices.size() + box22.Indices.size() + box23.Indices.size() + box24.Indices.size() + box25.Indices.size()
-						+ box26.Indices.size() + box27.Indices.size() + box28.Indices.size() + box29.Indices.size() + box30.Indices.size()
-						+ box31.Indices.size() + box32.Indices.size() + box33.Indices.size() + box34.Indices.size() + box35.Indices.size()
-						+ box36.Indices.size() + box37.Indices.size() + box38.Indices.size() + box39.Indices.size() + box40.Indices.size()
-						+ box41.Indices.size() + box42.Indices.size() + box43.Indices.size() + box44.Indices.size() + box45.Indices.size()
-						+ box46.Indices.size() + box47.Indices.size() + box48.Indices.size() + box49.Indices.size() + box50.Indices.size()
-						+ box51.Indices.size() + box52.Indices.size() + box53.Indices.size() + box54.Indices.size() + box55.Indices.size();
+	mBoxIndexCount = box1.Indices.size() + box2.Indices.size() + box3.Indices.size() + box4.Indices.size() + box5.Indices.size()
+		+ box6.Indices.size() + box7.Indices.size() + box8.Indices.size() + box9.Indices.size() + box10.Indices.size()
+		+ box11.Indices.size() + box12.Indices.size() + box13.Indices.size() + box14.Indices.size() + box15.Indices.size()
+		+ box16.Indices.size() + box17.Indices.size() + box18.Indices.size() + box19.Indices.size() + box20.Indices.size()
+		+ box21.Indices.size() + box22.Indices.size() + box23.Indices.size() + box24.Indices.size() + box25.Indices.size()
+		+ box26.Indices.size() + box27.Indices.size() + box28.Indices.size() + box29.Indices.size() + box30.Indices.size()
+		+ box31.Indices.size() + box32.Indices.size() + box33.Indices.size() + box34.Indices.size() + box35.Indices.size()
+		+ box36.Indices.size() + box37.Indices.size() + box38.Indices.size() + box39.Indices.size() + box40.Indices.size()
+		+ box41.Indices.size() + box42.Indices.size() + box43.Indices.size() + box44.Indices.size() + box45.Indices.size()
+		+ box46.Indices.size() + box47.Indices.size() + box48.Indices.size() + box49.Indices.size() + box50.Indices.size()
+		+ box51.Indices.size() + box52.Indices.size() + box53.Indices.size() + box54.Indices.size() + box55.Indices.size();
 
-	mGridIndexCount     = grid.Indices.size();
-	mPelletIndexCount   = pellet.Indices.size();
+	mGridIndexCount = grid.Indices.size();
+	mPelletIndexCount = pellet.Indices.size();
 	mPacManIndexCount = pacMan.Indices.size();
 	mPowerUpIndexCount = powerUp.Indices.size();
 	mGhostIndexCount = ghost.Indices.size();
-	
+
 
 	// Cache the starting index for each object in the concatenated index buffer.
-	mBoxIndexOffset      = 0;
-	mGridIndexOffset     = mBoxIndexCount;
-	mPelletIndexOffset   = mGridIndexOffset + mGridIndexCount;
+	mBoxIndexOffset = 0;
+	mGridIndexOffset = mBoxIndexCount;
+	mPelletIndexOffset = mGridIndexOffset + mGridIndexCount;
 	mPacManIndexOffset = mPelletIndexOffset + mPacManIndexCount;
 	mPowerUpIndexOffset = mPacManIndexOffset + mPacManIndexCount;
 	mGhostIndexOffset = mPowerUpIndexOffset + mPowerUpIndexCount;
-	
-	
-	UINT totalVertexCount = box1.Vertices.size() + box2.Vertices.size() + box3.Vertices.size() + box4.Vertices.size() + box5.Vertices.size() 
-						  + box6.Vertices.size() + box7.Vertices.size() + box8.Vertices.size() + box9.Vertices.size() + box10.Vertices.size()
-						  + box11.Vertices.size() + box12.Vertices.size() + box13.Vertices.size() + box14.Vertices.size() + box15.Vertices.size()
-						  + box16.Vertices.size() + box17.Vertices.size() + box18.Vertices.size() + box19.Vertices.size() + box20.Vertices.size() 
-						  + box21.Vertices.size() + box22.Vertices.size() + box23.Vertices.size() + box24.Vertices.size() + box25.Vertices.size() 
-						  + box26.Vertices.size() + box27.Vertices.size() + box28.Vertices.size() + box29.Vertices.size() + box30.Vertices.size() 
-						  + box31.Vertices.size() + box32.Vertices.size() + box33.Vertices.size() + box34.Vertices.size() + box35.Vertices.size() 
-						  + box36.Vertices.size() + box37.Vertices.size() + box38.Vertices.size() + box39.Vertices.size() + box40.Vertices.size() 
-						  + box41.Vertices.size() + box42.Vertices.size() + box43.Vertices.size() + box44.Vertices.size() + box45.Vertices.size() 
-						  + box46.Vertices.size() + box47.Vertices.size() + box48.Vertices.size() + box49.Vertices.size() + box50.Vertices.size() 
-						  + box51.Vertices.size() + box52.Vertices.size() + box53.Vertices.size() + box54.Vertices.size() + box55.Vertices.size()
-						  + grid.Vertices.size() + pellet.Vertices.size() + pacMan.Vertices.size() + powerUp.Vertices.size() + ghost.Vertices.size(); 
-	
+
+
+	UINT totalVertexCount = box1.Vertices.size() + box2.Vertices.size() + box3.Vertices.size() + box4.Vertices.size() + box5.Vertices.size()
+		+ box6.Vertices.size() + box7.Vertices.size() + box8.Vertices.size() + box9.Vertices.size() + box10.Vertices.size()
+		+ box11.Vertices.size() + box12.Vertices.size() + box13.Vertices.size() + box14.Vertices.size() + box15.Vertices.size()
+		+ box16.Vertices.size() + box17.Vertices.size() + box18.Vertices.size() + box19.Vertices.size() + box20.Vertices.size()
+		+ box21.Vertices.size() + box22.Vertices.size() + box23.Vertices.size() + box24.Vertices.size() + box25.Vertices.size()
+		+ box26.Vertices.size() + box27.Vertices.size() + box28.Vertices.size() + box29.Vertices.size() + box30.Vertices.size()
+		+ box31.Vertices.size() + box32.Vertices.size() + box33.Vertices.size() + box34.Vertices.size() + box35.Vertices.size()
+		+ box36.Vertices.size() + box37.Vertices.size() + box38.Vertices.size() + box39.Vertices.size() + box40.Vertices.size()
+		+ box41.Vertices.size() + box42.Vertices.size() + box43.Vertices.size() + box44.Vertices.size() + box45.Vertices.size()
+		+ box46.Vertices.size() + box47.Vertices.size() + box48.Vertices.size() + box49.Vertices.size() + box50.Vertices.size()
+		+ box51.Vertices.size() + box52.Vertices.size() + box53.Vertices.size() + box54.Vertices.size() + box55.Vertices.size()
+		+ grid.Vertices.size() + pellet.Vertices.size() + pacMan.Vertices.size() + powerUp.Vertices.size() + ghost.Vertices.size();
+
 
 	UINT totalIndexCount =
 		mBoxIndexCount +
@@ -1253,7 +1241,7 @@ void Pac3D::BuildShapeGeometryBuffers()
 		mPacManIndexCount +
 		mPowerUpIndexCount +
 		mGhostIndexCount;
-		
+
 
 	//
 	// Extract the vertex elements we are interested in and pack the
@@ -1263,15 +1251,15 @@ void Pac3D::BuildShapeGeometryBuffers()
 	std::vector<Vertex::PosNormal> vertices(totalVertexCount);
 
 	UINT k = 0;
-	for(int i = 0; i < box1.Vertices.size(); ++i, ++k)
+	for (int i = 0; i < box1.Vertices.size(); ++i, ++k)
 	{
-		vertices[k].Pos    = box1.Vertices[i].Position;
+		vertices[k].Pos = box1.Vertices[i].Position;
 		vertices[k].Normal = box1.Vertices[i].Normal;
 	}
 
 	for (size_t i = 0; i < box2.Vertices.size(); ++i, ++k)
 	{
-		vertices[k].Pos	   = box2.Vertices[i].Position;
+		vertices[k].Pos = box2.Vertices[i].Position;
 		vertices[k].Normal = box2.Vertices[i].Normal;
 	}
 
@@ -1593,15 +1581,15 @@ void Pac3D::BuildShapeGeometryBuffers()
 		vertices[k].Normal = box55.Vertices[i].Normal;
 	}
 
-	for(size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
+	for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
 	{
-		vertices[k].Pos    = grid.Vertices[i].Position;
+		vertices[k].Pos = grid.Vertices[i].Position;
 		vertices[k].Normal = grid.Vertices[i].Normal;
 	}
 
-	for(size_t i = 0; i < pellet.Vertices.size(); ++i, ++k)
+	for (size_t i = 0; i < pellet.Vertices.size(); ++i, ++k)
 	{
-		vertices[k].Pos    = pellet.Vertices[i].Position;
+		vertices[k].Pos = pellet.Vertices[i].Position;
 		vertices[k].Normal = pellet.Vertices[i].Normal;
 	}
 
@@ -1624,15 +1612,15 @@ void Pac3D::BuildShapeGeometryBuffers()
 	}
 
 
-    D3D11_BUFFER_DESC vbd;
-    vbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vbd.ByteWidth = sizeof(Vertex::PosNormal) * totalVertexCount;
-    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vbd.CPUAccessFlags = 0;
-    vbd.MiscFlags = 0;
-    D3D11_SUBRESOURCE_DATA vinitData;
-    vinitData.pSysMem = &vertices[0];
-    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mShapesVB));
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosNormal) * totalVertexCount;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA vinitData;
+	vinitData.pSysMem = &vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mShapesVB));
 
 	//
 	// Pack the indices of all the meshes into one index buffer.
@@ -1694,7 +1682,7 @@ void Pac3D::BuildShapeGeometryBuffers()
 	indices.insert(indices.end(), box53.Indices.begin(), box53.Indices.end());
 	indices.insert(indices.end(), box54.Indices.begin(), box54.Indices.end());
 	indices.insert(indices.end(), box55.Indices.begin(), box55.Indices.end());
-	
+
 	indices.insert(indices.end(), grid.Indices.begin(), grid.Indices.end());
 	indices.insert(indices.end(), pellet.Indices.begin(), pellet.Indices.end());
 	indices.insert(indices.end(), pacMan.Indices.begin(), pacMan.Indices.end());
@@ -1703,17 +1691,17 @@ void Pac3D::BuildShapeGeometryBuffers()
 
 
 	D3D11_BUFFER_DESC ibd;
-    ibd.Usage = D3D11_USAGE_IMMUTABLE;
-    ibd.ByteWidth = sizeof(UINT) * totalIndexCount;
-    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    ibd.CPUAccessFlags = 0;
-    ibd.MiscFlags = 0;
-    D3D11_SUBRESOURCE_DATA iinitData;
-    iinitData.pSysMem = &indices[0];
-    HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT)* totalIndexCount;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &indices[0];
+	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));
 }
 
 
- 
+
 
 
