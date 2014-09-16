@@ -818,7 +818,7 @@ void Pac3D::DrawScene()
 			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
 		}
 
-		//// Draw the Ghost
+		//// Draw the Ghosts
 		for (int i = 0; i < mGhost.size(); ++i)
 		{
 			world = XMMatrixTranslation(mGhost[i].pos.x, mGhost[i].pos.y, mGhost[i].pos.z);
@@ -831,7 +831,7 @@ void Pac3D::DrawScene()
 			Effects::BasicFX->SetMaterial(mGhostMat);
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
+			md3dImmediateContext->DrawIndexed(mGhostIndexCount, mGhostIndexOffset, mGhostVertexOffset);
 		}
 
 		for (int i = 0; i < mPinky.size(); ++i)
@@ -846,7 +846,7 @@ void Pac3D::DrawScene()
 			Effects::BasicFX->SetMaterial(mPinkyMat);
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
+			md3dImmediateContext->DrawIndexed(mGhostIndexCount, mGhostIndexOffset, mGhostVertexOffset);
 		}
 
 		for (int i = 0; i < mInky.size(); ++i)
@@ -861,7 +861,7 @@ void Pac3D::DrawScene()
 			Effects::BasicFX->SetMaterial(mInkyMat);
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
+			md3dImmediateContext->DrawIndexed(mGhostIndexCount, mGhostIndexOffset, mGhostVertexOffset);
 		}
 
 		for (int i = 0; i < mClyde.size(); ++i)
@@ -876,7 +876,7 @@ void Pac3D::DrawScene()
 			Effects::BasicFX->SetMaterial(mClydeMat);
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
+			md3dImmediateContext->DrawIndexed(mGhostIndexCount, mGhostIndexOffset, mGhostVertexOffset);
 		}
 
 
@@ -896,6 +896,10 @@ void Pac3D::UpdateKeyboardInput(float dt)
 		mPacMan[0].vel.x = 0.0f * dt;
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = 1.0f * dt;
+		if (mPacMan[0].vel.z < 0.00826695096f)
+		{
+			mPacMan[0].vel.z = 0.00826695096f;
+		}
 	}
 	else
 	{
@@ -905,13 +909,17 @@ void Pac3D::UpdateKeyboardInput(float dt)
 		mPacMan[0].vel.z = 0.0f;
 	}
 
-	// Move Backwards	
+	// Move Backwards 
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
 		isKeyPressed = true;
 		mPacMan[0].vel.x = 0.0f * dt;
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = -1.0f * dt;
+		if (mPacMan[0].vel.z > -0.00826695096f)
+		{
+			mPacMan[0].vel.z = -0.00826695096f;
+		}
 	}
 
 	// Move Left
@@ -919,6 +927,10 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	{
 		isKeyPressed = true;
 		mPacMan[0].vel.x = -1.0f * dt;
+		if (mPacMan[0].vel.x > -0.00826695096f)
+		{
+			mPacMan[0].vel.x = -0.00826695096f;
+		}
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = 0.0f * dt;
 	}
@@ -928,6 +940,11 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	{
 		isKeyPressed = true;
 		mPacMan[0].vel.x = 1.0f * dt;
+		if (mPacMan[0].vel.x < 0.00826695096f)
+		{
+			mPacMan[0].vel.x = 0.00826695096f;
+		}
+
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = 0.0f * dt;
 	}
