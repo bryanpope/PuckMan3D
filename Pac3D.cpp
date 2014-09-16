@@ -122,6 +122,9 @@ private:
 	Material mPowerUpMat;
 	Material mPacManMat;
 	Material mGhostMat;
+	Material mPinkyMat;
+	Material mInkyMat;
+	Material mClydeMat;
 
 	// Define transformations from local spaces to world space.
 	XMFLOAT4X4 mPelletWorld[240];
@@ -174,6 +177,9 @@ private:
 	std::vector<Pellet> mPellet;
 	std::vector<PowerUp> mPowerUp;
 	std::vector<Ghost> mGhost;
+	std::vector<Ghost> mPinky;
+	std::vector<Ghost> mInky;
+	std::vector<Ghost> mClyde;
 
 	POINT mLastMousePos;
 };
@@ -303,13 +309,28 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 
 	////Positioning the Ghost
 	mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mGhost.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mGhost.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	for (int i = 0; i < mGhost.size(); ++i)
 	{
 		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mGhost[i].pos.x, mGhost[i].pos.y, mGhost[i].pos.z));
+	}
+
+	for (int i = 0; i < mPinky.size(); ++i)
+	{
+		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mPinky[i].pos.x, mPinky[i].pos.y, mPinky[i].pos.z));
+	}
+
+	for (int i = 0; i < mInky.size(); ++i)
+	{
+		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mInky[i].pos.x, mInky[i].pos.y, mInky[i].pos.z));
+	}
+
+	for (int i = 0; i < mClyde.size(); ++i)
+	{
+		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mClyde[i].pos.x, mClyde[i].pos.y, mClyde[i].pos.z));
 	}
 	
 	////Positioning the PowerUps
@@ -358,6 +379,18 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 	mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	mGhostMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
+	mPinkyMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mPinkyMat.Diffuse = XMFLOAT4(255.0f, 0.0f, 255.0f, 1.0f);
+	mPinkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+
+	mInkyMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mInkyMat.Diffuse = XMFLOAT4(0.0f, 105.0f, 225.0f, 1.0f);
+	mInkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+
+	mClydeMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mClydeMat.Diffuse = XMFLOAT4(247.0f, 169.0f, 2.0f, 1.0f);
+	mClydeMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+
 	mBoxMat.Ambient  = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Diffuse  = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
@@ -404,10 +437,7 @@ void Pac3D::UpdateScene(float dt)
 	
 
 	XMVECTOR pos = XMLoadFloat3(&mPacMan[0].pos);
-	XMVECTOR vel = XMLoadFloat3(&mPacMan[0].vel);
-
-	
-	
+	XMVECTOR vel = XMLoadFloat3(&mPacMan[0].vel);	
 
 	pos = pos + (vel * mSpeed * dt);
 
@@ -638,6 +668,51 @@ void Pac3D::DrawScene()
 			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
 			Effects::BasicFX->SetWorldViewProj(worldViewProj);
 			Effects::BasicFX->SetMaterial(mGhostMat);
+
+			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
+		}
+
+		for (int i = 0; i < mPinky.size(); ++i)
+		{
+			world = XMMatrixTranslation(mPinky[i].pos.x, mPinky[i].pos.y, mPinky[i].pos.z);
+			worldInvTranspose = MathHelper::InverseTranspose(world);
+			worldViewProj = world*view*proj;
+
+			Effects::BasicFX->SetWorld(world);
+			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+			Effects::BasicFX->SetWorldViewProj(worldViewProj);
+			Effects::BasicFX->SetMaterial(mPinkyMat);
+
+			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
+		}
+
+		for (int i = 0; i < mInky.size(); ++i)
+		{
+			world = XMMatrixTranslation(mInky[i].pos.x, mInky[i].pos.y, mInky[i].pos.z);
+			worldInvTranspose = MathHelper::InverseTranspose(world);
+			worldViewProj = world*view*proj;
+
+			Effects::BasicFX->SetWorld(world);
+			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+			Effects::BasicFX->SetWorldViewProj(worldViewProj);
+			Effects::BasicFX->SetMaterial(mInkyMat);
+
+			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
+		}
+
+		for (int i = 0; i < mClyde.size(); ++i)
+		{
+			world = XMMatrixTranslation(mClyde[i].pos.x, mClyde[i].pos.y, mClyde[i].pos.z);
+			worldInvTranspose = MathHelper::InverseTranspose(world);
+			worldViewProj = world*view*proj;
+
+			Effects::BasicFX->SetWorld(world);
+			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+			Effects::BasicFX->SetWorldViewProj(worldViewProj);
+			Effects::BasicFX->SetMaterial(mClydeMat);
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 			md3dImmediateContext->DrawIndexed(mPacManIndexCount, mPacManIndexOffset, mPacManVertexOffset);
