@@ -166,7 +166,7 @@ private:
 	float mPhi;
 	float mRadius;
 
-	float mSpeed = 2000.0f;
+	float mSpeed = 1000.0f;
 	float pacManR = 0.75f;
 	float ghostR = 0.75f;
 	float pelletR = 0.125f;
@@ -291,7 +291,172 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -13.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -13.5f, 0.0f)));
 
+<<<<<<< HEAD
+	////Third Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -12.5f, 0.0f)));
+
+	////Fourth Row
+	for (int i = 0; i < 6; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, -11.5f, 0.0f)));
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-4.5f + i, 0.75f, -11.5f, 0.0f)));
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -11.5f, 0.0f)));
+	}
+	for (int i = 0; i < 6; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(7.5f + i, 0.75f, -11.5f, 0.0f)));
+	}
+
+	////Fifth Row
+	mPellet.push_back(Pellet(XMVectorSet(-10.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(10.5f, 0.75f, -10.5f, 0.0f)));
+
+	////Sixth Row
+	mPellet.push_back(Pellet(XMVectorSet(-10.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(10.5f, 0.75f, -9.5f, 0.0f)));
+
+	////Seventh Row
+	for (int i = 0; i < 2; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-11.5f + i, 0.75f, -8.5f, 0.0f)));
+	}
+	for (int i = 0; i < 7; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-7.5f + i, 0.75f, -8.5f, 0.0f)));
+	}
+	for (int i = 0; i < 7; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -8.5f, 0.0f)));
+	}
+	for (int i = 0; i < 2; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(10.5f + i, 0.75f, -8.5f, 0.0f)));
+	}
+
+	////Eighth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -7.5f, 0.0f)));
+
+	////Ninth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -6.5f, 0.0f)));
+
+	////Tenth Row
+	for (int i = 0; i < 12; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, -5.5f, 0.0f)));
+	}
+	for (int i = 0; i < 12; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -5.5f, 0.0f)));
+	}
+
+	////Eleventh to Twenty First Row
+	for (int i = 0; i < 11; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -4.5f + i, 0.0f)));
+		mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -4.5f + i, 0.0f)));
+	}
+
+	////Twenty Second Row
+	for (int i = 0; i < 6; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 6.5f, 0.0f)));
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-4.5f + i, 0.75f, 6.5f, 0.0f)));
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, 6.5f, 0.0f)));
+	}
+	for (int i = 0; i < 6; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(7.5f + i, 0.75f, 6.5f, 0.0f)));
+	}
+
+	////Twenty Third Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 7.5f, 0.0f)));
+
+	////Twenty Fourth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 8.5f, 0.0f)));
+
+	////Twenty Fifth Row
+	for (int i = 0; i < 26; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 9.5f, 0.0f)));
+	}
+
+	////Twenty Sixth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 10.5f, 0.0f)));
+
+	////Twenty Seventh Row
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 11.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 11.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 11.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 11.5f, 0.0f)));
+
+	////Twenty Eighth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 12.5f, 0.0f)));
+
+	////Twenty Ninth Row
+	for (int i = 0; i < 12; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 13.5f, 0.0f)));
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, 13.5f, 0.0f)));
+	}
+
+	////Add Pellets to the world
+	for (int i = 0; i < 240; ++i)
+=======
 	for (int i = 0; i < 29; ++i)
+>>>>>>> parent of 8589c54... Added all the munchies for PuckMan
 	{
 		XMStoreFloat4x4(&mPelletWorld[i], XMMatrixTranslation(mPellet[i].pos.x, mPellet[i].pos.y, mPellet[i].pos.z));
 	}
@@ -384,11 +549,19 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 	mPinkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
 	mInkyMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+<<<<<<< HEAD
+	mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
+	mInkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+
+	mClydeMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
+=======
 	mInkyMat.Diffuse = XMFLOAT4(0.0f, 105.0f, 225.0f, 1.0f);
 	mInkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
 	mClydeMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	mClydeMat.Diffuse = XMFLOAT4(247.0f, 169.0f, 2.0f, 1.0f);
+>>>>>>> parent of 8589c54... Added all the munchies for PuckMan
 	mClydeMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
 	mBoxMat.Ambient  = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
