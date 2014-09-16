@@ -541,7 +541,7 @@ mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper:
 	mGhostMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
 	mPinkyMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	mPinkyMat.Diffuse = XMFLOAT4(255.0f, 0.0f, 255.0f, 1.0f);
+	mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
 	mPinkyMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
 	mInkyMat.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
