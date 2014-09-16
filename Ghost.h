@@ -4,7 +4,6 @@
 class Ghost
 {
 protected:
-
 	enum GHOST_STATES
 	{
 		SCATTER = 1,
