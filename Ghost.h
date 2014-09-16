@@ -19,6 +19,9 @@ protected:
 	float mRadius; //Originally set as 0.75f
 	int mLevelNumber;
 
+	PathNode* mStart = NULL;
+	PathNode* mGoal = NULL;
+
 	GHOST_STATES mGhostStates;
 
 protected:
@@ -27,10 +30,11 @@ protected:
 	std::vector<PathNode*> mClosedList;
 
 	std::vector<PathNode*> FindPath(PathNode* start, PathNode* goal);
-	void AddChild(PathNode* childNode, PathNode* currNode, PathNode* goal);
+	//void AddChild(PathNode* childNode, PathNode* currNode, PathNode* goal);
 	float GetDistance(PathNode* currNode, PathNode* parent);
 	bool InClosedList(PathNode* n);
 	bool InOpenList(PathNode* n);
+	PathNode getNode(int row, int col);
 
 public:
 	Ghost();

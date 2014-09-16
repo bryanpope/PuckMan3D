@@ -28,8 +28,8 @@ std::vector<PathNode*> Ghost::FindPath(PathNode* start, PathNode* goal)
 	mOpenList.clear();
 
 	PathNode* childNode;
-	PathNode* currentNode;
-	currentNode->combineNode(*currentNode, start);
+	PathNode* currentNode = new PathNode(*start);
+	//currentNode->combineNode(*currentNode, start);
 
 	mOpenList.push_back(start);
 	start->isOpen = true;
@@ -66,8 +66,8 @@ std::vector<PathNode*> Ghost::FindPath(PathNode* start, PathNode* goal)
 					continue;
 				}
 				//If not, get the node
-					//childNode = getNode(currentNode->getCol() + col, currentNode->getRow() + row);
-
+				
+				//childNode = new PathNode(getNode(currentNode->getCol() + col, currentNode->getRow() + row));
 				if (childNode->isClosed || !childNode->isWalkable)
 				{
 					continue;
@@ -124,4 +124,10 @@ std::vector<PathNode*> Ghost::FindPath(PathNode* start, PathNode* goal)
 		currentNode = currentNode->getParent();
 	}
 	return tempPath;
+}
+
+PathNode getNode(int row, int col)
+{
+	PathNode tempNode(row, col, 0, 0, NULL, "forward");
+	return tempNode;
 }

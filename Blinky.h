@@ -1,13 +1,14 @@
 #pragma once
 #include "Ghost.h"
+#include "PathNode.h"
 class Blinky : public Ghost
 {
 protected:
 	std::vector<PathNode*> mPath;
-	PathNode* mStart;
-	PathNode* mGoal;
+	/*PathNode* mStart;
+	PathNode* mGoal;*/
 public:
-	Blinky();
+	Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius);
 	~Blinky();
-	virtual void Update();
+	void Update();
 };
