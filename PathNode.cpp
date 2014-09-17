@@ -39,6 +39,6 @@ PathNode PathNode::combineNode(PathNode initial, PathNode* target)
 void PathNode::calculateCosts(PathNode* goal)
 {
 	gCost = getGCost(mParent);
-	hCost = 1;//getHCost(goal);
+	hCost = getHCost(goal);
 	fCost = gCost + hCost;
 }

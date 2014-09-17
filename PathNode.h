@@ -31,10 +31,10 @@ public:
 		return n->gCost + ((col == n->col || row == n->row) ? 10 : 14);
 	}
 
-	/*UINT getHCost(PathNode* n)
+	UINT getHCost(PathNode* n)
 	{
-		return (abs(n->col - col) + abs(n->row - row)) * 10;
-	}*/
+		return abs((int)n->col - (int)col) + abs((int)n->row - (int)row);
+	}
 
 	UINT getRow()
 	{
