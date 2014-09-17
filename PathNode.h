@@ -17,6 +17,7 @@ public:
 	PathNode* mParent;
 
 	PathNode(int row, int col, int gCost, int fCost, PathNode* parentNode, std::string facing);
+	PathNode(int row, int col);
 	~PathNode();
 
 	PathNode* getParent()
