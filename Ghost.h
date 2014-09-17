@@ -1,6 +1,7 @@
 #pragma once
 #include "d3dUtil.h"
 #include "PathNode.h"
+#include "GameTimer.h"
 
 class Ghost
 {
@@ -14,15 +15,25 @@ protected:
 		//IN_TUNNEL = 5 //Maybe make this a state?
 	};
 
-	XMFLOAT3 mPos; //Originally set as XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f)
+	UINT mRow; //Originally set as XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f)
+	UINT mCol;
 	XMFLOAT3 mVel; //Originally set as XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)
 	float mRadius; //Originally set as 0.75f
 	int mLevelNumber;
+	std::string mFacing;
 
-	PathNode* mStart = NULL;
-	PathNode* mGoal = NULL;
-
+	GameTimer mGhostStateTimer;
 	GHOST_STATES mGhostStates;
+
+	UINT getCol(Ghost* ghost)
+	{
+		return ghost->mCol;
+	}
+
+	UINT getRow(Ghost* ghost)
+	{
+		return ghost->mRow;
+	}
 
 protected:
 	//Pathfinding stuff -- make different class or keep as is?
@@ -38,7 +49,7 @@ protected:
 
 public:
 	Ghost();
-	Ghost(FXMVECTOR pos, FXMVECTOR vel, float radius);
+	Ghost(UINT row, UINT col, FXMVECTOR vel, float radius);
 	~Ghost();
 	virtual void Update();
 };

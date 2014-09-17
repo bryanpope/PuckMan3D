@@ -5,10 +5,10 @@ class Blinky : public Ghost
 {
 protected:
 	std::vector<PathNode*> mPath;
-	/*PathNode* mStart;
-	PathNode* mGoal;*/
+	PathNode* mStart;
+	PathNode* mGoal;
 public:
-	Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius);
+	Blinky(UINT row, UINT col, FXMVECTOR vel, float radius);
 	~Blinky();
 	void Update();
 };

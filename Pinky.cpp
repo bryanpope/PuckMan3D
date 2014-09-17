@@ -37,7 +37,21 @@ void Pinky::Update()
 			break;
 		}
 	case CHASE:
-		//A simple call to pathfinding will suffice
+		//Target 4 tiles in front of PuckMan's facing
+		//std::string goalFacing = mPuckMan->getFacing();
+		/*if (goalFacing == "forward" || goalFacing == "backward")
+		{
+			//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
+			//mGoal = new PathNode(mPuckMan->getRow() + (4 * goalFacing), mPuckMan->getCol(), 0, 0, NULL, mPuckMan->getFacing());
+		}*/
+
+		/*if (goalFacing == "left" || goalFacing == "right")
+		{
+			//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
+			//mGoal = new PathNode(mPuckMan->getRow(), mPuckMan->getCol() + (4 * goalFacing), 0, 0, NULL, mPuckMan->getFacing());
+		}*/
+		
+		//mPath = FindPath(mStart, mGoal);
 		break;
 	case FRIGHTENED:
 		if (mLevelNumber == 1)
@@ -63,6 +77,7 @@ void Pinky::Update()
 		}
 	case DEAD:
 		//Spawn in box
+		//XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f)
 		break;
 	/*case IN_TUNNEL:
 		if (mLevelNumber == 1)

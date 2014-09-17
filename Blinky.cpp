@@ -1,9 +1,10 @@
 #include "Blinky.h"
 
 
-Blinky::Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
+Blinky::Blinky(UINT row, UINT col, FXMVECTOR vel, float radius) : Ghost(row, col, vel, radius)
 {
-	XMStoreFloat3(&mPos, pos);
+	mRow = row;
+	mCol = col;
 	XMStoreFloat3(&mVel, vel);
 	mRadius = radius;
 }
@@ -15,10 +16,6 @@ Blinky::~Blinky()
 
 void Blinky::Update()
 {
-	mStart = new PathNode(1, 1, 0, 0, NULL, "forward");
-	mGoal = new PathNode(10, 13, 0, 0, NULL, "forward");
-	mPath = FindPath(mStart, mGoal);
-
 	switch (mGhostStates)
 	{
 	case SCATTER:
@@ -45,6 +42,9 @@ void Blinky::Update()
 		}
 	case CHASE:
 		//A simple call to pathfinding will suffice
+		mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
+		//mGoal = new PathNode(mPuckMan->getRow(), mPuckMan->getCol(), 0, 0, NULL, mPuckMan->getFacing());
+		//mPath = FindPath(mStart, mGoal);
 		break;
 	case FRIGHTENED:
 		if (mLevelNumber == 1)
@@ -70,6 +70,7 @@ void Blinky::Update()
 		}
 	case DEAD:
 		//Spawn in box
+		//XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f)
 		break;
 	/*case IN_TUNNEL:
 		if (mLevelNumber == 1)

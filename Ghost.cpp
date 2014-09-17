@@ -4,9 +4,10 @@ Ghost::Ghost()
 {
 }
 
-Ghost::Ghost(FXMVECTOR pos, FXMVECTOR vel, float radius)
+Ghost::Ghost(UINT row, UINT col, FXMVECTOR vel, float radius)
 {
-	XMStoreFloat3(&mPos, pos);
+	mRow = row;
+	mCol = col;
 	XMStoreFloat3(&mVel, vel);
 	mRadius = radius;
 }

@@ -1,23 +1,24 @@
 #pragma once
 #include <cmath>
 #include <iostream>
+#include "d3dUtil.h"
 
 class PathNode
 {
 public:
-	int row;
-	int col;
-	int gCost;
-	int hCost;
-	int fCost;
+	UINT row;
+	UINT col;
+	UINT gCost;
+	UINT hCost;
+	UINT fCost;
 	bool isWalkable;
 	bool isOpen;
 	bool isClosed;
 	std::string facing;
 	PathNode* mParent;
 
-	PathNode(int row, int col, int gCost, int fCost, PathNode* parentNode, std::string facing);
-	PathNode(int row, int col);
+	PathNode(UINT row, UINT col, UINT gCost, UINT fCost, PathNode* parentNode, std::string facing);
+	PathNode(UINT row, UINT col);
 	~PathNode();
 
 	PathNode* getParent()
@@ -25,22 +26,22 @@ public:
 		return mParent;
 	}
 
-	int getGCost(PathNode* n)
+	UINT getGCost(PathNode* n)
 	{
 		return n->gCost + ((col == n->col || row == n->row) ? 10 : 14);
 	}
 
-	int getHCost(PathNode* n)
+	/*UINT getHCost(PathNode* n)
 	{
 		return (abs(n->col - col) + abs(n->row - row)) * 10;
-	}
+	}*/
 
-	int getRow()
+	UINT getRow()
 	{
 		return row;
 	}
 
-	int getCol()
+	UINT getCol()
 	{
 		return col;
 	}
@@ -50,23 +51,9 @@ public:
 		mParent = parent;
 	}
 
-	void calculateCosts(PathNode* goal)
-	{
-		gCost = getGCost(mParent);
-		hCost = getHCost(goal);
-		fCost = gCost + hCost;
-	}
+	void calculateCosts(PathNode* goal);
 
-	PathNode combineNode(PathNode initial, PathNode* target)
-	{
-		initial.col = target->col;
-		initial.row = target->row;
-		initial.gCost = target->gCost;
-		initial.fCost = target->fCost;
-		initial.facing = target->facing;
-
-		return initial;
-	}
+	PathNode combineNode(PathNode initial, PathNode* target);
 
 	//May not need these overloads, currently work in progress
 	bool operator==(const PathNode& rhs)

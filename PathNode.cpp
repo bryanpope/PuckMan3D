@@ -1,7 +1,7 @@
 #include "PathNode.h"
 
 
-PathNode::PathNode(int row, int col, int gCost, int fCost, PathNode* parentNode, std::string facing)
+PathNode::PathNode(UINT row, UINT col, UINT gCost, UINT fCost, PathNode* parentNode, std::string facing)
 {
 	this->row = row;
 	this->col = col;
@@ -11,7 +11,7 @@ PathNode::PathNode(int row, int col, int gCost, int fCost, PathNode* parentNode,
 	this->facing = facing;
 }
 
-PathNode::PathNode(int row, int col)
+PathNode::PathNode(UINT row, UINT col)
 {
 	this->row = row;
 	this->col = col;
@@ -23,4 +23,22 @@ PathNode::PathNode(int row, int col)
 
 PathNode::~PathNode()
 {
+}
+
+PathNode PathNode::combineNode(PathNode initial, PathNode* target)
+{
+	initial.col = target->col;
+	initial.row = target->row;
+	initial.gCost = target->gCost;
+	initial.fCost = target->fCost;
+	initial.facing = target->facing;
+
+	return initial;
+}
+
+void PathNode::calculateCosts(PathNode* goal)
+{
+	gCost = getGCost(mParent);
+	hCost = 1;//getHCost(goal);
+	fCost = gCost + hCost;
 }
