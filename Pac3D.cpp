@@ -17,8 +17,8 @@
 #include "LightHelper.h"
 #include "Effects.h"
 #include "Vertex.h"
-
-
+#include <iostream>
+#include "Common\GameTimer.h"
 
 class Pac3D : public D3DApp
 {
@@ -172,6 +172,8 @@ private:
 	float pelletR = 0.125f;
 	float powerUpR = 0.25f;
 
+	bool powerUpActivated = false;
+
 	std::vector<AABox> mBoxData;
 	std::vector<PacMan> mPacMan;
 	std::vector<Pellet> mPellet;
@@ -181,9 +183,19 @@ private:
 	std::vector<Ghost> mInky;
 	std::vector<Ghost> mClyde;
 
+	GameTimer timer;
+
 	POINT mLastMousePos;
 };
 
+std::ostream& operator<<(std::ostream& os, FXMVECTOR v)
+{
+	XMFLOAT4 dest;
+	XMStoreFloat4(&dest, v);
+
+	os << "(" << dest.x << ", " << dest.y << ", " << dest.z << ", " << dest.w << ")";
+	return os;
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
@@ -207,6 +219,8 @@ Pac3D::Pac3D(HINSTANCE hInstance)
 mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper::Pi), mRadius(45.0f)
 {
 	mMainWndCaption = L"Pac3D Demo";
+
+
 
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
@@ -291,8 +305,8 @@ mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper:
 	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -13.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -13.5f, 0.0f)));
 
-		////Third Row
-		mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -12.5f, 0.0f)));
+	////Third Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -12.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -12.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -12.5f, 0.0f)));
 	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -12.5f, 0.0f)));
@@ -555,7 +569,6 @@ mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper:
 	mBoxMat.Ambient = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Diffuse = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
-
 }
 
 Pac3D::~Pac3D()
@@ -612,16 +625,47 @@ void Pac3D::UpdateScene(float dt)
 	for (int i = 0; i < mGhost.size(); ++i)
 	{
 		XMVECTOR ghostPos = XMLoadFloat3(&mGhost[i].pos);
-
-		if (PacManPelletOverlapTest(pos, ghostPos) == true)
-		{
-			mPacMan.pop_back();
-			mPacMan[0].pos.x = 0.0f;
-			mPacMan[0].pos.y = 0.75f;
-			mPacMan[0].pos.z = -8.5f;
-			break;
+		XMVECTOR pinkyPos = XMLoadFloat3(&mPinky[i].pos);
+		XMVECTOR inkyPos = XMLoadFloat3(&mInky[i].pos);
+		XMVECTOR clydePos = XMLoadFloat3(&mClyde[i].pos);
+		if (!powerUpActivated)
+		{//kill PuckMan
+			if (PacManPelletOverlapTest(pos, ghostPos) == true)
+			{
+				mPacMan.pop_back();
+				mPacMan[0].pos.x = 0.0f;
+				mPacMan[0].pos.y = 0.75f;
+				mPacMan[0].pos.z = -8.5f;
+				break;
+			}
 		}
-
+		else 
+		{//kill ghosts
+			if (PacManPelletOverlapTest(pos, ghostPos) == true)
+			{
+				mGhost.pop_back();
+				mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+				break;
+			}
+			else if (PacManPelletOverlapTest(pos, pinkyPos) == true)
+			{
+				mPinky.pop_back();
+				mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+				break;
+			}
+			else if (PacManPelletOverlapTest(pos, inkyPos) == true)
+			{
+				mInky.pop_back();
+				mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+				break;
+			}
+			else if (PacManPelletOverlapTest(pos, clydePos) == true)
+			{
+				mClyde.pop_back();
+				mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+				break;
+			}
+		}
 	}
 
 	////checking PacMan collision with Pellets
@@ -645,9 +689,17 @@ void Pac3D::UpdateScene(float dt)
 
 		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
 		{
+			powerUpActivated = true;
 			mPowerUp.erase(mPowerUp.begin() + i);
 			--i;
+			timer.Reset();
+			timer.Start();
 		}
+	}
+
+	if (powerUpActivated)
+	{
+		timer.Tick();
 	}
 
 	////PacMan Tunnel Check
@@ -660,8 +712,6 @@ void Pac3D::UpdateScene(float dt)
 	{
 		mPacMan[0].pos.x = -14;
 	}
-
-
 
 	// Camera X, Y, Z Positioning.
 	float x = mPacMan[0].pos.x;
@@ -678,6 +728,28 @@ void Pac3D::UpdateScene(float dt)
 	XMMATRIX V = XMMatrixLookAtLH(eyePos, target, up);
 	XMStoreFloat4x4(&mView, V);
 
+	if (timer.TotalTime() >= 10.0f)
+	{
+		timer.Stop();
+		powerUpActivated = false;
+	}
+
+	if (powerUpActivated && timer.DeltaTime() < 10.0f)
+	{
+		mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+		mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+		mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+		mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
+	}
+	else
+	{
+		mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+		mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
+		mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
+		mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
+	}
+
 	//
 	// Switch the number of lights based on key presses.
 	//
@@ -692,6 +764,8 @@ void Pac3D::UpdateScene(float dt)
 
 	if (GetAsyncKeyState('3') & 0x8000)
 		mLightCount = 3;
+
+	std::cout << "Time: " << timer.DeltaTime() << std::endl;
 }
 
 void Pac3D::DrawScene()
