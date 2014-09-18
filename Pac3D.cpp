@@ -173,15 +173,15 @@ private:
 	float pelletR = 0.125f;
 	float powerUpR = 0.25f;
 
+	float mNextTime = 0.0f;
+	float mCurrentTime = 0.0f;
+	float mTotalTime = 0.0f;
+
 	bool powerUpActivated = false;
-	bool isBlue = false;
+	bool mIsBlue = false;
 
 	GameTimer timer;
 	GameTimer flashingTimer;
-
-	float nextTime = 0.0f;
-	float currentTime = 0.0f;
-	float totalTime = 0.0f;
 
 	std::vector<AABox> mBoxData;
 	std::vector<PacMan> mPacMan;
@@ -194,11 +194,11 @@ private:
 
 	enum GhostState
 	{
-		normalState = 0,
-		blueState,
-		flashingState
+		GHOSTNORMALSTATE = 0,
+		GHOSTBLUESTATE,
+		GHOSTFLASHINGSTATE
 	};
-	GhostState ghostState = GhostState::normalState;
+	GhostState ghostState = GhostState::GHOSTNORMALSTATE;
 
 
 	POINT mLastMousePos;
@@ -706,9 +706,9 @@ void Pac3D::UpdateScene(float dt)
 		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
 		{
 			powerUpActivated = true;
-			ghostState = GhostState::blueState;
-			currentTime = 0.0f;
-			totalTime = 3.0f;
+			ghostState = GhostState::GHOSTBLUESTATE;
+			mCurrentTime = 0.0f;
+			mTotalTime = 3.0f;
 			mPowerUp.erase(mPowerUp.begin() + i);
 			--i;
 			timer.Reset();
@@ -1788,12 +1788,12 @@ void Pac3D::BuildShapeGeometryBuffers()
 
 void Pac3D::updateGhosts(float dt)
 {
-	currentTime += dt;
+	mCurrentTime += dt;
 
 	switch (ghostState)
 	{
 		//set the ghost to their default colours
-		case normalState:
+		case GHOSTNORMALSTATE:
 			mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 			mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
 			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
@@ -1801,10 +1801,10 @@ void Pac3D::updateGhosts(float dt)
 			break;
 		
 		//set the Ghost blue
-		case blueState:
+		case GHOSTBLUESTATE:
 			//timer.Tick();
 
-			if (currentTime < totalTime)
+			if (mCurrentTime < mTotalTime)
 			{
 				mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 				mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -1813,27 +1813,27 @@ void Pac3D::updateGhosts(float dt)
 
 			}
 
-			if (currentTime >= totalTime)
+			if (mCurrentTime >= mTotalTime)
 			{
 				timer.Stop();
-				ghostState = GhostState::flashingState;
+				ghostState = GhostState::GHOSTFLASHINGSTATE;
 				flashingTimer.Reset();
 				flashingTimer.Start();
-				currentTime = 0.0f;
-				nextTime = 0.3f;
-				totalTime = 3.0f;
+				mCurrentTime = 0.0f;
+				mNextTime = 0.3f;
+				mTotalTime = 3.0f;
 			}
 			break;
 
 		//Set the Ghost to be flashing once they are close to being in normalMode
-		case flashingState:
+		case GHOSTFLASHINGSTATE:
 
 			//flashingTimer.Tick();
 
-			if (currentTime >= nextTime)
+			if (mCurrentTime >= mNextTime)
 			{
-				nextTime += 0.3f;
-				isBlue = !isBlue;
+				mNextTime += 0.3f;
+				mIsBlue = !mIsBlue;
 			}
 			//else
 			//{
@@ -1841,7 +1841,7 @@ void Pac3D::updateGhosts(float dt)
 			//	isBlue = !isBlue;
 			//}
 
-			if (isBlue)
+			if (mIsBlue)
 			{
 				mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 				mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -1856,12 +1856,12 @@ void Pac3D::updateGhosts(float dt)
 				mClydeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 
-			if (currentTime >= totalTime)
+			if (mCurrentTime >= mTotalTime)
 			{
-				nextTime = 0.0f;
-				currentTime = 0.0f;
-				totalTime = 0.0f;
-				ghostState = GhostState::normalState;
+				mNextTime = 0.0f;
+				mCurrentTime = 0.0f;
+				mTotalTime = 0.0f;
+				ghostState = GhostState::GHOSTNORMALSTATE;
 				powerUpActivated = false;
 				flashingTimer.Stop();
 			}
