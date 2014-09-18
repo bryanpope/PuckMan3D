@@ -194,11 +194,11 @@ private:
 
 	enum GhostState
 	{
-		GHOSTNORMALSTATE = 0,
-		GHOSTBLUESTATE,
-		GHOSTFLASHINGSTATE
+		GS_NORMAL = 0,
+		GS_BLUE,
+		GS_FLASHING
 	};
-	GhostState ghostState = GhostState::GHOSTNORMALSTATE;
+	GhostState ghostState = GhostState::GS_NORMAL;
 
 
 	POINT mLastMousePos;
@@ -706,7 +706,7 @@ void Pac3D::UpdateScene(float dt)
 		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
 		{
 			powerUpActivated = true;
-			ghostState = GhostState::GHOSTBLUESTATE;
+			ghostState = GhostState::GS_BLUE;
 			mCurrentTime = 0.0f;
 			mTotalTime = 3.0f;
 			mPowerUp.erase(mPowerUp.begin() + i);
@@ -1793,7 +1793,7 @@ void Pac3D::updateGhosts(float dt)
 	switch (ghostState)
 	{
 		//set the ghost to their default colours
-		case GHOSTNORMALSTATE:
+		case GS_NORMAL:
 			mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 			mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
 			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
@@ -1801,9 +1801,7 @@ void Pac3D::updateGhosts(float dt)
 			break;
 		
 		//set the Ghost blue
-		case GHOSTBLUESTATE:
-			//timer.Tick();
-
+		case GS_BLUE:
 			if (mCurrentTime < mTotalTime)
 			{
 				mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -1816,7 +1814,7 @@ void Pac3D::updateGhosts(float dt)
 			if (mCurrentTime >= mTotalTime)
 			{
 				timer.Stop();
-				ghostState = GhostState::GHOSTFLASHINGSTATE;
+				ghostState = GhostState::GS_FLASHING;
 				flashingTimer.Reset();
 				flashingTimer.Start();
 				mCurrentTime = 0.0f;
@@ -1826,20 +1824,13 @@ void Pac3D::updateGhosts(float dt)
 			break;
 
 		//Set the Ghost to be flashing once they are close to being in normalMode
-		case GHOSTFLASHINGSTATE:
-
-			//flashingTimer.Tick();
+		case GS_FLASHING:
 
 			if (mCurrentTime >= mNextTime)
 			{
 				mNextTime += 0.3f;
 				mIsBlue = !mIsBlue;
 			}
-			//else
-			//{
-			//	nextTime += 0.3f;
-			//	isBlue = !isBlue;
-			//}
 
 			if (mIsBlue)
 			{
@@ -1861,7 +1852,7 @@ void Pac3D::updateGhosts(float dt)
 				mNextTime = 0.0f;
 				mCurrentTime = 0.0f;
 				mTotalTime = 0.0f;
-				ghostState = GhostState::GHOSTNORMALSTATE;
+				ghostState = GhostState::GS_NORMAL;
 				powerUpActivated = false;
 				flashingTimer.Stop();
 			}
