@@ -119,6 +119,7 @@ private:
 	PointLight mPointLights[4];
 	Material mGridMat;
 	Material mBoxMat;
+	Material mGateMat;
 	Material mPelletMat;
 	Material mPowerUpMat;
 	Material mPacManMat;
@@ -585,6 +586,10 @@ mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper:
 	mBoxMat.Ambient = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Diffuse = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+
+	mGateMat.Ambient = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
+	mGateMat.Diffuse = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
+	mGateMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
 }
 
 Pac3D::~Pac3D()
@@ -830,6 +835,10 @@ void Pac3D::DrawScene()
 			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
 			Effects::BasicFX->SetWorldViewProj(worldViewProj);
 			Effects::BasicFX->SetMaterial(mBoxMat);
+			if (i == 39)
+			{
+				Effects::BasicFX->SetMaterial(mGateMat);
+			}
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 			md3dImmediateContext->DrawIndexed(36, indexOffset, vertexOffset);
