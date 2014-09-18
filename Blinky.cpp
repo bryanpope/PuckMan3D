@@ -42,9 +42,7 @@ void Blinky::Update()
 		}
 	case CHASE:
 		//A simple call to pathfinding will suffice
-		//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
-		//mGoal = new PathNode(mPuckMan->getRow(), mPuckMan->getCol(), 0, 0, NULL, mPuckMan->getFacing());
-		//mPath = FindPath(mStart, mGoal);
+		//Pathfinding::FindPath(this->mCol, this->mRow, 15, 30);
 		break;
 	case FRIGHTENED:
 		if (mLevelNumber == 1)

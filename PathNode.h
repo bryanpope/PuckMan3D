@@ -1,49 +1,47 @@
 #pragma once
 #include <cmath>
-#include <iostream>
 #include "d3dUtil.h"
 
 class PathNode
 {
 public:
-	UINT row;
-	UINT col;
-	UINT gCost;
-	UINT hCost;
-	UINT fCost;
+	int mRow;
+	int mCol;
+	int mGCost;
+	int mHCost;
+	int mFCost;
 	bool isWalkable;
 	bool isOpen;
 	bool isClosed;
-	std::string facing;
+	std::string mFacing;
 	PathNode* mParent;
 
-	PathNode(UINT row, UINT col, UINT gCost, UINT fCost, PathNode* parentNode, std::string facing);
-	PathNode(UINT row, UINT col);
-	~PathNode();
+	PathNode(int row, int col, int gCost, int fCost, PathNode* parent, std::string facing);
+	~PathNode(){}
 
 	PathNode* getParent()
 	{
 		return mParent;
 	}
 
-	UINT getGCost(PathNode* n)
+	int getGCost(PathNode* n)
 	{
-		return n->gCost + ((col == n->col || row == n->row) ? 10 : 14);
+		return n->mGCost + ((mCol == n->mCol || mRow == n->mRow) ? 10 : 14);
 	}
 
-	UINT getHCost(PathNode* n)
+	int getHCost(PathNode* n)
 	{
-		return abs((int)n->col - (int)col) + abs((int)n->row - (int)row);
+		return (abs(n->mCol - mCol) + abs(n->mRow - mRow)) * 10;
 	}
 
-	UINT getRow()
+	int getRow()
 	{
-		return row;
+		return mRow;
 	}
 
-	UINT getCol()
+	int getCol()
 	{
-		return col;
+		return mCol;
 	}
 
 	void setParent(PathNode* parent)
@@ -51,14 +49,28 @@ public:
 		mParent = parent;
 	}
 
-	void calculateCosts(PathNode* goal);
+	void calculateCosts(PathNode* goal)
+	{
+		mGCost = getGCost(mParent);
+		mHCost = getHCost(goal);
+		mFCost = mGCost + mHCost;
+	}
 
-	PathNode combineNode(PathNode initial, PathNode* target);
+	PathNode combineNode(PathNode initial, PathNode* target)
+	{
+		initial.mCol = target->mCol;
+		initial.mRow = target->mRow;
+		initial.mGCost = target->mGCost;
+		initial.mFCost = target->mFCost;
+		initial.mFacing = target->mFacing;
+
+		return initial;
+	}
 
 	//May not need these overloads, currently work in progress
 	bool operator==(const PathNode& rhs)
 	{
-		if (row == rhs.row && col == rhs.col && gCost == rhs.gCost && fCost == rhs.fCost && facing == rhs.facing)
+		if (mRow == rhs.mRow && mCol == rhs.mCol && mGCost == rhs.mGCost && mFCost == rhs.mFCost && mFacing == rhs.mFacing)
 		{
 			return true;
 		}
@@ -70,7 +82,7 @@ public:
 
 	bool operator!=(const PathNode& rhs)
 	{
-		if (row != rhs.row && col != rhs.col)
+		if (mRow != rhs.mRow && mCol != rhs.mCol)
 		{
 			return true;
 		}
@@ -82,11 +94,11 @@ public:
 
 	void operator=(const PathNode& rhs)
 	{
-		row = rhs.row;
-		col = rhs.col;
-		gCost = rhs.gCost;
-		fCost = rhs.fCost;
-		facing = rhs.facing;
+		mRow = rhs.mRow;
+		mCol = rhs.mCol;
+		mGCost = rhs.mGCost;
+		mFCost = rhs.mFCost;
+		mFacing = rhs.mFacing;
 		isWalkable = rhs.isWalkable;
 		isOpen = rhs.isOpen;
 		isClosed = rhs.isOpen;
