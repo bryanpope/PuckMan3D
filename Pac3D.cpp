@@ -179,6 +179,8 @@ private:
 	float mCurrentTime = 0.0f;
 	float mTotalTime = 0.0f;
 
+	int mLevelCounter;
+
 	bool powerUpActivated = false;
 	bool mIsBlue = false;
 
@@ -1913,6 +1915,8 @@ void Pac3D::resetGame()
 	powerUpActivated = false;
 	mIsBlue = false;
 	ghostState = GhostState::GS_NORMAL;
+
+	mLevelCounter++;
 
 }
 
