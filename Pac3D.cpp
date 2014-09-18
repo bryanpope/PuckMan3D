@@ -707,6 +707,8 @@ void Pac3D::UpdateScene(float dt)
 		{
 			powerUpActivated = true;
 			ghostState = GhostState::blueState;
+			currentTime = 0.0f;
+			totalTime = 3.0f;
 			mPowerUp.erase(mPowerUp.begin() + i);
 			--i;
 			timer.Reset();
@@ -1787,8 +1789,7 @@ void Pac3D::BuildShapeGeometryBuffers()
 void Pac3D::updateGhosts(float dt)
 {
 	currentTime += dt;
-	nextTime = 0.3f;
-	totalTime = 3.0f;
+
 	switch (ghostState)
 	{
 		//set the ghost to their default colours
@@ -1801,9 +1802,9 @@ void Pac3D::updateGhosts(float dt)
 		
 		//set the Ghost blue
 		case blueState:
-			timer.Tick();
+			//timer.Tick();
 
-			if (timer.DeltaTime() < totalTime)
+			if (currentTime < totalTime)
 			{
 				mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 				mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -1812,29 +1813,33 @@ void Pac3D::updateGhosts(float dt)
 
 			}
 
-			if (timer.TotalTime() >= totalTime)
+			if (currentTime >= totalTime)
 			{
 				timer.Stop();
 				ghostState = GhostState::flashingState;
 				flashingTimer.Reset();
 				flashingTimer.Start();
+				currentTime = 0.0f;
+				nextTime = 0.3f;
+				totalTime = 3.0f;
 			}
 			break;
 
 		//Set the Ghost to be flashing once they are close to being in normalMode
 		case flashingState:
 
-			flashingTimer.Tick();
+			//flashingTimer.Tick();
 
 			if (currentTime >= nextTime)
 			{
 				nextTime += 0.3f;
-				isBlue = true;
+				isBlue = !isBlue;
 			}
-			else
-			{
-				isBlue = false;
-			}
+			//else
+			//{
+			//	nextTime += 0.3f;
+			//	isBlue = !isBlue;
+			//}
 
 			if (isBlue)
 			{
