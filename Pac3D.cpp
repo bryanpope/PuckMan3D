@@ -103,6 +103,7 @@ public:
 private:
 	void BuildShapeGeometryBuffers();
 	void UpdateKeyboardInput(float dt);
+	void resetGame();
 	void updateGhosts(float dt);
 	bool isKeyPressed = false;
 	bool PacManPelletOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center);
@@ -237,8 +238,6 @@ mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper:
 {
 	mMainWndCaption = L"Pac3D Demo";
 
-
-
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
 
@@ -308,187 +307,7 @@ mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper:
 	{
 		XMStoreFloat4x4(&mBoxWorld[i], XMMatrixTranslation(mBoxData[i].pos.x, mBoxData[i].pos.y, mBoxData[i].pos.z));
 	}
-
-
-	////Positioning the Pellets
-	////Bottom Row
-	for (int i = 0; i < 26; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, -14.5f, 0.0f)));
-	}
-	////Second Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -13.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -13.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -13.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -13.5f, 0.0f)));
-
-	////Third Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -12.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -12.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -12.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -12.5f, 0.0f)));
-
-	////Fourth Row
-	for (int i = 0; i < 6; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, -11.5f, 0.0f)));
-	}
-	for (int i = 0; i < 4; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-4.5f + i, 0.75f, -11.5f, 0.0f)));
-	}
-	for (int i = 0; i < 4; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -11.5f, 0.0f)));
-	}
-	for (int i = 0; i < 6; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(7.5f + i, 0.75f, -11.5f, 0.0f)));
-	}
-
-	////Fifth Row
-	mPellet.push_back(Pellet(XMVectorSet(-10.5f, 0.75f, -10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, -10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, -10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(10.5f, 0.75f, -10.5f, 0.0f)));
-
-	////Sixth Row
-	mPellet.push_back(Pellet(XMVectorSet(-10.5f, 0.75f, -9.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -9.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, -9.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, -9.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -9.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(10.5f, 0.75f, -9.5f, 0.0f)));
-
-	////Seventh Row
-	for (int i = 0; i < 2; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-11.5f + i, 0.75f, -8.5f, 0.0f)));
-	}
-	for (int i = 0; i < 7; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-7.5f + i, 0.75f, -8.5f, 0.0f)));
-	}
-	for (int i = 0; i < 7; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -8.5f, 0.0f)));
-	}
-	for (int i = 0; i < 2; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(10.5f + i, 0.75f, -8.5f, 0.0f)));
-	}
-
-	////Eighth Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -7.5f, 0.0f)));
-
-	////Ninth Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -6.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -6.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -6.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -6.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -6.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -6.5f, 0.0f)));
-
-	////Tenth Row
-	for (int i = 0; i < 12; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, -5.5f, 0.0f)));
-	}
-	for (int i = 0; i < 12; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -5.5f, 0.0f)));
-	}
-
-	////Eleventh to Twenty First Row
-	for (int i = 0; i < 11; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -4.5f + i, 0.0f)));
-		mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -4.5f + i, 0.0f)));
-	}
-
-	////Twenty Second Row
-	for (int i = 0; i < 6; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 6.5f, 0.0f)));
-	}
-	for (int i = 0; i < 4; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-4.5f + i, 0.75f, 6.5f, 0.0f)));
-	}
-	for (int i = 0; i < 4; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, 6.5f, 0.0f)));
-	}
-	for (int i = 0; i < 6; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(7.5f + i, 0.75f, 6.5f, 0.0f)));
-	}
-
-	////Twenty Third Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, 7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, 7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 7.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 7.5f, 0.0f)));
-
-	////Twenty Fourth Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 8.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 8.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, 8.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, 8.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 8.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 8.5f, 0.0f)));
-
-	////Twenty Fifth Row
-	for (int i = 0; i < 26; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 9.5f, 0.0f)));
-	}
-
-	////Twenty Sixth Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 10.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 10.5f, 0.0f)));
-
-	////Twenty Seventh Row
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 11.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 11.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 11.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 11.5f, 0.0f)));
-
-	////Twenty Eighth Row
-	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 12.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 12.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 12.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 12.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 12.5f, 0.0f)));
-	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 12.5f, 0.0f)));
-
-	////Twenty Ninth Row
-	for (int i = 0; i < 12; ++i)
-	{
-		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 13.5f, 0.0f)));
-		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, 13.5f, 0.0f)));
-	}
-
-	////Add Pellets to the world
-	for (int i = 0; i < 240; ++i)
-	{
-		XMStoreFloat4x4(&mPelletWorld[i], XMMatrixTranslation(mPellet[i].pos.x, mPellet[i].pos.y, mPellet[i].pos.z));
-	}
-
-
+	
 	////Positioning the PacMans
 	mPacMan.push_back(PacMan(XMVectorSet(0.0f, 0.75f, -8.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPacMan.push_back(PacMan(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
@@ -524,17 +343,7 @@ mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper:
 	{
 		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mClyde[i].pos.x, mClyde[i].pos.y, mClyde[i].pos.z));
 	}
-
-	////Positioning the PowerUps
-	mPowerUp.push_back(PowerUp(XMVectorSet(-12.5f, 0.75f, -8.5f, 0.0f)));
-	mPowerUp.push_back(PowerUp(XMVectorSet(-12.5f, 0.75f, 11.5f, 0.0f)));
-	mPowerUp.push_back(PowerUp(XMVectorSet(12.5f, 0.75f, -8.5f, 0.0f)));
-	mPowerUp.push_back(PowerUp(XMVectorSet(12.5f, 0.75f, 11.5f, 0.0f)));
-
-	for (int i = 0; i < mPowerUp.size(); ++i)
-	{
-		XMStoreFloat4x4(&mPowerUpWorld[i], XMMatrixTranslation(mPowerUp[i].pos.x, mPowerUp[i].pos.y, mPowerUp[i].pos.z));
-	}
+	resetGame();
 
 	mDirLights[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLights[0].Diffuse = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
@@ -657,10 +466,14 @@ void Pac3D::UpdateScene(float dt)
 				mPacMan[0].pos.x = 0.0f;
 				mPacMan[0].pos.y = 0.75f;
 				mPacMan[0].pos.z = -8.5f;
+				if (mPacMan.size() == 0)
+				{
+					resetGame();
+				}
 				break;
 			}
 		}
-		else 
+		else
 		{//kill ghosts
 			if (PacManPelletOverlapTest(pos, ghostPos) == true)
 			{
@@ -749,20 +562,31 @@ void Pac3D::UpdateScene(float dt)
 
 	updateGhosts(dt);
 
+	//reset board if all pellets are gone
+	if (mPellet.size() == 0)
+	{
+		resetGame();
+	}
+
 	//
 	// Switch the number of lights based on key presses.
 	//
 	if (GetAsyncKeyState('0') & 0x8000)
+	{
 		mLightCount = 0;
-
+	}
 	if (GetAsyncKeyState('1') & 0x8000)
+	{
 		mLightCount = 1;
-
+	}
 	if (GetAsyncKeyState('2') & 0x8000)
+	{
 		mLightCount = 2;
-
+	}
 	if (GetAsyncKeyState('3') & 0x8000)
+	{
 		mLightCount = 3;
+	}
 
 	std::cout << "Time: " << timer.DeltaTime() << std::endl;
 }
@@ -967,7 +791,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 {
 
 	// Move Forward
-	if (GetAsyncKeyState('W') & 0x8000)
+	if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
 	{
 		isKeyPressed = true;
 		mPacMan[0].vel.x = 0.0f * dt;
@@ -987,7 +811,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	}
 
 	// Move Backwards 
-	if (GetAsyncKeyState('S') & 0x8000)
+	if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN) & 0x8000)
 	{
 		isKeyPressed = true;
 		mPacMan[0].vel.x = 0.0f * dt;
@@ -1000,7 +824,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	}
 
 	// Move Left
-	if (GetAsyncKeyState('A') & 0x8000)
+	if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT) & 0x8000)
 	{
 		isKeyPressed = true;
 		mPacMan[0].vel.x = -1.0f * dt;
@@ -1013,7 +837,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	}
 
 	// Move Right
-	if (GetAsyncKeyState('D') & 0x8000)
+	if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT) & 0x8000)
 	{
 		isKeyPressed = true;
 		mPacMan[0].vel.x = 1.0f * dt;
@@ -1875,6 +1699,221 @@ void Pac3D::updateGhosts(float dt)
 			}
 			break;
 	}
+}
+
+void Pac3D::resetGame()
+{
+	////Positioning the Pellets
+	////Bottom Row
+	for (int i = 0; i < 26; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, -14.5f, 0.0f)));
+	}
+	////Second Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -13.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -13.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -13.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -13.5f, 0.0f)));
+
+	////Third Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -12.5f, 0.0f)));
+
+	////Fourth Row
+	for (int i = 0; i < 6; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, -11.5f, 0.0f)));
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-4.5f + i, 0.75f, -11.5f, 0.0f)));
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -11.5f, 0.0f)));
+	}
+	for (int i = 0; i < 6; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(7.5f + i, 0.75f, -11.5f, 0.0f)));
+	}
+
+	////Fifth Row
+	mPellet.push_back(Pellet(XMVectorSet(-10.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(10.5f, 0.75f, -10.5f, 0.0f)));
+
+	////Sixth Row
+	mPellet.push_back(Pellet(XMVectorSet(-10.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -9.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(10.5f, 0.75f, -9.5f, 0.0f)));
+
+	////Seventh Row
+	for (int i = 0; i < 2; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-11.5f + i, 0.75f, -8.5f, 0.0f)));
+	}
+	for (int i = 0; i < 7; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-7.5f + i, 0.75f, -8.5f, 0.0f)));
+	}
+	for (int i = 0; i < 7; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -8.5f, 0.0f)));
+	}
+	for (int i = 0; i < 2; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(10.5f + i, 0.75f, -8.5f, 0.0f)));
+	}
+
+	////Eighth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -7.5f, 0.0f)));
+
+	////Ninth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -6.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, -6.5f, 0.0f)));
+
+	////Tenth Row
+	for (int i = 0; i < 12; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, -5.5f, 0.0f)));
+	}
+	for (int i = 0; i < 12; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, -5.5f, 0.0f)));
+	}
+
+	////Eleventh to Twenty First Row
+	for (int i = 0; i < 11; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, -4.5f + i, 0.0f)));
+		mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, -4.5f + i, 0.0f)));
+	}
+
+	////Twenty Second Row
+	for (int i = 0; i < 6; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 6.5f, 0.0f)));
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-4.5f + i, 0.75f, 6.5f, 0.0f)));
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, 6.5f, 0.0f)));
+	}
+	for (int i = 0; i < 6; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(7.5f + i, 0.75f, 6.5f, 0.0f)));
+	}
+
+	////Twenty Third Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 7.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 7.5f, 0.0f)));
+
+	////Twenty Fourth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-4.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(4.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 8.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 8.5f, 0.0f)));
+
+	////Twenty Fifth Row
+	for (int i = 0; i < 26; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 9.5f, 0.0f)));
+	}
+
+	////Twenty Sixth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 10.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 10.5f, 0.0f)));
+
+	////Twenty Seventh Row
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 11.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 11.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 11.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 11.5f, 0.0f)));
+
+	////Twenty Eighth Row
+	mPellet.push_back(Pellet(XMVectorSet(-12.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-7.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(-1.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(1.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(7.5f, 0.75f, 12.5f, 0.0f)));
+	mPellet.push_back(Pellet(XMVectorSet(12.5f, 0.75f, 12.5f, 0.0f)));
+
+	////Twenty Ninth Row
+	for (int i = 0; i < 12; ++i)
+	{
+		mPellet.push_back(Pellet(XMVectorSet(-12.5f + i, 0.75f, 13.5f, 0.0f)));
+		mPellet.push_back(Pellet(XMVectorSet(1.5f + i, 0.75f, 13.5f, 0.0f)));
+	}
+
+	////Add Pellets to the world
+	for (int i = 0; i < 240; ++i)
+	{
+		XMStoreFloat4x4(&mPelletWorld[i], XMMatrixTranslation(mPellet[i].pos.x, mPellet[i].pos.y, mPellet[i].pos.z));
+	}
+
+	////Positioning the PowerUps
+	mPowerUp.push_back(PowerUp(XMVectorSet(-12.5f, 0.75f, -8.5f, 0.0f)));
+	mPowerUp.push_back(PowerUp(XMVectorSet(-12.5f, 0.75f, 11.5f, 0.0f)));
+	mPowerUp.push_back(PowerUp(XMVectorSet(12.5f, 0.75f, -8.5f, 0.0f)));
+	mPowerUp.push_back(PowerUp(XMVectorSet(12.5f, 0.75f, 11.5f, 0.0f)));
+
+	for (int i = 0; i < mPowerUp.size(); ++i)
+	{
+		XMStoreFloat4x4(&mPowerUpWorld[i], XMMatrixTranslation(mPowerUp[i].pos.x, mPowerUp[i].pos.y, mPowerUp[i].pos.z));
+	}
+
+	//reset Ghosts
+	mGhost.pop_back();
+	mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+
+	mPinky.pop_back();
+	mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	
+	mInky.pop_back();
+	mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+		
+	mClyde.pop_back();
+	mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+
+	//reset PuckMan's pos
+	mPacMan[0].pos.x = 0.0f;
+	mPacMan[0].pos.y = 0.75f;
+	mPacMan[0].pos.z = -8.5f;
+
+	powerUpActivated = false;
+	mIsBlue = false;
+	ghostState = GhostState::GS_NORMAL;
+
 }
 
 
