@@ -105,10 +105,10 @@ private:
 	void UpdateKeyboardInput(float dt);
 	void updateGhosts(float dt);
 	bool isKeyPressed = false;
-	bool PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
-	bool PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
-	XMVECTOR PacManAABoxOverLap(XMVECTOR s1Center);
-	bool PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
+	bool PacManPelletOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center);
+	bool PacManPowerUpOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center);
+	XMVECTOR PacManAABoxOverLap(FXMVECTOR s1Center);
+	bool PacManGhostOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center);
 
 
 private:
@@ -1021,9 +1021,15 @@ void Pac3D::UpdateKeyboardInput(float dt)
 
 }
 
-XMVECTOR Pac3D::PacManAABoxOverLap(XMVECTOR s1Center)
+XMVECTOR Pac3D::PacManAABoxOverLap(FXMVECTOR s1Center)
 {
+	//keep track of the current overlap 
+	//if the overlap is greater than currOverLap 
+	//replace currOverLap and move by the new currOverLap.
+
 	float s1Radius = pacManR;
+	float currOverLap = 0.0f;
+	XMVECTOR correction = XMVectorZero();
 
 	for (int i = 0; i < mBoxData.size(); ++i)
 	{
@@ -1038,17 +1044,19 @@ XMVECTOR Pac3D::PacManAABoxOverLap(XMVECTOR s1Center)
 
 		float overLap = s1Radius - distance;
 
-		if (overLap > 0) // Have Collision
+		if (overLap > currOverLap) // Have Collision
 		{
-			s1Center += XMVector3Normalize(d) * overLap; //correct collision by moving sphere out of box
-			return s1Center;
+			currOverLap = overLap;
+
+			correction = XMVector3Normalize(d) * currOverLap; //correct collision by moving sphere out of box
+
 		}
 	}
-	return s1Center;
 
+	return s1Center + correction;
 }
 
-bool Pac3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
+bool Pac3D::PacManGhostOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center)
 {
 	float s1Radius = pacManR;
 
@@ -1070,7 +1078,7 @@ bool Pac3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
 
 }
 
-bool Pac3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
+bool Pac3D::PacManPelletOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center)
 {
 	float s1Radius = pacManR;
 
@@ -1092,7 +1100,7 @@ bool Pac3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
 
 }
 
-bool Pac3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
+bool Pac3D::PacManPowerUpOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center)
 {
 	float s1Radius = pacManR;
 
