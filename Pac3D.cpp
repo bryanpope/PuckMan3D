@@ -103,6 +103,7 @@ public:
 private:
 	void BuildShapeGeometryBuffers();
 	void UpdateKeyboardInput(float dt);
+	void updateGhosts(float dt);
 	bool isKeyPressed = false;
 	bool PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 	bool PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
@@ -173,6 +174,14 @@ private:
 	float powerUpR = 0.25f;
 
 	bool powerUpActivated = false;
+	bool isBlue = false;
+
+	GameTimer timer;
+	GameTimer flashingTimer;
+
+	float nextTime = 0.0f;
+	float currentTime = 0.0f;
+	float totalTime = 0.0f;
 
 	std::vector<AABox> mBoxData;
 	std::vector<PacMan> mPacMan;
@@ -183,7 +192,14 @@ private:
 	std::vector<Ghost> mInky;
 	std::vector<Ghost> mClyde;
 
-	GameTimer timer;
+	enum GhostState
+	{
+		normalState = 0,
+		blueState,
+		flashingState
+	};
+	GhostState ghostState = GhostState::normalState;
+
 
 	POINT mLastMousePos;
 };
@@ -690,16 +706,12 @@ void Pac3D::UpdateScene(float dt)
 		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
 		{
 			powerUpActivated = true;
+			ghostState = GhostState::blueState;
 			mPowerUp.erase(mPowerUp.begin() + i);
 			--i;
 			timer.Reset();
 			timer.Start();
 		}
-	}
-
-	if (powerUpActivated)
-	{
-		timer.Tick();
 	}
 
 	////PacMan Tunnel Check
@@ -728,27 +740,7 @@ void Pac3D::UpdateScene(float dt)
 	XMMATRIX V = XMMatrixLookAtLH(eyePos, target, up);
 	XMStoreFloat4x4(&mView, V);
 
-	if (timer.TotalTime() >= 10.0f)
-	{
-		timer.Stop();
-		powerUpActivated = false;
-	}
-
-	if (powerUpActivated && timer.DeltaTime() < 10.0f)
-	{
-		mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-		mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-		mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-		mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-
-	}
-	else
-	{
-		mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-		mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-		mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
-		mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
-	}
+	updateGhosts(dt);
 
 	//
 	// Switch the number of lights based on key presses.
@@ -1790,6 +1782,86 @@ void Pac3D::BuildShapeGeometryBuffers()
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));
+}
+
+void Pac3D::updateGhosts(float dt)
+{
+	currentTime += dt;
+	nextTime = 0.3f;
+	totalTime = 3.0f;
+	switch (ghostState)
+	{
+		//set the ghost to their default colours
+		case normalState:
+			mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+			mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
+			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
+			break;
+		
+		//set the Ghost blue
+		case blueState:
+			timer.Tick();
+
+			if (timer.DeltaTime() < totalTime)
+			{
+				mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+				mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+				mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+				mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
+			}
+
+			if (timer.TotalTime() >= totalTime)
+			{
+				timer.Stop();
+				ghostState = GhostState::flashingState;
+				flashingTimer.Reset();
+				flashingTimer.Start();
+			}
+			break;
+
+		//Set the Ghost to be flashing once they are close to being in normalMode
+		case flashingState:
+
+			flashingTimer.Tick();
+
+			if (currentTime >= nextTime)
+			{
+				nextTime += 0.3f;
+				isBlue = true;
+			}
+			else
+			{
+				isBlue = false;
+			}
+
+			if (isBlue)
+			{
+				mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+				mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+				mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+				mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			}
+			else
+			{
+				mGhostMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+				mPinkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+				mInkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+				mClydeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			}
+
+			if (currentTime >= totalTime)
+			{
+				nextTime = 0.0f;
+				currentTime = 0.0f;
+				totalTime = 0.0f;
+				ghostState = GhostState::normalState;
+				powerUpActivated = false;
+				flashingTimer.Stop();
+			}
+			break;
+	}
 }
 
 
