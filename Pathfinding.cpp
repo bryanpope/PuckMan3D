@@ -9,7 +9,7 @@ Pathfinding::~Pathfinding()
 {
 }
 
-/*std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
+std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 {
 	std::vector<PathNode*> tempPath;
 
@@ -22,7 +22,7 @@ Pathfinding::~Pathfinding()
 	currentNode->combineNode(*currentNode, start);
 
 	//mOpenList.push_back(start);
-	mOpenMap.emplace(start, true); //Put the start node into the openList, marking it as true here means it is open
+	mOpenMap.insert(std::make_pair(start, true)); //Put the start node into the openList, marking it as true here means it is open
 	//start->isOpen = true;
 
 	while (currentNode != goal)
@@ -75,7 +75,7 @@ Pathfinding::~Pathfinding()
 					if (!isWalkable(currentNode->getCol() + col, currentNode->getRow()) || getNode(currentNode->getCol() + col, currentNode->getRow())->closed)
 					{
 						continue;
-					}*
+					}*/
 				}
 				
 				//If it's already in the open list
@@ -91,9 +91,7 @@ Pathfinding::~Pathfinding()
 				{
 					//Add it to the openList with the current node as the parent
 					//mOpenList.push_back(childNode);
-					mOpenMap.emplace(childNode);
-					auto superTemp = mOpenMap.find(childNode);
-					superTemp->second = true;
+					mOpenMap.insert(std::make_pair(childNode, true));
 					//childNode->isOpen = true;
 					//superTemp->first->setParent(currentNode);
 					childNode->setParent(currentNode);
@@ -116,7 +114,7 @@ Pathfinding::~Pathfinding()
 		currentNode = currentNode->getParent();
 	}
 	return tempPath;
-}*/
+}
 
 PathNode getNode(int row, int col)
 {
