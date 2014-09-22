@@ -265,7 +265,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 Pac3D::Pac3D(HINSTANCE hInstance)
-	: D3DApp(hInstance), mShapesVB(0), mShapesIB(0), mLightCount(3),
+	: D3DApp(hInstance), mShapesVB(0), mShapesIB(0), mLightCount(3), mLevelCounter(1),
 	mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper::Pi), mRadius(45.0f)
 {
 	for (int i = 0; i < 7; ++i)
@@ -620,7 +620,7 @@ void Pac3D::UpdateScene(float dt)
 	updateGhosts(dt);
 
 	if (mIsMoving)
-	{
+	{//check if the player is moving to determine when to play the background sound
 		playSirenSFX();
 		result = channel[6]->setPaused(false);
 	}
@@ -634,7 +634,7 @@ void Pac3D::UpdateScene(float dt)
 
 
 	if (powerUpActivated)
-	{
+	{//check if the power up is activated to detrmine if playScaredGhostSFX is active or not
 		playScaredGhostSFX();
 		result = channel[1]->setPaused(false);
 	}
@@ -644,9 +644,10 @@ void Pac3D::UpdateScene(float dt)
 	}
 
 	//reset board if all pellets are gone
-	if (mPellet.size() == 0)
+	if (mPellet.size() == 0 && mPowerUp.size() == 0)
 	{
 		resetGame();
+		mLevelCounter++;
 	}
 
 	//
@@ -2001,7 +2002,7 @@ void Pac3D::resetGame()
 	mIsPlayerDead = false;
 	ghostState = GhostState::GS_NORMAL;
 
-	mLevelCounter++;
+	
 }
 
 void Pac3D::loadGhostDeathSFX()
@@ -2215,7 +2216,7 @@ void Pac3D::playPUPChompSFX()
 
 void Pac3D::loadSystem()
 {
-	//Create a System object and initialize
+	//Create a System object and initialize and set's up all audio based code
 
 	result = FMOD::System_Create(&sys);
 
