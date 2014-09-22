@@ -43,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(ExecutablePath);$(DXSDK_DIR)Utilities\bin\x86</ExecutablePath>
-    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include;.\Common</IncludePath>
+    <IncludePath>$(IncludePath);C:\PuckMan3D\inc;$(DXSDK_DIR)Include;.\Common</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86;.\Common</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -126,6 +126,10 @@
     <ClInclude Include="Common\xnacollision.h" />
     <ClInclude Include="Effects.h" />
     <ClInclude Include="Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\fmodL_vc.lib" />
+    <Library Include="lib\fmod_vc.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

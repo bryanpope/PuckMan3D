@@ -115,4 +115,8 @@
       <Filter>FX</Filter>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\fmod_vc.lib" />
+    <Library Include="lib\fmodL_vc.lib" />
+  </ItemGroup>
 </Project>

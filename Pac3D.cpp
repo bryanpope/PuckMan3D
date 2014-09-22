@@ -19,6 +19,9 @@
 #include "Vertex.h"
 #include <iostream>
 #include "Common\GameTimer.h"
+#include <math.h>
+#include "fmod.hpp"
+#include "fmod_errors.h"
 
 class Pac3D : public D3DApp
 {
@@ -104,13 +107,31 @@ private:
 	void BuildShapeGeometryBuffers();
 	void UpdateKeyboardInput(float dt);
 	void resetGame();
+	void loadSystem();
+	void loadGhostDeathSFX();
+	void playGhostDeathSFX();
+	void loadScaredGhostSFX();
+	void playScaredGhostSFX();
+	void loadDeathSFX();
+	void playDeathSFX();
+	void loadFruitSFX();
+	void playFruitSFX();
+	void loadBeginningSFX();
+	void playBeginningSFX();
+	void loadExtraLifeSFX();
+	void playExtraLifeSFX();
+	void loadSirenSFX();
+	void playSirenSFX();
+	void loadPelletChompSFX();
+	void playPelletChompSFX();
+	void loadPUPChompSFX();
+	void playPUPChompSFX();
 	void updateGhosts(float dt);
 	bool isKeyPressed = false;
 	bool PacManPelletOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center);
 	bool PacManPowerUpOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center);
 	XMVECTOR PacManAABoxOverLap(FXMVECTOR s1Center);
 	bool PacManGhostOverlapTest(FXMVECTOR s1Center, FXMVECTOR s2Center);
-
 
 private:
 	ID3D11Buffer* mShapesVB;
@@ -183,6 +204,8 @@ private:
 
 	bool powerUpActivated = false;
 	bool mIsBlue = false;
+	bool mIsMoving = false;
+	bool mIsPlayerDead = false;
 
 	GameTimer timer;
 	GameTimer flashingTimer;
@@ -204,8 +227,15 @@ private:
 	};
 	GhostState ghostState = GhostState::GS_NORMAL;
 
-
 	POINT mLastMousePos;
+
+	FMOD::System     *sys;
+	FMOD::Sound      *sound[7];
+	FMOD::Channel    *channel[7];
+	FMOD::ChannelGroup *soundGroup, *masterGroup;
+	FMOD_RESULT result;
+	unsigned int      version;
+	void             *extradriverdata = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, FXMVECTOR v)
@@ -235,9 +265,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 Pac3D::Pac3D(HINSTANCE hInstance)
-: D3DApp(hInstance), mShapesVB(0), mShapesIB(0), mLightCount(3),
-mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper::Pi), mRadius(45.0f)
+	: D3DApp(hInstance), mShapesVB(0), mShapesIB(0), mLightCount(3),
+	mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper::Pi), mRadius(45.0f)
 {
+	for (int i = 0; i < 7; ++i)
+	{
+		channel[i] = 0;
+	}
+
 	mMainWndCaption = L"Pac3D Demo";
 
 	mLastMousePos.x = 0;
@@ -309,7 +344,7 @@ mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.276f*MathHelper:
 	{
 		XMStoreFloat4x4(&mBoxWorld[i], XMMatrixTranslation(mBoxData[i].pos.x, mBoxData[i].pos.y, mBoxData[i].pos.z));
 	}
-	
+
 	////Positioning the PacMans
 	mPacMan.push_back(PacMan(XMVectorSet(0.0f, 0.75f, -8.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPacMan.push_back(PacMan(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
@@ -414,6 +449,18 @@ Pac3D::~Pac3D()
 
 bool Pac3D::Init()
 {
+	loadSystem();
+
+	//load the sound effects
+	loadScaredGhostSFX();
+	loadGhostDeathSFX();
+	loadDeathSFX();
+	loadFruitSFX();
+	loadBeginningSFX();
+	loadExtraLifeSFX();
+	loadSirenSFX();
+	loadPelletChompSFX();
+
 	if (!D3DApp::Init())
 		return false;
 
@@ -422,7 +469,6 @@ bool Pac3D::Init()
 	InputLayouts::InitAll(md3dDevice);
 
 	BuildShapeGeometryBuffers();
-
 
 	return true;
 }
@@ -464,6 +510,9 @@ void Pac3D::UpdateScene(float dt)
 		{//kill PuckMan
 			if (PacManPelletOverlapTest(pos, ghostPos) == true)
 			{
+				playDeathSFX();
+				mIsPlayerDead = true;
+				mIsMoving = false;
 				mPacMan.pop_back();
 				mPacMan[0].pos.x = 0.0f;
 				mPacMan[0].pos.y = 0.75f;
@@ -481,24 +530,28 @@ void Pac3D::UpdateScene(float dt)
 			{
 				mGhost.pop_back();
 				mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+				playGhostDeathSFX();
 				break;
 			}
 			else if (PacManPelletOverlapTest(pos, pinkyPos) == true)
 			{
 				mPinky.pop_back();
 				mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+				playGhostDeathSFX();
 				break;
 			}
 			else if (PacManPelletOverlapTest(pos, inkyPos) == true)
 			{
 				mInky.pop_back();
 				mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+				playGhostDeathSFX();
 				break;
 			}
 			else if (PacManPelletOverlapTest(pos, clydePos) == true)
 			{
 				mClyde.pop_back();
 				mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+				playGhostDeathSFX();
 				break;
 			}
 		}
@@ -512,6 +565,7 @@ void Pac3D::UpdateScene(float dt)
 
 		if (PacManPelletOverlapTest(pos, pelPos) == true)
 		{
+			playPelletChompSFX();
 			mPellet.erase(mPellet.begin() + i);
 			--i;
 		}
@@ -527,6 +581,7 @@ void Pac3D::UpdateScene(float dt)
 		{
 			powerUpActivated = true;
 			ghostState = GhostState::GS_BLUE;
+			playPUPChompSFX();
 			mCurrentTime = 0.0f;
 			mTotalTime = 3.0f;
 			mPowerUp.erase(mPowerUp.begin() + i);
@@ -564,6 +619,30 @@ void Pac3D::UpdateScene(float dt)
 
 	updateGhosts(dt);
 
+	if (mIsMoving)
+	{
+		playSirenSFX();
+		result = channel[6]->setPaused(false);
+	}
+	else if (mIsPlayerDead)
+	{
+		powerUpActivated = false;
+		mIsBlue = false;
+		mIsMoving = false;
+		result = channel[6]->setPaused(true);
+	}
+
+
+	if (powerUpActivated)
+	{
+		playScaredGhostSFX();
+		result = channel[1]->setPaused(false);
+	}
+	else
+	{
+		result = channel[1]->setPaused(true);
+	}
+
 	//reset board if all pellets are gone
 	if (mPellet.size() == 0)
 	{
@@ -590,7 +669,7 @@ void Pac3D::UpdateScene(float dt)
 		mLightCount = 3;
 	}
 
-	std::cout << "Time: " << timer.DeltaTime() << std::endl;
+	sys->update();
 }
 
 void Pac3D::DrawScene()
@@ -796,6 +875,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
 	{
 		isKeyPressed = true;
+		mIsMoving = true;
 		mPacMan[0].vel.x = 0.0f * dt;
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = 1.0f * dt;
@@ -807,6 +887,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	else
 	{
 		isKeyPressed = false;
+
 		mPacMan[0].vel.x = 0.0f;
 		mPacMan[0].vel.y = 0.0f;
 		mPacMan[0].vel.z = 0.0f;
@@ -816,6 +897,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN) & 0x8000)
 	{
 		isKeyPressed = true;
+		mIsMoving = true;
 		mPacMan[0].vel.x = 0.0f * dt;
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = -1.0f * dt;
@@ -829,6 +911,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT) & 0x8000)
 	{
 		isKeyPressed = true;
+		mIsMoving = true;
 		mPacMan[0].vel.x = -1.0f * dt;
 		if (mPacMan[0].vel.x > -0.00826695096f)
 		{
@@ -842,6 +925,7 @@ void Pac3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT) & 0x8000)
 	{
 		isKeyPressed = true;
+		mIsMoving = true;
 		mPacMan[0].vel.x = 1.0f * dt;
 		if (mPacMan[0].vel.x < 0.00826695096f)
 		{
@@ -1636,70 +1720,69 @@ void Pac3D::updateGhosts(float dt)
 	switch (ghostState)
 	{
 		//set the ghost to their default colours
-		case GS_NORMAL:
-			mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-			mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
-			mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
-			break;
-		
+	case GS_NORMAL:
+		mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+		mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
+		mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
+		mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
+		break;
+
 		//set the Ghost blue
-		case GS_BLUE:
-			if (mCurrentTime < mTotalTime)
-			{
-				mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-				mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-				mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-				mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	case GS_BLUE:
+		if (mCurrentTime < mTotalTime)
+		{
+			mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 
-			}
+		}
 
-			if (mCurrentTime >= mTotalTime)
-			{
-				timer.Stop();
-				ghostState = GhostState::GS_FLASHING;
-				flashingTimer.Reset();
-				flashingTimer.Start();
-				mCurrentTime = 0.0f;
-				mNextTime = 0.3f;
-				mTotalTime = 3.0f;
-			}
-			break;
+		if (mCurrentTime >= mTotalTime)
+		{
+			timer.Stop();
+			ghostState = GhostState::GS_FLASHING;
+			flashingTimer.Reset();
+			flashingTimer.Start();
+			mCurrentTime = 0.0f;
+			mNextTime = 0.3f;
+			mTotalTime = 3.0f;
+		}
+		break;
 
 		//Set the Ghost to be flashing once they are close to being in normalMode
-		case GS_FLASHING:
+	case GS_FLASHING:
+		if (mCurrentTime >= mNextTime)
+		{
+			mNextTime += 0.3f;
+			mIsBlue = !mIsBlue;
+		}
 
-			if (mCurrentTime >= mNextTime)
-			{
-				mNextTime += 0.3f;
-				mIsBlue = !mIsBlue;
-			}
+		if (mIsBlue)
+		{
+			mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+		}
+		else
+		{
+			mGhostMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			mPinkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			mInkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
 
-			if (mIsBlue)
-			{
-				mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-				mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-				mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-				mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-			}
-			else
-			{
-				mGhostMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-				mPinkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-				mInkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-				mClydeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-			}
-
-			if (mCurrentTime >= mTotalTime)
-			{
-				mNextTime = 0.0f;
-				mCurrentTime = 0.0f;
-				mTotalTime = 0.0f;
-				ghostState = GhostState::GS_NORMAL;
-				powerUpActivated = false;
-				flashingTimer.Stop();
-			}
-			break;
+		if (mCurrentTime >= mTotalTime)
+		{
+			mNextTime = 0.0f;
+			mCurrentTime = 0.0f;
+			mTotalTime = 0.0f;
+			ghostState = GhostState::GS_NORMAL;
+			powerUpActivated = false;
+			flashingTimer.Stop();
+		}
+		break;
 	}
 }
 
@@ -1900,10 +1983,10 @@ void Pac3D::resetGame()
 
 	mPinky.pop_back();
 	mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	
+
 	mInky.pop_back();
 	mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-		
+
 	mClyde.pop_back();
 	mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 
@@ -1914,13 +1997,240 @@ void Pac3D::resetGame()
 
 	powerUpActivated = false;
 	mIsBlue = false;
+	mIsMoving = false;
+	mIsPlayerDead = false;
 	ghostState = GhostState::GS_NORMAL;
 
 	mLevelCounter++;
+}
+
+void Pac3D::loadGhostDeathSFX()
+{
+	result = sys->createSound("Sounds/eatghost.wav", FMOD_DEFAULT, 0, &sound[0]);
+	result = sound[0]->setMode(FMOD_LOOP_OFF);
+}
+
+void Pac3D::playGhostDeathSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[0] != NULL)
+	{
+		channel[0]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[0], 0, false, &channel[0]);
+		result = channel[0]->setChannelGroup(soundGroup);
+		result = channel[0]->setPaused(false);
+	}
+}
+
+void Pac3D::loadScaredGhostSFX()
+{
+	result = sys->createSound("Sounds/Frightened.wav", FMOD_DEFAULT, 0, &sound[1]);
+
+	result = sound[1]->setMode(FMOD_LOOP_OFF);
+}
+
+void Pac3D::playScaredGhostSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[1] != NULL)
+	{
+		channel[1]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying && powerUpActivated)
+	{
+		result = sys->playSound(sound[1], 0, false, &channel[1]);
+		result = channel[1]->setChannelGroup(soundGroup);
+		result = channel[1]->setPaused(false);
+	}
+}
+
+void Pac3D::loadDeathSFX()
+{
+	result = sys->createSound("Sounds/death.wav", FMOD_DEFAULT, 0, &sound[2]);
+	result = sound[2]->setMode(FMOD_LOOP_OFF);
+}
+
+void Pac3D::playDeathSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[2] != NULL)
+	{
+		channel[2]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[2], 0, false, &channel[2]);
+		result = channel[2]->setChannelGroup(soundGroup);
+		result = channel[2]->setPaused(false);
+	}
 
 }
 
+void Pac3D::loadFruitSFX()
+{
+	result = sys->createSound("Sounds/eatfruit.wav", FMOD_DEFAULT, 0, &sound[3]);
+	result = sound[3]->setMode(FMOD_LOOP_OFF);
+}
 
+void Pac3D::playFruitSFX()
+{
+	bool isPlaying = false;
 
+	if (channel[3] != NULL)
+	{
+		channel[3]->isPlaying(&isPlaying);
+	}
 
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[3], 0, false, &channel[3]);
+		result = channel[3]->setChannelGroup(soundGroup);
+		result = channel[3]->setPaused(false);
+	}
+}
 
+void Pac3D::loadExtraLifeSFX()
+{
+	result = sys->createSound("Sounds/extrapac.wav", FMOD_DEFAULT, 0, &sound[4]);
+	result = sound[4]->setMode(FMOD_LOOP_OFF);
+}
+
+void Pac3D::playExtraLifeSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[4] != NULL)
+	{
+		channel[4]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[4], 0, false, &channel[4]);
+		result = channel[4]->setChannelGroup(soundGroup);
+		result = channel[4]->setPaused(false);
+	}
+}
+
+void Pac3D::loadBeginningSFX()
+{
+	result = sys->createSound("Sounds/beginning.wav", FMOD_DEFAULT, 0, &sound[5]);
+	result = sound[5]->setMode(FMOD_LOOP_OFF);
+}
+
+void Pac3D::playBeginningSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[5] != NULL)
+	{
+		channel[5]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[5], 0, false, &channel[5]);
+		result = channel[5]->setChannelGroup(soundGroup);
+		result = channel[5]->setPaused(false);
+	}
+}
+
+void Pac3D::loadSirenSFX()
+{
+	result = sys->createSound("Sounds/MainSiren.wav", FMOD_DEFAULT, 0, &sound[6]);
+	result = sound[6]->setMode(FMOD_LOOP_NORMAL);
+}
+
+void Pac3D::playSirenSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[6] != NULL)
+	{
+		channel[6]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying && !mIsPlayerDead)
+	{
+		result = sys->playSound(sound[6], 0, false, &channel[6]);
+		result = channel[6]->setChannelGroup(soundGroup);
+		result = channel[6]->setPaused(false);
+	}
+}
+
+void Pac3D::loadPelletChompSFX()
+{
+	result = sys->createSound("Sounds/Chomp.wav", FMOD_DEFAULT, 0, &sound[3]);
+	result = sound[3]->setMode(FMOD_LOOP_OFF);
+}
+
+void Pac3D::playPelletChompSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[3] != NULL)
+	{
+		channel[3]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[3], 0, false, &channel[3]);
+		result = channel[3]->setChannelGroup(soundGroup);
+		result = channel[3]->setPaused(false);
+	}
+}
+
+void Pac3D::loadPUPChompSFX()
+{
+	result = sys->createSound("Sounds/Chomp2.wav", FMOD_DEFAULT, 0, &sound[3]);
+	result = sound[3]->setMode(FMOD_LOOP_OFF);
+}
+
+void Pac3D::playPUPChompSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[3] != NULL)
+	{
+		channel[3]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[3], 0, false, &channel[3]);
+		result = channel[3]->setChannelGroup(soundGroup);
+		result = channel[3]->setPaused(false);
+	}
+}
+
+void Pac3D::loadSystem()
+{
+	//Create a System object and initialize
+
+	result = FMOD::System_Create(&sys);
+
+	result = sys->getVersion(&version);
+
+	if (version < FMOD_VERSION)
+	{
+		OutputDebugString(L"FMOD lib version doesn't match header version");
+	}
+
+	result = sys->init(32, FMOD_INIT_NORMAL, extradriverdata);
+
+	result = sys->createChannelGroup("SoundGroup", &soundGroup);
+
+	result = sys->getMasterChannelGroup(&masterGroup);
+
+	result = masterGroup->addGroup(soundGroup);
+}
