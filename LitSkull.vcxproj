@@ -97,6 +97,8 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Blinky.cpp" />
+    <ClCompile Include="Clyde.cpp" />
     <ClCompile Include="Common\Camera.cpp" />
     <ClCompile Include="Common\d3dApp.cpp" />
     <ClCompile Include="Common\d3dUtil.cpp" />
@@ -108,10 +110,17 @@
     <ClCompile Include="Common\Waves.cpp" />
     <ClCompile Include="Common\xnacollision.cpp" />
     <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="Ghost.cpp" />
+    <ClCompile Include="Inky.cpp" />
     <ClCompile Include="Pac3D.cpp" />
+    <ClCompile Include="Pathfinding.cpp" />
+    <ClCompile Include="PathNode.cpp" />
+    <ClCompile Include="Pinky.cpp" />
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Blinky.h" />
+    <ClInclude Include="Clyde.h" />
     <ClInclude Include="Common\Camera.h" />
     <ClInclude Include="Common\d3d11.h" />
     <ClInclude Include="Common\d3dApp.h" />
@@ -125,6 +134,11 @@
     <ClInclude Include="Common\Waves.h" />
     <ClInclude Include="Common\xnacollision.h" />
     <ClInclude Include="Effects.h" />
+    <ClInclude Include="Ghost.h" />
+    <ClInclude Include="Inky.h" />
+    <ClInclude Include="Pathfinding.h" />
+    <ClInclude Include="PathNode.h" />
+    <ClInclude Include="Pinky.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
