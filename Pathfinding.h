@@ -23,6 +23,5 @@ public:
 	float GetDistance(PathNode* currNode, PathNode* parent);
 	bool InClosedList(PathNode* n);
 	bool InOpenList(PathNode* n);
-	PathNode getNode(int row, int col);
 };
 

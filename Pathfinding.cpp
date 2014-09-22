@@ -15,7 +15,6 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 
 	mOpenMap.clear();
 
-	PathNode* childNode;
 	PathNode* currentNode = new PathNode(*start);
 	currentNode->combineNode(currentNode, start);
 
@@ -52,55 +51,6 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 
 		//Finally, move the child node to the bottom, to get the node one below currentNode
 		AddChild(currentNode->mRow - 1, currentNode->mCol, currentNode, goal);
-		/*for (int col = -1; col < 2; ++col)
-		{
-			for (int row = -1; row < 2; ++row)
-			{
-				//Skip if this lands on currentNode
-				if (col == 0 && row == 0)
-				{
-					continue;
-				}
-				//If not, get the node
-				
-				//childNode = new PathNode(getNode(currentNode->getCol() + col, currentNode->getRow() + row));
-				if (childNode->isClosed || !childNode->isWalkable)
-				{
-					continue;
-				}
-
-				//If we hit a corner
-				if (col != 0 && row != 0)
-				{
-					//Check surroundings for walkable tiles and if in closed list
-					/*if (!isWalkable(currentNode->getCol(), currentNode->getRow() + row) || getNode(currentNode->getCol(), currentNode->getRow() + row)->closed)
-					{
-						continue;
-					}
-					if (!isWalkable(currentNode->getCol() + col, currentNode->getRow()) || getNode(currentNode->getCol() + col, currentNode->getRow())->closed)
-					{
-						continue;
-					}
-				}
-				
-				//If it's already in the open list
-				if (childNode->isOpen)
-				{
-					if (childNode->mGCost > childNode->mGCost + currentNode->mGCost)
-					{
-						childNode->setParent(currentNode);
-						childNode->calculateCosts(goal);
-					}
-				}
-				else
-				{
-					//Add it to the openList with the current node as the parent
-					mOpenMap.insert(std::make_pair(childNode, true));
-					childNode->setParent(currentNode);
-					childNode->calculateCosts(goal);
-				}
-			}
-		}*/
 	}
 	//Reset everything
 	for (auto it : mOpenMap)
@@ -119,11 +69,30 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 
 void Pathfinding::AddChild(int row, int col, PathNode* currNode, PathNode* goal)
 {
+	PathNode* childNode = new PathNode(row, col, 0, 0, currNode, "");
 
-}
-
-PathNode Pathfinding::getNode(int row, int col)
-{
-	PathNode tempNode(row, col, 0, 0, NULL, "forward");
-	return tempNode;
+	//Check surroundings for walkable tiles and if in closed list
+	if (!IsBlocked(childNode->getCol(), childNode->getRow()) || )
+	{
+		//If we hit a corner
+		if (col != 0 && row != 0)
+		{
+				//If it's already in the open list
+			if (childNode->isOpen)
+			{
+				if (childNode->mGCost > childNode->mGCost + currNode->mGCost)
+				{
+					childNode->setParent(currNode);
+					childNode->calculateCosts(goal);
+				}
+			}
+			else
+			{
+				//Add it to the openList with the current node as the parent
+				mOpenMap.insert(std::make_pair(childNode, true));
+				childNode->setParent(currNode);
+				childNode->calculateCosts(goal);
+			}
+		}
+	}
 }
