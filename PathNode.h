@@ -17,6 +17,7 @@ public:
 	PathNode* mParent;
 
 	PathNode(int row, int col, int gCost, int fCost, PathNode* parent, std::string facing);
+	PathNode(int row, int col);
 	~PathNode(){}
 
 	PathNode* getParent()
@@ -49,23 +50,9 @@ public:
 		mParent = parent;
 	}
 
-	void calculateCosts(PathNode* goal)
-	{
-		mGCost = getGCost(mParent);
-		mHCost = getHCost(goal);
-		mFCost = mGCost + mHCost;
-	}
+	void calculateCosts(PathNode* goal);
 
-	PathNode combineNode(PathNode initial, PathNode* target)
-	{
-		initial.mCol = target->mCol;
-		initial.mRow = target->mRow;
-		initial.mGCost = target->mGCost;
-		initial.mFCost = target->mFCost;
-		initial.mFacing = target->mFacing;
-
-		return initial;
-	}
+	PathNode* combineNode(PathNode* initial, PathNode* target);
 
 	//May not need these overloads, currently work in progress
 	bool operator==(const PathNode& rhs)

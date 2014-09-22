@@ -13,25 +13,22 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 {
 	std::vector<PathNode*> tempPath;
 
-	//mClosedList.clear();
-	//mOpenList.clear();
 	mOpenMap.clear();
 
 	PathNode* childNode;
 	PathNode* currentNode = new PathNode(*start);
-	currentNode->combineNode(*currentNode, start);
+	currentNode->combineNode(currentNode, start);
 
-	//mOpenList.push_back(start);
 	mOpenMap.insert(std::make_pair(start, true)); //Put the start node into the openList, marking it as true here means it is open
-	//start->isOpen = true;
 
 	while (currentNode != goal)
 	{
 		for (auto it : mOpenMap)
 		{
+			//Compare currentNode's fCost to the current place in the map
 			if (it.first->mFCost <= currentNode->mFCost)
 			{
-				currentNode->combineNode(*currentNode, it.first);
+				currentNode->combineNode(currentNode, it.first);
 			}
 		}
 		//Did we reach the end? If so, stop
@@ -40,14 +37,22 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 			break;
 		}
 		//If not, we continue and remove the currentNode from the openList
-			//Because the currentNode isn't in the openList, we will simply set isOpen to false
-			//and isClosed to true
-
 		auto temp = mOpenMap.find(currentNode); //Find the currentNode in the map
 		temp->second = false; //Set the currentNode to false, as this will denote that it is in the closed list
 
 		//Get adjacent walkable tiles
-		for (int col = -1; col < 2; ++col)
+		//Move the child node one node to the right to get the node to the right of currentNode
+		AddChild(currentNode->mRow, currentNode->mCol + 1, currentNode, goal);
+
+		//Move the child node to the left to get the node to the left of currentNode
+		AddChild(currentNode->mRow, currentNode->mCol - 1, currentNode, goal);
+
+		//Move the child node up one row to get the node above currentNode
+		AddChild(currentNode->mRow + 1, currentNode->mCol, currentNode, goal);
+
+		//Finally, move the child node to the bottom, to get the node one below currentNode
+		AddChild(currentNode->mRow - 1, currentNode->mCol, currentNode, goal);
+		/*for (int col = -1; col < 2; ++col)
 		{
 			for (int row = -1; row < 2; ++row)
 			{
@@ -75,7 +80,7 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 					if (!isWalkable(currentNode->getCol() + col, currentNode->getRow()) || getNode(currentNode->getCol() + col, currentNode->getRow())->closed)
 					{
 						continue;
-					}*/
+					}
 				}
 				
 				//If it's already in the open list
@@ -90,16 +95,12 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 				else
 				{
 					//Add it to the openList with the current node as the parent
-					//mOpenList.push_back(childNode);
 					mOpenMap.insert(std::make_pair(childNode, true));
-					//childNode->isOpen = true;
-					//superTemp->first->setParent(currentNode);
 					childNode->setParent(currentNode);
-					//superTemp->first->calculateCosts(goal);
 					childNode->calculateCosts(goal);
 				}
 			}
-		}
+		}*/
 	}
 	//Reset everything
 	for (auto it : mOpenMap)
@@ -116,7 +117,12 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	return tempPath;
 }
 
-PathNode getNode(int row, int col)
+void Pathfinding::AddChild(int row, int col, PathNode* currNode, PathNode* goal)
+{
+
+}
+
+PathNode Pathfinding::getNode(int row, int col)
 {
 	PathNode tempNode(row, col, 0, 0, NULL, "forward");
 	return tempNode;
