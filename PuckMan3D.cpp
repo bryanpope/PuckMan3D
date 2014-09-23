@@ -62,6 +62,7 @@ public:
 	void OnMouseMove(WPARAM btnState, int x, int y);
 
 private:
+	const float PUCKMAN_SPEED = 1000.0f;
 	void BuildTestPyramid();
 	void BuildVertexLayout();
 	void BuildSceneLights();
@@ -74,6 +75,7 @@ private:
 	void UpdateKeyboardInput(float dt);
 	void UpdateCollision();
 	XMVECTOR PacManAABoxOverLap(XMVECTOR s1Center);
+	void PuckManSpeed();
 
 	XMVECTOR CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height,
 		FXMVECTOR c2Pos, float c2Rad, float c2Height);
@@ -206,6 +208,10 @@ private:
 
 	XMFLOAT3 mEyePosW;
 	bool mIsKeyPressed;
+	bool mForward;
+	bool mBackward;
+	bool mLeft;
+	bool mRight;
 	float mSpeed;
 
 	int mBoxVertexOffset;
@@ -260,6 +266,8 @@ private:
 	std::vector<Ghost> mPinky;
 	std::vector<Ghost> mInky;
 	std::vector<Ghost> mClyde;
+
+	
 
 	std::vector<Vertex::NormalTexVertex> mMazeVerts;
 	std::vector<UINT> mMazeInd;
@@ -675,6 +683,18 @@ void PuckMan3D::UpdateScene(float dt)
 
 	float eyeOffset = 25.0f;
 	//float eyeOffset = 0.0f;
+
+	////PacMan Tunnel Check
+
+	if (mPacMan[0].pos.x < -14)
+	{
+		mPacMan[0].pos.x = 14;
+	}
+	if (mPacMan[0].pos.x > 14)
+	{
+		mPacMan[0].pos.x = -14;
+	}
+
 	// Camera X, Y, Z Positioning.
 	float x = mPacMan[0].pos.x;
 	float y = mPacMan[0].pos.y + eyeOffset;
@@ -1043,6 +1063,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		mIsKeyPressed = true;
+		mForward = true;
 		mPacMan[0].vel.x = 0.0f * dt;
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = 1.0f * dt;
@@ -1054,6 +1075,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	else
 	{
 		mIsKeyPressed = false;
+		mForward = false;
+		mBackward = false;
+		mLeft = false;
+		mRight = false;
+
 		mPacMan[0].vel.x = 0.0f;
 		mPacMan[0].vel.y = 0.0f;
 		mPacMan[0].vel.z = 0.0f;
@@ -1063,6 +1089,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
 		mIsKeyPressed = true;
+		mBackward = true;
 		mPacMan[0].vel.x = 0.0f * dt;
 		mPacMan[0].vel.y = 0.0f * dt;
 		mPacMan[0].vel.z = -1.0f * dt;
@@ -1076,6 +1103,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
 		mIsKeyPressed = true;
+		mLeft = true;
 		mPacMan[0].vel.x = -1.0f * dt;
 		if (mPacMan[0].vel.x > -0.00826695096f)
 		{
@@ -1089,6 +1117,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('D') & 0x8000)
 	{
 		mIsKeyPressed = true;
+		mRight = true;
 		mPacMan[0].vel.x = 1.0f * dt;
 		if (mPacMan[0].vel.x < 0.00826695096f)
 		{
@@ -1102,10 +1131,57 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 
 
 }
+//PuckMan’s Speed while eating dots :
+//In First level PuckMan’s speed is 0.71 meters per second.
+//In Second to Fourth level speed is 0.79 meters per second.
+//In Fifth to Twentieth level speed is 0.87 meters per second.
+//Levels Twenty - one plus speed is 0.79 meters per second.
+//
+//PuckMan’s Speed while NOT eating dots :
+//In First level PuckMan’s speed is 0.8 meters per second.
+//In Second to Fourth level speed is 0.9 meters per second.
+//In Fifth to Twentieth level speed is 1.0 meters per second.
+//Levels Twenty - one plus speed is 0.9 meters per second.
+//
+//PuckMan’s Speed while eating dots and ghost frightened :
+//In First level PuckMan’s speed is 0.79 meters per second.
+//In Second to Fourth level speed is 0.83 meters per second.
+//In Fifth to Twentieth level speed is 0.87 meters per second.
+//Levels Twenty - one plus speed is 0.87 meters per second.
+//
+//PuckMan’s Speed while NOT eating dots and ghost frightened :
+//In First level PuckMan’s speed is 0.9 meters per second.
+//In Second to Fourth level speed is 0.95 meters per second.
+//In Fifth to Twentieth level speed is 1.0 meters per second.
+//Levels Twenty - one plus speed is 1.0 meters per second.
+//
+void PuckMan3D::PuckManSpeed()
+{
+	//translate Puckmans Position to Pellet space
+	int transX = (int)floor(mPacMan[0].pos.x + 14.0f);
+	int transZ = (INT)floor(31 - mPacMan[0].pos.z + 15.5F); // inverting the z
+
+	if (mForward)
+	{
+		if (MazeLoader::IsPellet(transZ + 1, transX))
+		{
+			mSpeed = PUCKMAN_SPEED * 0.71f;
+		}
+		else
+		{
+			mSpeed = PUCKMAN_SPEED * 0.8f;
+		}
+	}
+
+
+}
 
 XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 {
 	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
+	float currOverLap = 0.0f;
+	XMVECTOR correction = XMVectorZero();
+
 	std::vector<MazeLoader::AABox> boxData = MazeLoader::GetWallData();
 
 	for (int i = 0; i < boxData.size(); ++i)
@@ -1121,14 +1197,14 @@ XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 
 		float overLap = s1Radius - distance;
 
-		if (overLap > 0) // Have Collision
+		if (overLap > currOverLap) // Have Collision
 		{
-			s1Center += XMVector3Normalize(d) * overLap; //correct collision by moving sphere out of box
-			return s1Center;
+			currOverLap = overLap;
+
+			correction = XMVector3Normalize(d) * currOverLap; //correct collision by moving sphere out of box
 		}
 	}
-	return s1Center;
-
+	return s1Center + correction;
 }
 
 bool PuckMan3D::UpdateGroundCollision()

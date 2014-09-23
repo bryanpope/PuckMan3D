@@ -76,6 +76,7 @@ public:
 	static const InitialPosition& GetInitialPos(){ return mInitialPositions; }
 	static const std::vector<AABox> GetWallData(){ return mBoxData; }
 	static bool IsBlocked(UINT row, UINT col);
+	static bool IsPellet(UINT row, UINT col);
 
 	static const float RADIUS_PAC_MAN;
 	static const float RADIUS_GHOST;

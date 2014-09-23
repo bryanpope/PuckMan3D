@@ -304,6 +304,13 @@ bool MazeLoader::IsBlocked(UINT row, UINT col)
 	return (mMazeElements[index] == ME_WALL);
 }
 
+bool MazeLoader::IsPellet(UINT row, UINT col)
+{
+	UINT index = (row * mMazeWidth) + col;
+
+	return (mMazeElements[index] == ME_PELLET);
+}
+
 
 /*UINT MazeLoader::AddVertex(Vertex::NormalTexVertex vertex, std::vector<Vertex::NormalTexVertex>& vertBuf)
 {
