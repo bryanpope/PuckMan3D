@@ -31,6 +31,11 @@
 #include "SkyBox.h"
 #include "GeometryGenerator.h"
 
+#include "Blinky.h"
+#include "Inky.h"
+#include "Pinky.h"
+#include "Clyde.h"
+
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
 
@@ -124,17 +129,7 @@ private:
 		}
 
 	};
-	struct Ghost
-	{
-		XMFLOAT3 pos;
-		XMFLOAT3 vel;
 
-		Ghost(FXMVECTOR pos, FXMVECTOR vel)
-		{
-			XMStoreFloat3(&this->pos, pos);
-			XMStoreFloat3(&this->vel, vel);
-		}
-	};
 	struct AABox
 	{
 		XMFLOAT3 pos;
@@ -262,10 +257,10 @@ private:
 	std::vector<PacMan> mPacMan;
 	std::vector<Pellet> mPellet;
 	std::vector<PowerUp> mPowerUp;
-	std::vector<Ghost> mGhost;
-	std::vector<Ghost> mPinky;
-	std::vector<Ghost> mInky;
-	std::vector<Ghost> mClyde;
+	Blinky* mBlinky;
+	Pinky* mPinky;
+	Inky* mInky;
+	Clyde* mClyde;
 
 	
 
@@ -314,6 +309,9 @@ mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(1000.0f)
 	XMStoreFloat4x4(&mGridWorld, I);
 
 	srand((UINT)time(NULL));
+
+	AllocConsole();
+	freopen("CON", "w", stdout);
 }
 
 PuckMan3D::~PuckMan3D()
@@ -661,6 +659,8 @@ float timer = 0.0f;
 void PuckMan3D::UpdateScene(float dt)
 {
 	UpdateKeyboardInput(dt);
+
+	mBlinky->Update();
 	
 	XMVECTOR pos = XMLoadFloat3(&mPacMan[0].pos);
 	XMVECTOR vel = XMLoadFloat3(&mPacMan[0].vel);
@@ -911,25 +911,25 @@ void PuckMan3D::DrawScene()
 		mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.pacMan.indexOffset, oc.pacMan.indexCount);
 	}
 
-	world = XMMatrixTranslation(mGhost[0].pos.x, mGhost[0].pos.y, mGhost[0].pos.z);
+	world = XMMatrixTranslation(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
 	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mGhostMat);
 	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.ghosts.indexOffset, oc.pacMan.indexCount);
 
-	world = XMMatrixTranslation(mInky[0].pos.x, mInky[0].pos.y, mInky[0].pos.z);
+	world = XMMatrixTranslation(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
 	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mInkyMat);
 	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.ghosts.indexOffset + oc.pacMan.indexCount, oc.pacMan.indexCount);
 
-	world = XMMatrixTranslation(mPinky[0].pos.x, mPinky[0].pos.y, mPinky[0].pos.z);
+	world = XMMatrixTranslation(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
 	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mPinkyMat);
 	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 2), oc.pacMan.indexCount);
 
-	world = XMMatrixTranslation(mClyde[0].pos.x, mClyde[0].pos.y, mClyde[0].pos.z);
+	world = XMMatrixTranslation(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
 	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mClydeMat);
@@ -1424,17 +1424,17 @@ void PuckMan3D::BuildGhosts()
 {
 	////Positioning the Ghost
 	MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
-	mGhost.push_back(Ghost(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mInky.push_back(Ghost(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mPinky.push_back(Ghost(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mClyde.push_back(Ghost(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mBlinky = new Blinky(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
+	mInky = new Inky(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
+	mPinky = new Pinky(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
+	mClyde = new Clyde(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
 
 	/*mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));*/
 
-	for (int i = 0; i < mGhost.size(); ++i)
+	/*for (int i = 0; i < mGhost.size(); ++i)
 	{
 		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mGhost[i].pos.x, mGhost[i].pos.y, mGhost[i].pos.z));
 	}
@@ -1452,7 +1452,7 @@ void PuckMan3D::BuildGhosts()
 	for (int i = 0; i < mClyde.size(); ++i)
 	{
 		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mClyde[i].pos.x, mClyde[i].pos.y, mClyde[i].pos.z));
-	}
+	}*/
 }
 
 void PuckMan3D::BuildPowerUps()
