@@ -21,9 +21,9 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	currentNode->combineNode(currentNode, start);
 	
 
-	//mOpenMap.insert(std::make_pair(start, true)); //Put the start node into the openList, marking it as true here means it is open
+	//Put the start node into the openList, and change isOpen to true
 	mOpenList.push_back(start);
-	start->isOpen = true;
+	//start->isOpen = true;
 
 	if (currentNode == goal)
 	{
@@ -33,7 +33,7 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 
 	while ((currentNode->xPos != goal->xPos) && (currentNode->zPos != goal->zPos))
 	{		
-		std::cout << "CurrNode X: " << currentNode->xPos << ", CurrNode Z: " << currentNode->zPos << std::endl;
+		//std::cout << "CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
 		PathNode tempChildNode(*currentNode);
 
 		//Get adjacent walkable tiles

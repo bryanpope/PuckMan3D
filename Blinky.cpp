@@ -15,7 +15,7 @@ void Blinky::Update()
 	std::list<PathNode*> testVec = test.FindPath(start, goal);
 	if (testVec.size() != 0)
 	{
-		std::cout << "Blinky pos " << mPos.x << ", " << mPos.y << ", " << mPos.z << std::endl;
+		//std::cout << "Blinky pos " << mPos.x << ", " << mPos.y << ", " << mPos.z << std::endl;
 		this->setPos(XMVectorSet(testVec.front()->xPos, mPos.y, testVec.front()->zPos, 0.0f));
 	}
 	

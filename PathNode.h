@@ -8,14 +8,13 @@ public:
 	int xPos;
 	int zPos;
 	int gCost;
-	//int hCost;
 	int fCost;
 	bool isWalkable;
-	bool isOpen; //If true, the node is Open and therefore in the openList already. If false, the node is Closed and therefore in the closedList
+
 	std::string facing;
 	PathNode* parent;
 
-	PathNode(int x, int z, int gCost, int fCost, PathNode* parent, std::string facing);
+	PathNode(int x, int z, int g, int f, PathNode* parent, std::string facing);
 	PathNode(int x, int z);
 	~PathNode(){}
 
@@ -26,13 +25,8 @@ public:
 
 	int getGCost(PathNode* n)
 	{
-		return n->gCost + ((xPos == n->xPos || zPos == n->zPos) ? 10 : 14);
+		return n->gCost + ((xPos == n->xPos || zPos == n->zPos));
 	}
-
-	/*int getHCost(PathNode* n)
-	{
-		return (abs(n->xPos - xPos) + abs(n->zPos - zPos)) * 10;
-	}*/
 
 	int getZ()
 	{
@@ -49,7 +43,6 @@ public:
 		parent = p;
 	}
 
-	//void calculateCosts(PathNode* goal);
 	int getDistance(PathNode* goal, int x, int z);
 	int getDistanceFromParent(PathNode child, PathNode* goal);
 
@@ -88,6 +81,5 @@ public:
 		fCost = rhs.fCost;
 		facing = rhs.facing;
 		isWalkable = rhs.isWalkable;
-		isOpen = rhs.isOpen;
 	}
 };
