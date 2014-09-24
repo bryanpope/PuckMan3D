@@ -397,7 +397,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
-mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(1000.0f),
+mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(650.0f),
 mCountPellets(0), mLitMatInstanceEffect(0)
 {
 	soundStates = SoundsState::SS_KA;
@@ -814,6 +814,11 @@ void PuckMan3D::UpdateScene(float dt)
 
 	mBlinky->Update();
 	
+	MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z, 0.0f), 0);
+	MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);
+	MazeLoader::SetGhostPos(XMVectorSet(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z, 0.0f), 2);
+	MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);
+
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR pos = XMLoadFloat3(&pacMans[0].pos);
 	XMVECTOR vel = XMLoadFloat3(&pacMans[0].vel);
@@ -833,12 +838,19 @@ void PuckMan3D::UpdateScene(float dt)
 
 	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
 	////Checking PacMan Collision with Ghost
-	/*for (int i = 0; i < ghosts.size(); ++i)
+	for (int i = 0; i < ghosts.size(); ++i)
 	{
-		XMVECTOR ghostPos = XMLoadFloat3(&mGhost[i].pos);
+		XMVECTOR ghostPos = XMLoadFloat3(&ghosts[i].pos);
 
 		if (PacManPelletOverlapTest(pos, ghostPos) == true)
 		{
+			//mPacMan.pop_back();
+			MazeLoader::ErasePacMan(pacMans.size() - 1);
+			MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
+			MazeLoader::SetPacManPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f), 0);
+			//mPacMan[0].pos.x = 0.0f;
+			//mPacMan[0].pos.y = 0.75f;
+			//mPacMan[0].pos.z = -8.5f;
 			playDeathSFX();
 			mIsPlayerDead = true;
 			mIsMoving = false;
@@ -849,7 +861,7 @@ void PuckMan3D::UpdateScene(float dt)
 			break;
 		}
 
-	}*/
+	}
 
 	std::vector<MazeLoader::MazeElementSpecs> pellets = MazeLoader::GetPelletData();
 	////checking PacMan collision with Pellets
@@ -867,12 +879,11 @@ void PuckMan3D::UpdateScene(float dt)
 
 			if (soundStates == SoundsState::SS_KA)
 			{
-				playKaSFX();
-			}
-
-			if (soundStates == SoundsState::SS_WA)
-			{
 				playWaSFX();
+			}
+			else if (soundStates == SoundsState::SS_WA)
+			{
+				playKaSFX();
 			}
 			mPelletCounter++;
 			MazeLoader::ErasePellet(i);
@@ -1417,7 +1428,7 @@ void PuckMan3D::DrawScene()
 	//{
 		//world = XMMatrixTranslation(mPacMan[i].pos.x, mPacMan[i].pos.y, mPacMan[i].pos.z);
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
-	world = XMMatrixTranslation(pacMans[0].pos.x, pacMans[0].pos.y, pacMans[0].pos.z);
+	//world = XMMatrixTranslation(pacMans[0].pos.x, pacMans[0].pos.y, pacMans[0].pos.z);
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 		worldViewProj = world*view*proj;
@@ -1428,6 +1439,7 @@ void PuckMan3D::DrawScene()
 	//}
 
 	world = XMMatrixTranslation(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z);
+	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
 	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mGhostMat);
@@ -1435,29 +1447,33 @@ void PuckMan3D::DrawScene()
 		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset, oc.pacMan.indexCount);
 
-	world = XMMatrixTranslation(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z);
+	/*world = XMMatrixTranslation(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z);
+	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
 	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mInkyMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
-		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + oc.pacMan.indexCount, oc.pacMan.indexCount);
 
 	world = XMMatrixTranslation(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z);
+	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
 	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPinkyMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
-		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 2), oc.pacMan.indexCount);
 
 	world = XMMatrixTranslation(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z);
+	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
 	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mClydeMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
-		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 3), oc.pacMan.indexCount);
+	*/
 
 	//mMazeCharacter->Draw(md3dImmediateContext, vp);
 
@@ -1491,7 +1507,7 @@ void PuckMan3D::DrawScene()
 	md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
 
 	std::stringstream os;
-	os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")";
+	os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mSpeed;
 	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
 	mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
@@ -2004,11 +2020,10 @@ void PuckMan3D::BuildPuckMan()
 	////Positioning the PacMans
 	//mPacMan.push_back(PacMan(XMVectorSet(0.0f, 0.75f, -8.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
-	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
-	pacMans[1].world._41 = -12.0f;
-	pacMans[1].world._43 = -17.0f;
-	pacMans[2].world._41 = -9.5f;
-	pacMans[2].world._43 = -17.0f;
+	//std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+	MazeLoader::SetPacManPos(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), 1);
+	MazeLoader::SetPacManPos(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), 2);
+
 	mPacMan.push_back(PacMan(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, -pacPos.pacMan.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPacMan.push_back(PacMan(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPacMan.push_back(PacMan(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
@@ -3061,19 +3076,20 @@ void PuckMan3D::loadWaSFX()
 
 void PuckMan3D::playWaSFX()
 {
+	//bool isPlaying = false;
 
-	if (channel[3] != NULL)
-	{
-		channel[3]->isPlaying(&isPlaying);
-	}
+	//if (channel[3] != NULL)
+	//{
+	//	channel[3]->isPlaying(&isPlaying);
+	//}
 
-	if (!isPlaying)
-	{
+	//if (!isPlaying)
+	//{
 		result = sys->playSound(sound[7], 0, false, &channel[3]);
 		result = channel[3]->setChannelGroup(soundGroup);
 		result = channel[3]->setPaused(false);
-	}
-	soundStates = SoundsState::SS_KA;
+		soundStates = SoundsState::SS_WA;
+	//}
 }
 
 void PuckMan3D::loadKaSFX()
@@ -3084,19 +3100,20 @@ void PuckMan3D::loadKaSFX()
 
 void PuckMan3D::playKaSFX()
 {
+	//bool isPlaying = false;
 
-	if (channel[3] != NULL)
-	{
-		channel[3]->isPlaying(&isPlaying);
-	}
+	//if (channel[3] != NULL)
+	//{
+	//	channel[3]->isPlaying(&isPlaying);
+	//}
 
-	if (!isPlaying)
-	{
+	//if (!isPlaying)
+	//{
 		result = sys->playSound(sound[8], 0, false, &channel[3]);
 		result = channel[3]->setChannelGroup(soundGroup);
 		result = channel[3]->setPaused(false);
-	}
-	soundStates = SoundsState::SS_WA;
+		soundStates = SoundsState::SS_KA;
+	//}
 }
 
 void PuckMan3D::loadSystem()

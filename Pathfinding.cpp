@@ -22,18 +22,19 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	
 
 	//Put the start node into the openList, and change isOpen to true
-	mOpenList.push_back(start);
+	//mOpenList.push_back(start);
 	//start->isOpen = true;
 
-	if (currentNode == goal)
-	{
-		std::cout << "We're already there" << std::endl;
-		return tempPath;
-	}
+	
 
+	//while ((currentNode->xPos != goal->xPos) && (currentNode->zPos != goal->zPos))
 	while ((currentNode->xPos != goal->xPos) && (currentNode->zPos != goal->zPos))
 	{		
-		//std::cout << "CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
+		if (currentNode == goal)
+		{
+			break;
+		}
+		std::cout << "CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
 		PathNode tempChildNode(*currentNode);
 
 		//Get adjacent walkable tiles
@@ -55,6 +56,9 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 		AddChild(tempChildNode, currentNode, goal);
 
 		mClosedSet.insert(currentNode);
+
+		//std::sort(mOpenList.begin(), mOpenList.end(), PathNode::FCostSort());
+		mOpenList.sort(PathNode::FCostSort());
 
 		if (mOpenList.size() > 0)
 		{
@@ -79,8 +83,12 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 	//Check surroundings for walkable tiles and if in closed list
 	if ((childNode.xPos >= -14 && childNode.zPos >= -15.5) && (childNode.xPos<= 14 && childNode.zPos <= 15.5))
 	{
-		if (!MazeLoader::IsBlocked(childNode.zPos, childNode.xPos))
+		/*if (MazeLoader::IsBlocked(childNode.zPos, childNode.xPos))
 		{
+			std::cout << "Node at " << childNode.xPos << ", " << childNode.zPos << " is blocked" << std::endl;
+		}
+		if (!MazeLoader::IsBlocked(childNode.zPos, childNode.xPos))
+		{*/
 			if (!InClosedList(&childNode))
 			{
 				childNode.facing = currNode->facing;
@@ -103,7 +111,7 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 					PathNode* newChildNode = new PathNode(childNode.xPos, childNode.zPos, g, f, currNode, "");
 					mOpenList.push_back(newChildNode);
 				}
-			}
+			//}
 		}
 	}
 }

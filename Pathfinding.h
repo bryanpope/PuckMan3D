@@ -38,4 +38,3 @@ public:
 	void InitializePathFinding();
 	float GetDistance(PathNode* currNode, PathNode* parent);
 };
-

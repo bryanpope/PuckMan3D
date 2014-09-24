@@ -299,11 +299,11 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 			}
 			if (mazeText[i][j] == L'M')	// Puck Man
 			{
-				mInitialPositions.pacMan = XMFLOAT3(0.0f, 0.0f, 0.0f);
 				mMazeElements.push_back(ME_NOTHING);
 				worldPos._41 = posX + 0.5f;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
+				mInitialPositions.pacMan = XMFLOAT3(worldPos._41, worldPos._42, worldPos._43);
 				mPacMans.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
 				instPacMans[instanceCountPacMan].World = worldPos;
 				instPacMans[instanceCountPacMan++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
