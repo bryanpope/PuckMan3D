@@ -110,6 +110,25 @@ void Effect::Draw(ID3D11DeviceContext* context, ID3D11Buffer* vb, ID3D11Buffer* 
 	}
 }
 
+void Effect::DrawInstanced(ID3D11DeviceContext* context, ID3D11Buffer* vb, ID3D11Buffer* ib, ID3D11Buffer* instanceb, int instanceCount, int startIndex, int indexCount)
+{
+	UINT stride[2] = { sizeof(Vertex::NormalTexVertex), sizeof(Vertex::InstancedData) };
+	UINT offset[2] = { 0, 0 };
+	ID3D11Buffer* vBuffer[2] = { vb, instanceb };
+
+	context->IASetVertexBuffers(0, 2, vBuffer, stride, offset);
+	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+	D3DX11_TECHNIQUE_DESC techDesc;
+	mTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		mTech->GetPassByIndex(p)->Apply(0, context);
+
+		context->DrawIndexedInstanced(indexCount, instanceCount, startIndex, 0, 0);
+	}
+}
+
 void Effect::SetPerObjectParams(CXMMATRIX wvp)
 {
 	mfxWVP->SetMatrix(reinterpret_cast<const float*>(&wvp));
@@ -199,12 +218,13 @@ void LitMatEffect::SetPerFrameParams(FXMVECTOR ambient, FXMVECTOR eyePos, const 
 	mfxAmbientLight->SetRawValue(&ambient, 0, sizeof(XMVECTOR));
 }
 
-void LitMatEffect::SetPerObjectParams(CXMMATRIX world, CXMMATRIX invTranspose, CXMMATRIX wvp, Material &mat)
+void LitMatEffect::SetPerObjectParams(CXMMATRIX world, CXMMATRIX invTranspose, CXMMATRIX wvp, CXMMATRIX viewProj, Material &mat)
 {
 	Effect::SetPerObjectParams(wvp);
 	mfxInvTranspose->SetMatrix(reinterpret_cast<const float*>(&invTranspose));
 	mfxWorld->SetMatrix(reinterpret_cast<const float*>(&world));
 	mfxMaterial->SetRawValue(&mat, 0, sizeof(Material));
+	mfxViewProj->SetMatrix(reinterpret_cast<const float*>(&viewProj));
 }
 
 void LitMatEffect::LoadEffectParams()
@@ -219,7 +239,14 @@ void LitMatEffect::LoadEffectParams()
 	mfxWorld = mEffect->GetVariableByName("gW")->AsMatrix();
 	mfxInvTranspose = mEffect->GetVariableByName("gInvTransposeW")->AsMatrix();
 	mfxMaterial = mEffect->GetVariableByName("gMaterial");
+	mfxViewProj = mEffect->GetVariableByName("gViewProj")->AsMatrix();
 }
+
+void LitMatEffect::SetEffectTech(LPCSTR effectName)
+{
+	mTech = mEffect->GetTechniqueByName(effectName);
+}
+
 
 TerrainEffect::~TerrainEffect()
 {	

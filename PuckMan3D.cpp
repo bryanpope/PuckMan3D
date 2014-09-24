@@ -74,6 +74,9 @@ private:
 	void UpdateKeyboardInput(float dt);
 	void UpdateCollision();
 	XMVECTOR PacManAABoxOverLap(XMVECTOR s1Center);
+	bool PuckMan3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
+	bool PuckMan3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
+	bool PuckMan3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 
 	XMVECTOR CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height,
 		FXMVECTOR c2Pos, float c2Rad, float c2Height);
@@ -104,6 +107,8 @@ private:
 	struct Pellet
 	{
 		XMFLOAT3 pos;
+		XMFLOAT4X4 World;
+		XMFLOAT4 Color;
 
 		Pellet(FXMVECTOR pos)
 		{
@@ -159,7 +164,8 @@ private:
 	ID3D11Buffer* mShapesVB;
 	ID3D11Buffer* mShapesIB;
 
-	LitMatEffect* mLitMatEffect;
+	//LitMatEffect* mLitMatEffect;
+	LitMatEffect* mLitMatInstanceEffect;
 	LitTexEffect* mLitTexEffect;
 	ParticleEffect* mParticleEffect;
 
@@ -185,6 +191,8 @@ private:
 
 	BasicModel* mMazeModel;
 	Character* mMazeCharacter;
+	BasicModel* mMazeModelInstanced;
+	Character* mMazeCharacterInstanced;
 
 	std::vector<Character*> mTestChars;
 
@@ -263,6 +271,11 @@ private:
 
 	std::vector<Vertex::NormalTexVertex> mMazeVerts;
 	std::vector<UINT> mMazeInd;
+	UINT mCountWalls;
+	UINT mCountPellets;
+	UINT mCountPowerUps;
+	UINT mCountPacMans;
+	UINT mCountGhosts;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -287,8 +300,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
-	: D3DApp(hInstance), mLitMatEffect(0), mLitTexEffect(0), mMouseReleased(true), mCam(0), mTestPlayer(0), mTestTerrain(0),
-mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(1000.0f)
+	: D3DApp(hInstance),  mLitTexEffect(0), mMouseReleased(true), mCam(0), mTestPlayer(0), mTestTerrain(0),
+mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(1000.0f),
+mCountPellets(0), mLitMatInstanceEffect(0)
 {
 	XMVECTOR pos = XMVectorSet(1.0f, 1.0f, 5.0f, 0.0f);
 	XMVECTOR look = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
@@ -320,8 +334,8 @@ PuckMan3D::~PuckMan3D()
 	if(mTestTerrain)
 		delete mTestTerrain;
 
-	if (mLitMatEffect)
-		delete mLitMatEffect;
+	if (mLitMatInstanceEffect)
+		delete mLitMatInstanceEffect;
 	
 	if (mLitTexEffect)
 		delete mLitTexEffect;
@@ -403,12 +417,17 @@ bool PuckMan3D::Init()
 	if(!D3DApp::Init())
 		return false;
 
-	mLitMatEffect = new LitMatEffect();
-	mLitMatEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
-	Vertex::InitLitMatLayout(md3dDevice, mLitMatEffect->GetTech());
+	//mLitMatEffect = new LitMatEffect();
+	//mLitMatEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
+	//Vertex::InitLitMatLayout(md3dDevice, mLitMatEffect->GetTech());
 
-	mMazeModel = new BasicModel(md3dDevice, mLitMatEffect, "Mazes/mainLevel.txt");
-	
+	mLitMatInstanceEffect = new LitMatEffect();
+	mLitMatInstanceEffect->LoadEffect(L"FX/lightingInstanced.fx", md3dDevice);
+	Vertex::InitLitMatInstanceLayout(md3dDevice, mLitMatInstanceEffect->GetTech());
+
+	//mMazeModel = new BasicModel(md3dDevice, mLitMatEffect, "Mazes/mainLevel.txt");
+	mMazeModelInstanced = new BasicModel(md3dDevice, mLitMatInstanceEffect, "Mazes/mainLevel.txt");
+
 	//BuildPuckMaze();
 	//BuildPellets();
 	BuildPuckMan();
@@ -417,15 +436,16 @@ bool PuckMan3D::Init()
 	SetMaterials();
 	BuildShapeGeometryBuffers();
 
-	mMazeModel->GetMesh()->SetMaterial(mBoxMat);
+	//mMazeModel->GetMesh()->SetMaterial(mBoxMat);
+	mMazeModelInstanced->GetMesh()->SetMaterial(mBoxMat);
 
-	//mLitTexEffect = new LitTexEffect();
-	//mLitTexEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
+	mLitTexEffect = new LitTexEffect();
+	mLitTexEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
 
 	mParticleEffect = new ParticleEffect();
 	mParticleEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
 
-	//Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
+	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
 
 	//XMVECTOR pos = XMVectorSet(100.0f, 30.0f, 475.0f, 0.0f);
 	//XMVECTOR pos = XMVectorSet(0.0f, 30.0f, 250.0f, 0.0f);
@@ -433,7 +453,8 @@ bool PuckMan3D::Init()
 	XMVECTOR look = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-	mMazeCharacter = new Character(pos, look, up, *mMazeModel);
+	//mMazeCharacter = new Character(pos, look, up, *mMazeModel);
+	mMazeCharacterInstanced = new Character(pos, look, up, *mMazeModelInstanced);
 
 	//mFarmModel = new BasicModel(md3dDevice, mLitTexEffect, "Models/farm.obj", false, true);
 	//mMonsterModel = new BasicModel(md3dDevice, mLitTexEffect, "Models/troll2.obj", false, true);
@@ -488,8 +509,7 @@ bool PuckMan3D::Init()
 	//mTestChars.push_back(newTroll);
 
 	ID3D11ShaderResourceView* font;
-	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"Textures/font.png",
-		0, 0, &font, 0);
+	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"Textures/font2.png", 0, 0, &font, 0);
 
 	mFont = new FontRasterizer(m2DCam, XMLoadFloat4x4(&m2DProj), mLitTexEffect, 10, 10, font, md3dDevice);
 
@@ -654,16 +674,83 @@ void PuckMan3D::UpdateScene(float dt)
 {
 	UpdateKeyboardInput(dt);
 	
-	XMVECTOR pos = XMLoadFloat3(&mPacMan[0].pos);
-	XMVECTOR vel = XMLoadFloat3(&mPacMan[0].vel);
+	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+	XMVECTOR pos = XMLoadFloat3(&pacMans[0].pos);
+	XMVECTOR vel = XMLoadFloat3(&pacMans[0].vel);
 
 	pos = pos + (vel * mSpeed * dt);
 
-	XMStoreFloat3(&mPacMan[0].pos, pos);
-	XMStoreFloat3(&mPacMan[0].vel, vel);
+	MazeLoader::SetPacManPos(pos, 0);
+	MazeLoader::SetPacManVel(vel, 0);
+
+	//XMStoreFloat3(&pacMans[0].pos, pos);
+	//XMStoreFloat3(&pacMans[0].vel, vel);
 
 	//// Checking PacMan collision with maze
-	XMStoreFloat3(&mPacMan[0].pos, PacManAABoxOverLap(pos));
+	MazeLoader::SetPacManPos(PacManAABoxOverLap(pos), 0);
+	
+	//XMStoreFloat3(&pacMans[0].pos, PacManAABoxOverLap(pos));
+
+	////Checking PacMan Collision with Ghost
+	for (int i = 0; i < mGhost.size(); ++i)
+	{
+		XMVECTOR ghostPos = XMLoadFloat3(&mGhost[i].pos);
+
+		if (PacManPelletOverlapTest(pos, ghostPos) == true)
+		{
+			mPacMan.pop_back();
+			mPacMan[0].pos.x = 0.0f;
+			mPacMan[0].pos.y = 0.75f;
+			mPacMan[0].pos.z = -8.5f;
+			break;
+		}
+
+	}
+
+	std::vector<MazeLoader::MazeElementSpecs> pellets = MazeLoader::GetPelletData();
+	////checking PacMan collision with Pellets
+	//// If collision is true remove the pellet.
+	for (int i = 0; i < pellets.size(); ++i)
+	{
+		XMVECTOR pelPos = XMLoadFloat3(&pellets[i].pos);
+
+		if (PacManPelletOverlapTest(pos, pelPos) == true)
+		{
+			MazeLoader::ErasePellet(i);
+			break;
+			//--i;
+		}
+
+	}
+	std::vector<MazeLoader::MazeElementSpecs> powerUps = MazeLoader::GetPowerUpData();
+	////checking PacMan collision with PowerUps
+	//// If collision is true remove the powerup.
+	for (int i = 0; i < powerUps.size(); ++i)
+	{
+		XMVECTOR pUpPos = XMLoadFloat3(&powerUps[i].pos);
+
+		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
+		{
+			powerUps.erase(powerUps.begin() + i);
+			break;
+			//--i;
+		}
+	}
+
+	////PacMan Tunnel Check
+
+	if (pacMans[0].pos.x < -14.0f)
+	{
+		pos.m128_f32[0] = 14.0f;
+		MazeLoader::SetPacManPos(pos, 0);
+		//mPacMan[0].pos.x = 14.0f;
+	}
+	if (pacMans[0].pos.x > 14.0f)
+	{
+		pos.m128_f32[0] = -14.0f;
+		MazeLoader::SetPacManPos(pos, 0);
+		//mPacMan[0].pos.x = -14.0f;
+	}
 
 	//XMVECTOR camPos = mCam->GetPos();
 
@@ -676,9 +763,9 @@ void PuckMan3D::UpdateScene(float dt)
 	float eyeOffset = 25.0f;
 	//float eyeOffset = 0.0f;
 	// Camera X, Y, Z Positioning.
-	float x = mPacMan[0].pos.x;
-	float y = mPacMan[0].pos.y + eyeOffset;
-	float z = mPacMan[0].pos.z - eyeOffset;
+	float x = pacMans[0].pos.x;
+	float y = pacMans[0].pos.y + eyeOffset;
+	float z = pacMans[0].pos.z - eyeOffset;
 	//float y = mPacMan[0].pos.y + eyeOffset;
 	//float z = mPacMan[0].pos.z - eyeOffset;
 
@@ -686,14 +773,66 @@ void PuckMan3D::UpdateScene(float dt)
 
 	// Build the view matrix.
 	XMVECTOR eyePos = XMVectorSet(x, y, z, 1.0f);
-	XMVECTOR target = XMVectorSet(mPacMan[0].pos.x, mPacMan[0].pos.y + 5, mPacMan[0].pos.z, 0.0f);//XMVectorZero();
+	XMVECTOR target = XMVectorSet(pacMans[0].pos.x, pacMans[0].pos.y + 5, pacMans[0].pos.z, 0.0f);//XMVectorZero();
 	//XMVECTOR target = XMVectorZero();
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	XMMATRIX V = XMMatrixLookAtLH(eyePos, target, up);
 	XMStoreFloat4x4(&mView, V);
 
-	mMazeCharacter->Update(dt);
+	mMazeCharacterInstanced->Update(dt);
+
+
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	Vertex::InstancedData* dataView;
+
+	std::vector<MazeLoader::MazeElementSpecs> walls = MazeLoader::GetWallData();
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBWalls(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountWalls = 0;
+	for (UINT i = 0; i < walls.size(); ++i)
+	{
+		dataView[mCountWalls++] = { walls[i].world, walls[i].colour };
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBWalls(), 0);
+
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBPellets(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountPellets = 0;
+	for (UINT i = 0; i < pellets.size(); ++i)
+	{
+		dataView[mCountPellets++] = { pellets[i].world, pellets[i].colour };
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBPellets(), 0);
+
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountPowerUps = 0;
+	for (UINT i = 0; i < powerUps.size(); ++i)
+	{
+		dataView[mCountPowerUps++] = { powerUps[i].world, powerUps[i].colour };
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(), 0);
+
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBPacMans(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountPacMans = 0;
+	for (UINT i = 0; i < pacMans.size(); ++i)
+	{
+		dataView[mCountPacMans++] = { pacMans[i].world, pacMans[i].colour };
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBPacMans(), 0);
+
+	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountGhosts = 0;
+	for (UINT i = 0; i < ghosts.size(); ++i)
+	{
+		dataView[mCountGhosts++] = { ghosts[i].world, ghosts[i].colour };
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
 
 	return;
 	mTestPlayer->AddForce(XMVectorSet(0.0f, -20.0f * dt, 0.0f, 0.0f));
@@ -766,7 +905,7 @@ void PuckMan3D::DrawScene()
 	XMVECTOR eyePos = XMVectorSet(mEyePosW.x, mEyePosW.y, mEyePosW.z, 0.0f);
 	XMMATRIX view = XMLoadFloat4x4(&mView);
 
-	mLitMatEffect->SetPerFrameParams(ambient, eyePos, mPointLights);
+	mLitMatInstanceEffect->SetPerFrameParams(ambient, eyePos, mPointLights);
 
 	XMMATRIX vp = view * proj;
 
@@ -774,6 +913,7 @@ void PuckMan3D::DrawScene()
 	XMMATRIX world = XMLoadFloat4x4(&mGridWorld);
 	XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
 	XMMATRIX worldViewProj = world*view*proj;
+	XMMATRIX viewProj = view*proj;
 
 	/*mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mGridMat);
 	mLitMatEffect->Draw(md3dImmediateContext, mShapesVB, mShapesIB, mGridIndexOffset, mGridIndexCount, mGridVertexOffset);
@@ -875,45 +1015,71 @@ void PuckMan3D::DrawScene()
 
 	MazeLoader::OffsetsCountsMazeElements oc = MazeLoader::GetOffsetsCounts();
 
-	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mBoxMat);
-	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.walls.indexOffset, oc.walls.indexCount);
-	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mPelletMat);
-	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.pellets.indexOffset, oc.pellets.indexCount);
-	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mPowerUpMat);
-	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.powerUps.indexOffset, oc.powerUps.indexCount);
+	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mBoxMat);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBWalls(),
+		mCountWalls, oc.walls.indexOffset, oc.walls.indexCount);
+	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.walls.indexOffset, oc.walls.indexCount);
 
-	for (int i = 0; i < mPacMan.size(); ++i)
-	{
-		world = XMMatrixTranslation(mPacMan[i].pos.x, mPacMan[i].pos.y, mPacMan[i].pos.z);
-		worldInvTranspose = MathHelper::InverseTranspose(world);
+	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPelletMat);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPellets(),
+		mCountPellets, oc.pellets.indexOffset, oc.pellets.indexCount);
+
+	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPowerUpMat);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(),
+		mCountPowerUps, oc.powerUps.indexOffset, oc.powerUps.indexCount);
+	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.powerUps.indexOffset, oc.powerUps.indexCount);
+
+	//for (int i = 0; i < mPacMan.size(); ++i)
+	//{
+		//world = XMMatrixTranslation(mPacMan[i].pos.x, mPacMan[i].pos.y, mPacMan[i].pos.z);
+	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+	world = XMMatrixTranslation(pacMans[0].pos.x, pacMans[0].pos.y, pacMans[0].pos.z);
+	world = XMLoadFloat4x4(&mGridWorld);
+	worldInvTranspose = MathHelper::InverseTranspose(world);
 		worldViewProj = world*view*proj;
-		mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mPacManMat);
-		mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.pacMan.indexOffset, oc.pacMan.indexCount);
-	}
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPacManMat);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPacMans(),
+			mCountPacMans, oc.pacMan.indexOffset, oc.pacMan.indexCount);
+		//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.pacMan.indexOffset, oc.pacMan.indexCount);
+	//}
 
 	world = XMMatrixTranslation(mGhost[0].pos.x, mGhost[0].pos.y, mGhost[0].pos.z);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
-	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mGhostMat);
-	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.ghosts.indexOffset, oc.pacMan.indexCount);
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mGhostMat);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
+		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset, oc.pacMan.indexCount);
 
 	world = XMMatrixTranslation(mInky[0].pos.x, mInky[0].pos.y, mInky[0].pos.z);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
-	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mInkyMat);
-	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.ghosts.indexOffset + oc.pacMan.indexCount, oc.pacMan.indexCount);
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mInkyMat);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
+		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + oc.pacMan.indexCount, oc.pacMan.indexCount);
 
 	world = XMMatrixTranslation(mPinky[0].pos.x, mPinky[0].pos.y, mPinky[0].pos.z);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
-	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mPinkyMat);
-	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 2), oc.pacMan.indexCount);
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPinkyMat);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
+		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 2), oc.pacMan.indexCount);
 
 	world = XMMatrixTranslation(mClyde[0].pos.x, mClyde[0].pos.y, mClyde[0].pos.z);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
-	mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mClydeMat);
-	mLitMatEffect->Draw(md3dImmediateContext, mMazeModel->GetMesh()->GetVB(), mMazeModel->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 3), oc.pacMan.indexCount);
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mClydeMat);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
+		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 3), oc.pacMan.indexCount);
 
 	//mMazeCharacter->Draw(md3dImmediateContext, vp);
 
@@ -940,17 +1106,18 @@ void PuckMan3D::DrawScene()
 	vp = vp * view * proj;
 
 	mTestTerrain->Draw(md3dImmediateContext, vp);
-	DrawParticles();
+	DrawParticles();*/
 	
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
 
 	std::stringstream os;
-	os << "Slope: " << mSlope;
+	os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")";
+	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
 	mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
-	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);*/
+	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 
 	HR(mSwapChain->Present(1, 0));
 }
@@ -1038,37 +1205,39 @@ void PuckMan3D::OnMouseMove(WPARAM btnState, int x, int y)
 
 void PuckMan3D::UpdateKeyboardInput(float dt)
 {
+	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+	XMVECTOR vel;
 
 	// Move Forward
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		mIsKeyPressed = true;
-		mPacMan[0].vel.x = 0.0f * dt;
-		mPacMan[0].vel.y = 0.0f * dt;
-		mPacMan[0].vel.z = 1.0f * dt;
-		if (mPacMan[0].vel.z < 0.00826695096f)
+		vel.m128_f32[0] = 0.0f * dt;
+		vel.m128_f32[1] = 0.0f * dt;
+		vel.m128_f32[2] = 1.0f * dt;
+		if (vel.m128_f32[2] < 0.00826695096f)
 		{
-			mPacMan[0].vel.z = 0.00826695096f;
+			vel.m128_f32[2] = 0.00826695096f;
 		}
 	}
 	else
 	{
 		mIsKeyPressed = false;
-		mPacMan[0].vel.x = 0.0f;
-		mPacMan[0].vel.y = 0.0f;
-		mPacMan[0].vel.z = 0.0f;
+		vel.m128_f32[0] = 0.0f;
+		vel.m128_f32[1] = 0.0f;
+		vel.m128_f32[2] = 0.0f;
 	}
 
 	// Move Backwards 
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
 		mIsKeyPressed = true;
-		mPacMan[0].vel.x = 0.0f * dt;
-		mPacMan[0].vel.y = 0.0f * dt;
-		mPacMan[0].vel.z = -1.0f * dt;
-		if (mPacMan[0].vel.z > -0.00826695096f)
+		vel.m128_f32[0] = 0.0f * dt;
+		vel.m128_f32[1] = 0.0f * dt;
+		vel.m128_f32[2] = -1.0f * dt;
+		if (vel.m128_f32[2] > -0.00826695096f)
 		{
-			mPacMan[0].vel.z = -0.00826695096f;
+			vel.m128_f32[2] = -0.00826695096f;
 		}
 	}
 
@@ -1076,37 +1245,36 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
 		mIsKeyPressed = true;
-		mPacMan[0].vel.x = -1.0f * dt;
-		if (mPacMan[0].vel.x > -0.00826695096f)
+		vel.m128_f32[0] = -1.0f * dt;
+		if (vel.m128_f32[0] > -0.00826695096f)
 		{
-			mPacMan[0].vel.x = -0.00826695096f;
+			vel.m128_f32[0] = -0.00826695096f;
 		}
-		mPacMan[0].vel.y = 0.0f * dt;
-		mPacMan[0].vel.z = 0.0f * dt;
+		vel.m128_f32[1] = 0.0f * dt;
+		vel.m128_f32[2] = 0.0f * dt;
 	}
 
 	// Move Right
 	if (GetAsyncKeyState('D') & 0x8000)
 	{
 		mIsKeyPressed = true;
-		mPacMan[0].vel.x = 1.0f * dt;
-		if (mPacMan[0].vel.x < 0.00826695096f)
+		vel.m128_f32[0] = 1.0f * dt;
+		if (vel.m128_f32[0] < 0.00826695096f)
 		{
-			mPacMan[0].vel.x = 0.00826695096f;
+			vel.m128_f32[0] = 0.00826695096f;
 		}
 
-		mPacMan[0].vel.y = 0.0f * dt;
-		mPacMan[0].vel.z = 0.0f * dt;
+		vel.m128_f32[1] = 0.0f * dt;
+		vel.m128_f32[2] = 0.0f * dt;
 	}
 
-
-
+	MazeLoader::SetPacManVel(vel, 0);
 }
 
 XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 {
 	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
-	std::vector<MazeLoader::AABox> boxData = MazeLoader::GetWallData();
+	std::vector<MazeLoader::AABox> boxData = MazeLoader::GetWallCollisionData();
 
 	for (int i = 0; i < boxData.size(); ++i)
 	{
@@ -1128,6 +1296,72 @@ XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 		}
 	}
 	return s1Center;
+
+}
+
+bool PuckMan3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
+{
+	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
+
+	float s2Radius = MazeLoader::RADIUS_GHOST;
+
+	XMVECTOR d = s1Center - s2Center; // difference between the two spheres centers
+	float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) + (d.m128_f32[1] * d.m128_f32[1]) + (d.m128_f32[2] * d.m128_f32[2])); //magnitude of the difference
+	float sumRadius = s1Radius + s2Radius; //sum of the 2 spheres radii
+
+	if (distance < sumRadius) // have collision
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+
+}
+
+bool PuckMan3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
+{
+	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
+
+	float s2Radius = MazeLoader::RADIUS_PELLET;
+
+	XMVECTOR d = s1Center - s2Center; // difference between the two spheres centers
+	float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) + (d.m128_f32[1] * d.m128_f32[1]) + (d.m128_f32[2] * d.m128_f32[2])); //magnitude of the difference
+	float sumRadius = s1Radius + s2Radius; //sum of the 2 spheres radii
+
+	if (distance < sumRadius) // have collision
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+
+}
+
+bool PuckMan3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
+{
+	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
+
+	float s2Radius = MazeLoader::RADIUS_POWERUP;
+
+	XMVECTOR d = s1Center - s2Center; // difference between the two spheres centers
+	float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) + (d.m128_f32[1] * d.m128_f32[1]) + (d.m128_f32[2] * d.m128_f32[2])); //magnitude of the difference
+	float sumRadius = s1Radius + s2Radius; //sum of the 2 spheres radii
+
+	if (distance < sumRadius) // have collision
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
 
 }
 
@@ -1334,6 +1568,11 @@ void PuckMan3D::BuildPuckMan()
 	////Positioning the PacMans
 	//mPacMan.push_back(PacMan(XMVectorSet(0.0f, 0.75f, -8.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
+	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+	pacMans[1].world._41 = -12.0f;
+	pacMans[1].world._43 = -17.0f;
+	pacMans[2].world._41 = -9.5f;
+	pacMans[2].world._43 = -17.0f;
 	mPacMan.push_back(PacMan(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, -pacPos.pacMan.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPacMan.push_back(PacMan(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPacMan.push_back(PacMan(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
@@ -1348,6 +1587,15 @@ void PuckMan3D::BuildGhosts()
 {
 	////Positioning the Ghost
 	MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
+	ghosts[0].world._41 = gPos.blinky.x;
+	ghosts[0].world._43 = gPos.blinky.z;
+	ghosts[1].world._41 = gPos.inky.x;
+	ghosts[1].world._43 = gPos.inky.z;
+	ghosts[2].world._41 = gPos.pinky.x;
+	ghosts[2].world._43 = gPos.pinky.z;
+	ghosts[3].world._41 = gPos.clyde.x;
+	ghosts[3].world._43 = gPos.clyde.z;
 	mGhost.push_back(Ghost(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mInky.push_back(Ghost(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPinky.push_back(Ghost(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));

@@ -11,6 +11,11 @@ MazeLoader::InitialPosition MazeLoader::mInitialPositions;
 std::vector<MazeLoader::AABox> MazeLoader::mBoxData;
 std::vector<MazeLoader::MazeElements> MazeLoader::mMazeElements;
 UINT MazeLoader::mMazeWidth;
+std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mWalls;
+std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPellets;
+std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPowerUps;
+std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPacMans;
+std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mGhosts;
 
 const float MazeLoader::RADIUS_PAC_MAN = 0.75f;
 const float MazeLoader::RADIUS_GHOST = 0.75f;
@@ -25,7 +30,9 @@ MazeLoader::~MazeLoader(void)
 {
 }
 
-bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices)
+bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices, 
+	std::vector<Vertex::InstancedData>& instWalls, std::vector<Vertex::InstancedData>& instPellets, std::vector<Vertex::InstancedData>& instPowerUps,
+	std::vector<Vertex::InstancedData>& instPacMans, std::vector<Vertex::InstancedData>& instGhosts)
 {
 	std::vector<XMFLOAT3> vertPos;
 	vertPos.reserve(MAX_VERTICES);
@@ -39,6 +46,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	std::wifstream fin(filename.c_str());
 
 	std::vector<std::wstring> mazeText;
+	XMFLOAT4X4 worldPos;
+	XMStoreFloat4x4(&worldPos, XMMatrixIdentity());
 
 	if(!fin)
 	{
@@ -93,34 +102,32 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	geoGen.CreateSphere(RADIUS_PAC_MAN, 10, 10, meshPacMan);
 	geoGen.CreateSphere(RADIUS_GHOST, 10, 10, meshGhost);
 
-	UINT startVertexPellet = meshBox.Vertices.size() * mElementCount.walls;
-	UINT startIndexPellet = meshBox.Indices.size() * mElementCount.walls;
-	UINT startVertexPowerUp = startVertexPellet + (meshPellet.Vertices.size() * mElementCount.pellets);
-	UINT startIndexPowerUp = startIndexPellet + (meshPellet.Indices.size() * mElementCount.pellets);
-	UINT startVertexPacMan = startVertexPowerUp + (meshPowerUp.Vertices.size() * mElementCount.powerUps);
-	UINT startIndexPacMan = startIndexPowerUp + (meshPowerUp.Indices.size() * mElementCount.powerUps);
+	UINT startVertexPellet = meshBox.Vertices.size() * 1;
+	UINT startIndexPellet = meshBox.Indices.size() * 1;
+	UINT startVertexPowerUp = startVertexPellet + (meshPellet.Vertices.size() * 1);
+	UINT startIndexPowerUp = startIndexPellet + (meshPellet.Indices.size() * 1);
+	//UINT startVertexPowerUp = startVertexPellet + (meshPellet.Vertices.size() * mElementCount.pellets);
+	//UINT startIndexPowerUp = startIndexPellet + (meshPellet.Indices.size() * mElementCount.pellets);
+	UINT startVertexPacMan = startVertexPowerUp + (meshPowerUp.Vertices.size() * 1);
+	UINT startIndexPacMan = startIndexPowerUp + (meshPowerUp.Indices.size() * 1);
 	UINT startVertexGhost = startVertexPacMan + (meshPacMan.Vertices.size() * 1);
 	UINT startIndexGhost = startIndexPacMan + (meshPacMan.Indices.size() * 1);
 	
-	UINT countVertex = (meshBox.Vertices.size() * mElementCount.walls) + (meshPellet.Vertices.size() * mElementCount.pellets) + (meshPowerUp.Vertices.size() * mElementCount.powerUps)
-		+ (meshPacMan.Vertices.size() * 1) + (meshGhost.Vertices.size() * 4);
-	UINT countIndex = (meshBox.Indices.size() * mElementCount.walls) + (meshPellet.Indices.size() * mElementCount.pellets) + (meshPowerUp.Indices.size() * mElementCount.powerUps) 
-		+ (meshPacMan.Indices.size() * 1) + (meshGhost.Indices.size() * 4);
+	UINT countVertex = (meshBox.Vertices.size() * 1) + (meshPellet.Vertices.size() * 1) + (meshPowerUp.Vertices.size() * 1)
+		+ (meshPacMan.Vertices.size() * 1) + (meshGhost.Vertices.size() * 1);
+	UINT countIndex = (meshBox.Indices.size() * mElementCount.walls) + (meshPellet.Indices.size() * 1) + (meshPowerUp.Indices.size() * mElementCount.powerUps) 
+		+ (meshPacMan.Indices.size() * 1) + (meshGhost.Indices.size() * 1);
 
 	vertices.resize(countVertex);
 	indices.resize(countIndex);
-	/*for (int i = 0; i < mElementCount.walls; ++i)
-	{
-		for (size_t j = 0; j < meshBox.Vertices.size(); ++j)
-		{
-			vertices[i].pos = meshBox.Vertices[j].Position;
-			vertices[i].normal = meshBox.Vertices[j].Normal;
-			vertices[i].tex = meshBox.Vertices[j].TexC;
-		}
-	}*/
+	instWalls.resize(mElementCount.walls);
+	instPellets.resize(mElementCount.pellets);
+	instPowerUps.resize(mElementCount.powerUps);
+	instPacMans.resize(3);
+	instGhosts.resize(4);
 
-	float posX = lineWidth * -0.5f;
-	float posY = lineCount * -0.5f;
+	float posX = lineWidth * -0.5f;	// horizontal
+	float posZ = lineCount * -0.5f;	// vertical
 	UINT vCountWall = 0;
 	UINT iCountWall = 0;
 	UINT vCountPellet = startVertexPellet;
@@ -137,151 +144,194 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	UINT iBlockPacMan = startVertexPacMan;
 	UINT iBlockGhost = startVertexGhost;
 
+	UINT instanceCountWall = 0;
+	UINT instanceCountPellet = 0;
+	UINT instanceCountPowerUp = 0;
+	UINT instanceCountPacMan = 0;
+	UINT instanceCountGhost = 0;
+
 	mElementOffsetsCounts.walls.vertexOffset = 0;
 	mElementOffsetsCounts.walls.indexOffset = 0;
-	mElementOffsetsCounts.walls.vertexCount = meshBox.Vertices.size() * mElementCount.walls;
-	mElementOffsetsCounts.walls.indexCount = meshBox.Indices.size() * mElementCount.walls;
+	mElementOffsetsCounts.walls.vertexCount = meshBox.Vertices.size() * 1;
+	mElementOffsetsCounts.walls.indexCount = meshBox.Indices.size() * 1;
 	mElementOffsetsCounts.walls.vertexSize = meshBox.Vertices.size();
 	mElementOffsetsCounts.walls.indexSize = meshBox.Indices.size();
 
 	mElementOffsetsCounts.pellets.vertexOffset = startVertexPellet;
 	mElementOffsetsCounts.pellets.indexOffset = startIndexPellet;
-	mElementOffsetsCounts.pellets.vertexCount = meshPellet.Vertices.size() * mElementCount.pellets;
-	mElementOffsetsCounts.pellets.indexCount = meshPellet.Indices.size() * mElementCount.pellets;
-	mElementOffsetsCounts.walls.vertexSize = meshPellet.Vertices.size();
-	mElementOffsetsCounts.walls.indexSize = meshPellet.Indices.size();
+	mElementOffsetsCounts.pellets.vertexCount = meshPellet.Vertices.size() * 1;
+	mElementOffsetsCounts.pellets.indexCount = meshPellet.Indices.size() * 1;
+	mElementOffsetsCounts.pellets.vertexSize = meshPellet.Vertices.size();
+	mElementOffsetsCounts.pellets.indexSize = meshPellet.Indices.size();
 
 	mElementOffsetsCounts.powerUps.vertexOffset = startVertexPowerUp;
 	mElementOffsetsCounts.powerUps.indexOffset = startIndexPowerUp;
-	mElementOffsetsCounts.powerUps.vertexCount = meshPowerUp.Vertices.size() * mElementCount.powerUps;
-	mElementOffsetsCounts.powerUps.indexCount = meshPowerUp.Indices.size() * mElementCount.powerUps;
-	mElementOffsetsCounts.walls.vertexSize = meshPowerUp.Vertices.size();
-	mElementOffsetsCounts.walls.indexSize = meshPowerUp.Indices.size();
+	mElementOffsetsCounts.powerUps.vertexCount = meshPowerUp.Vertices.size() * 1;
+	mElementOffsetsCounts.powerUps.indexCount = meshPowerUp.Indices.size() * 1;
+	mElementOffsetsCounts.powerUps.vertexSize = meshPowerUp.Vertices.size();
+	mElementOffsetsCounts.powerUps.indexSize = meshPowerUp.Indices.size();
 
 	mElementOffsetsCounts.pacMan.vertexOffset = startVertexPacMan;
 	mElementOffsetsCounts.pacMan.indexOffset = startIndexPacMan;
 	mElementOffsetsCounts.pacMan.vertexCount = meshPacMan.Vertices.size() * 1;
 	mElementOffsetsCounts.pacMan.indexCount = meshPacMan.Indices.size() * 1;
-	mElementOffsetsCounts.walls.vertexSize = meshPacMan.Vertices.size();
-	mElementOffsetsCounts.walls.indexSize = meshPacMan.Indices.size();
+	mElementOffsetsCounts.pacMan.vertexSize = meshPacMan.Vertices.size();
+	mElementOffsetsCounts.pacMan.indexSize = meshPacMan.Indices.size();
 
 	mElementOffsetsCounts.ghosts.vertexOffset = startVertexGhost;
 	mElementOffsetsCounts.ghosts.indexOffset = startIndexGhost;
-	mElementOffsetsCounts.ghosts.vertexCount = meshGhost.Vertices.size() * 4;
-	mElementOffsetsCounts.ghosts.indexCount = meshGhost.Indices.size() * 4;
-	mElementOffsetsCounts.walls.vertexSize = meshGhost.Vertices.size();
-	mElementOffsetsCounts.walls.indexSize = meshGhost.Indices.size();
+	mElementOffsetsCounts.ghosts.vertexCount = meshGhost.Vertices.size() * 1;
+	mElementOffsetsCounts.ghosts.indexCount = meshGhost.Indices.size() * 1;
+	mElementOffsetsCounts.ghosts.vertexSize = meshGhost.Vertices.size();
+	mElementOffsetsCounts.ghosts.indexSize = meshGhost.Indices.size();
 
-	UINT xCount = 0;
-	UINT len = 0;
+	for (size_t k = 0; k < meshBox.Vertices.size(); ++k, ++vCountWall)
+	{
+		vertices[vCountWall].pos.x = meshBox.Vertices[k].Position.x;
+		vertices[vCountWall].pos.y = meshBox.Vertices[k].Position.y;
+		vertices[vCountWall].pos.z = meshBox.Vertices[k].Position.z;
+		vertices[vCountWall].normal = meshBox.Vertices[k].Normal;
+		vertices[vCountWall].tex = meshBox.Vertices[k].TexC;
+	}
+	for (size_t k = 0; k < meshBox.Indices.size(); ++k, ++iCountWall)
+	{
+		indices[iCountWall] = meshBox.Indices[k] + iBlockWall;
+	}
+	iBlockWall += meshBox.Vertices.size();
+	for (size_t k = 0; k < meshPellet.Vertices.size(); ++k, ++vCountPellet)
+	{
+		vertices[vCountPellet].pos.x = meshPellet.Vertices[k].Position.x;
+		vertices[vCountPellet].pos.y = meshPellet.Vertices[k].Position.y;
+		vertices[vCountPellet].pos.z = meshPellet.Vertices[k].Position.z;
+		vertices[vCountPellet].normal = meshPellet.Vertices[k].Normal;
+		vertices[vCountPellet].tex = meshPellet.Vertices[k].TexC;
+	}
+	for (size_t k = 0; k < meshPellet.Indices.size(); ++k, ++iCountPellet)
+	{
+		indices[iCountPellet] = meshPellet.Indices[k] + iBlockPellet;
+	}
+	iBlockPellet += meshPellet.Vertices.size();
+	for (size_t k = 0; k < meshPowerUp.Vertices.size(); ++k, ++vCountPowerUp)
+	{
+		vertices[vCountPowerUp].pos.x = meshPowerUp.Vertices[k].Position.x;
+		vertices[vCountPowerUp].pos.y = meshPowerUp.Vertices[k].Position.y;
+		vertices[vCountPowerUp].pos.z = meshPowerUp.Vertices[k].Position.z;
+		vertices[vCountPowerUp].normal = meshPowerUp.Vertices[k].Normal;
+		vertices[vCountPowerUp].tex = meshPowerUp.Vertices[k].TexC;
+	}
+	for (size_t k = 0; k < meshPowerUp.Indices.size(); ++k, ++iCountPowerUp)
+	{
+		indices[iCountPowerUp] = meshPowerUp.Indices[k] + iBlockPowerUp;
+	}
+	iBlockPowerUp += meshPowerUp.Vertices.size();
+	for (size_t k = 0; k < meshPacMan.Vertices.size(); ++k, ++vCountPacMan)
+	{
+		vertices[vCountPacMan].pos.x = meshPacMan.Vertices[k].Position.x;
+		vertices[vCountPacMan].pos.y = meshPacMan.Vertices[k].Position.y;
+		vertices[vCountPacMan].pos.z = meshPacMan.Vertices[k].Position.z;
+		vertices[vCountPacMan].normal = meshPacMan.Vertices[k].Normal;
+		vertices[vCountPacMan].tex = meshPacMan.Vertices[k].TexC;
+	}
+	for (size_t k = 0; k < meshPacMan.Indices.size(); ++k, ++iCountPacMan)
+	{
+		indices[iCountPacMan] = meshPacMan.Indices[k] + iBlockPacMan;
+	}
+	iBlockPacMan += meshPacMan.Vertices.size();
+	for (size_t k = 0; k < meshGhost.Vertices.size(); ++k, ++vCountGhost)
+	{
+		vertices[vCountGhost].pos.x = meshGhost.Vertices[k].Position.x;
+		vertices[vCountGhost].pos.y = meshGhost.Vertices[k].Position.y;
+		vertices[vCountGhost].pos.z = meshGhost.Vertices[k].Position.z;
+		vertices[vCountGhost].normal = meshGhost.Vertices[k].Normal;
+		vertices[vCountGhost].tex = meshGhost.Vertices[k].TexC;
+	}
+	for (size_t k = 0; k < meshGhost.Indices.size(); ++k, ++iCountGhost)
+	{
+		indices[iCountGhost] = meshGhost.Indices[k] + iBlockGhost;
+	}
+	iBlockGhost += meshGhost.Vertices.size();
+
+	for (int i = 0; i < 3; ++i)
+	{
+		instPacMans[i].World = worldPos;
+		instPacMans[i].Color = XMFLOAT4(1.0f, 0.50f, 0.25f, 1.0f);
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		instGhosts[i].World = worldPos;
+		instGhosts[i].Color = XMFLOAT4(1.0f, 0.50f, 0.25f, 1.0f);
+	}
+
 	for (int i = 0; i < mazeText.size(); ++i)
 	{
-		xCount = 0;
 		for (int j = 0; j < mazeText[i].length(); ++j)
 		{
-			len = mazeText[i].length();
 			if (mazeText[i][j] == L'X')	// wall
 			{
-				++xCount;
-				for (size_t k = 0; k < meshBox.Vertices.size(); ++k, ++vCountWall)
-				{
-					vertices[vCountWall].pos.x = meshBox.Vertices[k].Position.x + posX;
-					vertices[vCountWall].pos.y = meshBox.Vertices[k].Position.y;
-					vertices[vCountWall].pos.z = meshBox.Vertices[k].Position.z + -posY;
-					vertices[vCountWall].normal = meshBox.Vertices[k].Normal;
-					vertices[vCountWall].tex = meshBox.Vertices[k].TexC;
-				}
-				for (size_t k = 0; k < meshBox.Indices.size(); ++k, ++iCountWall)
-				{
-					indices[iCountWall] = meshBox.Indices[k] + iBlockWall;
-				}
-				mBoxData.push_back(AABox(XMVectorSet(posX, 0.0f, -posY, 0.0f), 0.5f, 0.5f));
-				iBlockWall += meshBox.Vertices.size();
+				mBoxData.push_back(AABox(XMVectorSet(posX, 0.0f, -posZ, 0.0f), 0.5f, 0.5f));
 				mMazeElements.push_back(ME_WALL);
+				worldPos._41 = posX;
+				worldPos._42 = 0.0f;
+				worldPos._43 = -posZ;
+				mWalls.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				instWalls[instanceCountWall].World = worldPos;
+				instWalls[instanceCountWall++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
 			}
 			if (mazeText[i][j] == L' ')	// pellets
 			{
-				for (size_t k = 0; k < meshPellet.Vertices.size(); ++k, ++vCountPellet)
-				{
-					vertices[vCountPellet].pos.x = meshPellet.Vertices[k].Position.x + posX;
-					vertices[vCountPellet].pos.y = meshPellet.Vertices[k].Position.y;
-					vertices[vCountPellet].pos.z = meshPellet.Vertices[k].Position.z + -posY;
-					vertices[vCountPellet].normal = meshPellet.Vertices[k].Normal;
-					vertices[vCountPellet].tex = meshPellet.Vertices[k].TexC;
-				}
-				for (size_t k = 0; k < meshPellet.Indices.size(); ++k, ++iCountPellet)
-				{
-					indices[iCountPellet] = meshPellet.Indices[k] + iBlockPellet;
-				}
-				iBlockPellet += meshPellet.Vertices.size();
 				mMazeElements.push_back(ME_PELLET);
+				worldPos._41 = posX;
+				worldPos._42 = 0.0f;
+				worldPos._43 = -posZ;
+				mPellets.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				instPellets[instanceCountPellet].World = worldPos;
+				instPellets[instanceCountPellet++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
 			}
 			if (mazeText[i][j] == L'O')	// power up
 			{
-				for (size_t k = 0; k < meshPowerUp.Vertices.size(); ++k, ++vCountPowerUp)
-				{
-					vertices[vCountPowerUp].pos.x = meshPowerUp.Vertices[k].Position.x + posX;
-					vertices[vCountPowerUp].pos.y = meshPowerUp.Vertices[k].Position.y;
-					vertices[vCountPowerUp].pos.z = meshPowerUp.Vertices[k].Position.z + -posY;
-					vertices[vCountPowerUp].normal = meshPowerUp.Vertices[k].Normal;
-					vertices[vCountPowerUp].tex = meshPowerUp.Vertices[k].TexC;
-				}
-				for (size_t k = 0; k < meshPowerUp.Indices.size(); ++k, ++iCountPowerUp)
-				{
-					indices[iCountPowerUp] = meshPowerUp.Indices[k] + iBlockPowerUp;
-				}
-				iBlockPowerUp += meshPowerUp.Vertices.size();
 				mMazeElements.push_back(ME_POWERUP);
+				worldPos._41 = posX;
+				worldPos._42 = 0.0f;
+				worldPos._43 = -posZ;
+				mPowerUps.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				instPowerUps[instanceCountPowerUp].World = worldPos;
+				instPowerUps[instanceCountPowerUp++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
 			}
 			if (mazeText[i][j] == L'M')	// Puck Man
 			{
-				for (size_t k = 0; k < meshPacMan.Vertices.size(); ++k, ++vCountPacMan)
-				{
-					vertices[vCountPacMan].pos.x = meshPacMan.Vertices[k].Position.x;
-					vertices[vCountPacMan].pos.y = meshPacMan.Vertices[k].Position.y;
-					vertices[vCountPacMan].pos.z = meshPacMan.Vertices[k].Position.z;
-					vertices[vCountPacMan].normal = meshPacMan.Vertices[k].Normal;
-					vertices[vCountPacMan].tex = meshPacMan.Vertices[k].TexC;
-				}
-				for (size_t k = 0; k < meshPacMan.Indices.size(); ++k, ++iCountPacMan)
-				{
-					indices[iCountPacMan] = meshPacMan.Indices[k] + iBlockPacMan;
-				}
-				mInitialPositions.pacMan = XMFLOAT3(posX + 0.5f, 0.0f, posY);
-				iBlockPacMan += meshPowerUp.Vertices.size();
+				mInitialPositions.pacMan = XMFLOAT3(0.0f, 0.0f, 0.0f);
 				mMazeElements.push_back(ME_NOTHING);
+				worldPos._41 = posX + 0.5f;
+				worldPos._42 = 0.0f;
+				worldPos._43 = -posZ;
+				mPacMans.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				instPacMans[instanceCountPacMan].World = worldPos;
+				instPacMans[instanceCountPacMan++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
 			}
 			if (mazeText[i][j] == L'B' || mazeText[i][j] == L'I' || mazeText[i][j] == L'P' || mazeText[i][j] == L'C')	// Ghosts
 			{
-				for (size_t k = 0; k < meshGhost.Vertices.size(); ++k, ++vCountGhost)
-				{
-					vertices[vCountGhost].pos.x = meshGhost.Vertices[k].Position.x;
-					vertices[vCountGhost].pos.y = meshGhost.Vertices[k].Position.y;
-					vertices[vCountGhost].pos.z = meshGhost.Vertices[k].Position.z;
-					vertices[vCountGhost].normal = meshGhost.Vertices[k].Normal;
-					vertices[vCountGhost].tex = meshGhost.Vertices[k].TexC;
-				}
-				for (size_t k = 0; k < meshGhost.Indices.size(); ++k, ++iCountGhost)
-				{
-					indices[iCountGhost] = meshGhost.Indices[k] + iBlockGhost;
-				}
 				switch (mazeText[i][j])
 				{
 				case L'B':
-					mInitialPositions.blinky = XMFLOAT3(posX + 0.5f, 0.0f, -posY);
+					mInitialPositions.blinky = XMFLOAT3(posX + 0.5f, 0.0f, -posZ);
 					break;
 				case L'I':
-					mInitialPositions.inky = XMFLOAT3(posX + 0.5f, 0.0f, -posY);
+					mInitialPositions.inky = XMFLOAT3(posX + 0.5f, 0.0f, -posZ);
 					break;
 				case L'P':
-					mInitialPositions.pinky = XMFLOAT3(posX + 0.5f, 0.0f, -posY);
+					mInitialPositions.pinky = XMFLOAT3(posX + 0.5f, 0.0f, -posZ);
 					break;
 				case L'C':
-					mInitialPositions.clyde = XMFLOAT3(posX + 0.5f, 0.0f, -posY);
+					mInitialPositions.clyde = XMFLOAT3(posX + 0.5f, 0.0f, -posZ);
 					break;
 				}
-				iBlockGhost += meshPowerUp.Vertices.size();
 				mMazeElements.push_back(ME_NOTHING);
+				worldPos._41 = posX + 0.5f;
+				worldPos._42 = 0.0f;
+				worldPos._43 = -posZ;
+				mGhosts.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				instGhosts[instanceCountGhost].World = worldPos;
+				instGhosts[instanceCountGhost++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
 			}
 			if (mazeText[i][j] == L'M')	// Really nothing
 			{
@@ -291,8 +341,11 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 			//iBlock += iCount;
 		}
 		posX = lineWidth * -0.5f;
-		++posY;
+		++posZ;
 	}
+
+	mPacMans.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+	mPacMans.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
 
 	return true;
 }
@@ -304,6 +357,41 @@ bool MazeLoader::IsBlocked(UINT row, UINT col)
 	return (mMazeElements[index] == ME_WALL);
 }
 
+void MazeLoader::SetPacManPos(FXMVECTOR pos, UINT index)
+{ 
+	mPacMans[index].pos.x = pos.m128_f32[0];
+	mPacMans[index].pos.y = pos.m128_f32[1];
+	mPacMans[index].pos.z = pos.m128_f32[2];
+
+	mPacMans[index].world._41 = pos.m128_f32[0];
+	mPacMans[index].world._42 = pos.m128_f32[1];
+	mPacMans[index].world._43 = pos.m128_f32[2];
+}
+
+void MazeLoader::SetPacManVel(FXMVECTOR vel, UINT index)
+{ 
+	mPacMans[index].vel.x = vel.m128_f32[0];
+	mPacMans[index].vel.y = vel.m128_f32[1];
+	mPacMans[index].vel.z = vel.m128_f32[2];
+}
+
+void MazeLoader::SetGhostPos(FXMVECTOR pos, UINT index)
+{ 
+	mGhosts[index].pos.x = pos.m128_f32[0];
+	mGhosts[index].pos.y = pos.m128_f32[1];
+	mGhosts[index].pos.z = pos.m128_f32[2];
+
+	mGhosts[index].world._41 = pos.m128_f32[0];
+	mGhosts[index].world._42 = pos.m128_f32[1];
+	mGhosts[index].world._43 = pos.m128_f32[2];
+}
+
+void MazeLoader::SetGhostVel(FXMVECTOR vel, UINT index)
+{ 
+	mGhosts[index].vel.x = vel.m128_f32[0];
+	mGhosts[index].vel.y = vel.m128_f32[1];
+	mGhosts[index].vel.z = vel.m128_f32[2];
+}
 
 /*UINT MazeLoader::AddVertex(Vertex::NormalTexVertex vertex, std::vector<Vertex::NormalTexVertex>& vertBuf)
 {

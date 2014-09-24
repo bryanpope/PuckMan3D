@@ -21,6 +21,8 @@ public:
 
 	virtual void Draw(ID3D11DeviceContext* context, ID3D11Buffer* vb, ID3D11Buffer* ib, int startIndex, int indexCount, int baseVertexLoc);
 
+	virtual void DrawInstanced(ID3D11DeviceContext* context, ID3D11Buffer* vb, ID3D11Buffer* ib, ID3D11Buffer* instanceb, int instanceCount, int startIndex, int indexCount);
+
 	ID3DX11EffectMatrixVariable* GetWVP() const
 	{
 		return mfxWVP;
@@ -88,6 +90,7 @@ protected:
 	ID3D11InputLayout* mInputLayout;
 
 	ID3DX11EffectMatrixVariable* mfxWorld;
+	ID3DX11EffectMatrixVariable* mfxViewProj;
 	ID3DX11EffectMatrixVariable* mfxInvTranspose;
 	ID3DX11EffectVectorVariable* mfxAmbientLight;
 	ID3DX11EffectVectorVariable* mfxEyePos;
@@ -101,7 +104,9 @@ public:
 
 	virtual void SetPerFrameParams(FXMVECTOR ambient, FXMVECTOR eyePos, const PointLightOptimized* point);
 
-	virtual void SetPerObjectParams(CXMMATRIX world, CXMMATRIX invTranspose, CXMMATRIX wvp, Material &mat);
+	virtual void SetPerObjectParams(CXMMATRIX world, CXMMATRIX invTranspose, CXMMATRIX wvp, CXMMATRIX viewProj, Material &mat);
+
+	virtual void SetEffectTech(LPCSTR effectName);
 
 	//virtual void SetDiffuseMap(ID3D11ShaderResourceView* texture);
 

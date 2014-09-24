@@ -25,6 +25,12 @@ protected:
 
 	std::vector<UINT> mIndices;
 
+	std::vector<Vertex::InstancedData> mInstancesWalls;
+	std::vector<Vertex::InstancedData> mInstancesPellets;
+	std::vector<Vertex::InstancedData> mInstancesPowerUps;
+	std::vector<Vertex::InstancedData> mInstancesPacMans;
+	std::vector<Vertex::InstancedData> mInstancesGhosts;
+
 	std::vector<MeshGeometry::Subset> mSubsets;
 
 	BasicMeshGeometry* mModelMesh;

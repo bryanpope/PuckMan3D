@@ -231,6 +231,7 @@
     <CustomBuild Include="FX\terrain.fx">
       <Filter>FX</Filter>
     </CustomBuild>
+    <CustomBuild Include="FX\lightingInstanced.fx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

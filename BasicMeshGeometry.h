@@ -29,6 +29,12 @@ public:
 
 	virtual void SetSubsetTable(std::vector<Subset>& subsetTable){}
 
+	virtual void SetInstancesWalls(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+	virtual void SetInstancesPellets(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+	virtual void SetInstancesPowerUps(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+	virtual void SetInstancesPacMans(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+	virtual void SetInstancesGhosts(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+
 	void SetMaterial(Material mat);
 
 	virtual void Draw(ID3D11DeviceContext* context, CXMMATRIX world, CXMMATRIX ITWorld, CXMMATRIX vp);

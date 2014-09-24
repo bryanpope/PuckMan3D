@@ -57,9 +57,74 @@ void BasicMeshGeometry::SetIndices(ID3D11Device* device, const UINT* indices, UI
 	HR(device->CreateBuffer(&ibd, &iInitData, &mIB));
 }
 
+void BasicMeshGeometry::SetInstancesWalls(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count)
+{
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = sizeof(Vertex::InstancedData) * count;
+	ibd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&ibd, 0, &mInstanceBWalls));
+}
+
+void BasicMeshGeometry::SetInstancesPellets(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count)
+{
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = sizeof(Vertex::InstancedData) * count;
+	ibd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&ibd, 0, &mInstanceBPellets));
+}
+
+void BasicMeshGeometry::SetInstancesPowerUps(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count)
+{
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = sizeof(Vertex::InstancedData) * count;
+	ibd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&ibd, 0, &mInstanceBPowerUps));
+}
+
+void BasicMeshGeometry::SetInstancesPacMans(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count)
+{
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = sizeof(Vertex::InstancedData) * count;
+	ibd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&ibd, 0, &mInstanceBPacMans));
+}
+
+void BasicMeshGeometry::SetInstancesGhosts(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count)
+{
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = sizeof(Vertex::InstancedData) * count;
+	ibd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&ibd, 0, &mInstanceBGhosts));
+}
+
 void BasicMeshGeometry::Draw(ID3D11DeviceContext* context, CXMMATRIX world, CXMMATRIX ITWorld, CXMMATRIX vp)
 {
-	mEffectMat->SetPerObjectParams(world, ITWorld, world * vp, mMaterial);
+	mEffectMat->SetPerObjectParams(world, ITWorld, world * vp, vp, mMaterial);
 	mEffectMat->Draw(context, mVB, mIB, mIndexCount);
 }
 
