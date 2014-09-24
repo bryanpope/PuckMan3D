@@ -103,6 +103,7 @@ public:
 	static void EraseWall(UINT index){ mWalls.erase(mWalls.begin() + index); }
 	static void ErasePellet(UINT index){ mPellets.erase(mPellets.begin() + index); }
 	static void ErasePowerUp(UINT index){ mPowerUps.erase(mPowerUps.begin() + index); }
+	static void ErasePacMan(UINT index){ mPacMans.erase(mPacMans.begin() + index); }
 	static void SetPacManPos(FXMVECTOR pos, UINT index);
 	static void SetPacManVel(FXMVECTOR vel, UINT index);
 	static void SetGhostPos(FXMVECTOR pos, UINT index);
