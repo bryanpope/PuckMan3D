@@ -36,7 +36,8 @@ PathNode* PathNode::combineNode(PathNode* initial, PathNode* target)
 
 int PathNode::getDistance(PathNode* goal, int x, int z)
 {
-	return sqrt((goal->zPos - z) * (goal->zPos - z) + (goal->xPos - x) * (goal->xPos - x));
+	return abs(x - goal->xPos) + abs(z - goal->zPos);
+	//return sqrt((goal->zPos - z) * (goal->zPos - z) + (goal->xPos - x) * (goal->xPos - x));
 }
 
 int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)

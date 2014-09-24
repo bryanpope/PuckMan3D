@@ -11,7 +11,7 @@ Blinky::~Blinky()
 void Blinky::Update()
 {
 	PathNode* start = new PathNode(this->mPos.x, this->mPos.z);
-	PathNode* goal = new PathNode(7, 10);
+	PathNode* goal = new PathNode(5, 10);
 	std::list<PathNode*> testVec = test.FindPath(start, goal);
 	if (testVec.size() != 0)
 	{
