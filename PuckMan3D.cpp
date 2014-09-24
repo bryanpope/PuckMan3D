@@ -80,13 +80,12 @@ private:
 	void UpdateKeyboardInput(float dt);
 	void UpdateCollision();
 	XMVECTOR PacManAABoxOverLap(XMVECTOR s1Center);
-<<<<<<< HEAD
+
 	bool PuckMan3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 	bool PuckMan3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 	bool PuckMan3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
-=======
+
 	void PuckManSpeed();
->>>>>>> origin/master
 
 	XMVECTOR CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height,
 		FXMVECTOR c2Pos, float c2Rad, float c2Height);
@@ -702,8 +701,9 @@ void PuckMan3D::UpdateScene(float dt)
 	
 	//XMStoreFloat3(&pacMans[0].pos, PacManAABoxOverLap(pos));
 
+	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
 	////Checking PacMan Collision with Ghost
-	for (int i = 0; i < mGhost.size(); ++i)
+	/*for (int i = 0; i < ghosts.size(); ++i)
 	{
 		XMVECTOR ghostPos = XMLoadFloat3(&mGhost[i].pos);
 
@@ -716,7 +716,7 @@ void PuckMan3D::UpdateScene(float dt)
 			break;
 		}
 
-	}
+	}*/
 
 	std::vector<MazeLoader::MazeElementSpecs> pellets = MazeLoader::GetPelletData();
 	////checking PacMan collision with Pellets
@@ -847,7 +847,6 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBPacMans(), 0);
 
-	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
 	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
 	mCountGhosts = 0;
@@ -1235,18 +1234,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		mIsKeyPressed = true;
-<<<<<<< HEAD
+		mForward = true;
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = 1.0f * dt;
-		if (vel.m128_f32[2] < 0.00826695096f)
-=======
-		mForward = true;
-		mPacMan[0].vel.x = 0.0f * dt;
-		mPacMan[0].vel.y = 0.0f * dt;
-		mPacMan[0].vel.z = 1.0f * dt;
 		if (mPacMan[0].vel.z < 0.00826695096f)
->>>>>>> origin/master
 		{
 			vel.m128_f32[2] = 0.00826695096f;
 		}
@@ -1254,38 +1246,24 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	else
 	{
 		mIsKeyPressed = false;
-<<<<<<< HEAD
 		vel.m128_f32[0] = 0.0f;
 		vel.m128_f32[1] = 0.0f;
 		vel.m128_f32[2] = 0.0f;
-=======
 		mForward = false;
 		mBackward = false;
 		mLeft = false;
 		mRight = false;
-
-		mPacMan[0].vel.x = 0.0f;
-		mPacMan[0].vel.y = 0.0f;
-		mPacMan[0].vel.z = 0.0f;
->>>>>>> origin/master
 	}
 
 	// Move Backwards 
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
 		mIsKeyPressed = true;
-<<<<<<< HEAD
+		mBackward = true;
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = -1.0f * dt;
-		if (vel.m128_f32[2] > -0.00826695096f)
-=======
-		mBackward = true;
-		mPacMan[0].vel.x = 0.0f * dt;
-		mPacMan[0].vel.y = 0.0f * dt;
-		mPacMan[0].vel.z = -1.0f * dt;
 		if (mPacMan[0].vel.z > -0.00826695096f)
->>>>>>> origin/master
 		{
 			vel.m128_f32[2] = -0.00826695096f;
 		}
@@ -1295,14 +1273,9 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
 		mIsKeyPressed = true;
-<<<<<<< HEAD
-		vel.m128_f32[0] = -1.0f * dt;
-		if (vel.m128_f32[0] > -0.00826695096f)
-=======
 		mLeft = true;
-		mPacMan[0].vel.x = -1.0f * dt;
+		vel.m128_f32[0] = -1.0f * dt;
 		if (mPacMan[0].vel.x > -0.00826695096f)
->>>>>>> origin/master
 		{
 			vel.m128_f32[0] = -0.00826695096f;
 		}
@@ -1314,14 +1287,9 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('D') & 0x8000)
 	{
 		mIsKeyPressed = true;
-<<<<<<< HEAD
-		vel.m128_f32[0] = 1.0f * dt;
-		if (vel.m128_f32[0] < 0.00826695096f)
-=======
 		mRight = true;
-		mPacMan[0].vel.x = 1.0f * dt;
+		vel.m128_f32[0] = 1.0f * dt;
 		if (mPacMan[0].vel.x < 0.00826695096f)
->>>>>>> origin/master
 		{
 			vel.m128_f32[0] = 0.00826695096f;
 		}
@@ -1380,14 +1348,9 @@ void PuckMan3D::PuckManSpeed()
 XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 {
 	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
-<<<<<<< HEAD
 	std::vector<MazeLoader::AABox> boxData = MazeLoader::GetWallCollisionData();
-=======
 	float currOverLap = 0.0f;
 	XMVECTOR correction = XMVectorZero();
-
-	std::vector<MazeLoader::AABox> boxData = MazeLoader::GetWallData();
->>>>>>> origin/master
 
 	for (int i = 0; i < boxData.size(); ++i)
 	{
@@ -1700,7 +1663,6 @@ void PuckMan3D::BuildGhosts()
 {
 	////Positioning the Ghost
 	MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
-<<<<<<< HEAD
 	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
 	ghosts[0].world._41 = gPos.blinky.x;
 	ghosts[0].world._43 = gPos.blinky.z;
@@ -1710,41 +1672,20 @@ void PuckMan3D::BuildGhosts()
 	ghosts[2].world._43 = gPos.pinky.z;
 	ghosts[3].world._41 = gPos.clyde.x;
 	ghosts[3].world._43 = gPos.clyde.z;
-	mGhost.push_back(Ghost(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mInky.push_back(Ghost(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mPinky.push_back(Ghost(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mClyde.push_back(Ghost(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-=======
+	
+	//mGhost.push_back(Ghost(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	//mInky.push_back(Ghost(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	//mPinky.push_back(Ghost(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	//mClyde.push_back(Ghost(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mBlinky = new Blinky(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
 	mInky = new Inky(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
 	mPinky = new Pinky(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
 	mClyde = new Clyde(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
->>>>>>> origin/master
 
 	/*mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));*/
-
-	/*for (int i = 0; i < mGhost.size(); ++i)
-	{
-		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mGhost[i].pos.x, mGhost[i].pos.y, mGhost[i].pos.z));
-	}
-
-	for (int i = 0; i < mPinky.size(); ++i)
-	{
-		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mPinky[i].pos.x, mPinky[i].pos.y, mPinky[i].pos.z));
-	}
-
-	for (int i = 0; i < mInky.size(); ++i)
-	{
-		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mInky[i].pos.x, mInky[i].pos.y, mInky[i].pos.z));
-	}
-
-	for (int i = 0; i < mClyde.size(); ++i)
-	{
-		XMStoreFloat4x4(&mGhostWorld[i], XMMatrixTranslation(mClyde[i].pos.x, mClyde[i].pos.y, mClyde[i].pos.z));
-	}*/
 }
 
 void PuckMan3D::BuildPowerUps()

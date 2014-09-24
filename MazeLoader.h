@@ -95,7 +95,6 @@ public:
 	static const InitialPosition& GetInitialPos(){ return mInitialPositions; }
 	static const std::vector<AABox> GetWallCollisionData(){ return mBoxData; }
 	static bool IsBlocked(UINT row, UINT col);
-<<<<<<< HEAD
 	static std::vector<MazeElementSpecs> GetWallData(){ return mWalls; }
 	static std::vector<MazeElementSpecs> GetPelletData(){ return mPellets; }
 	static std::vector<MazeElementSpecs> GetPowerUpData(){ return mPowerUps; }
@@ -108,9 +107,8 @@ public:
 	static void SetPacManVel(FXMVECTOR vel, UINT index);
 	static void SetGhostPos(FXMVECTOR pos, UINT index);
 	static void SetGhostVel(FXMVECTOR vel, UINT index);
-=======
+
 	static bool IsPellet(UINT row, UINT col);
->>>>>>> origin/master
 
 	static const float RADIUS_PAC_MAN;
 	static const float RADIUS_GHOST;
