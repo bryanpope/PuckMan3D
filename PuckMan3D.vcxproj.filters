@@ -141,6 +141,9 @@
     <ClInclude Include="Pinky.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="randgen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseCamera.cpp">
@@ -254,6 +257,9 @@
     <ClCompile Include="Pinky.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="randgen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FX\lightingHelper.fx">
@@ -279,5 +285,9 @@
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
     <None Include="ClassDiagram2.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\fmod_vc.lib" />
+    <Library Include="lib\fmodL_vc.lib" />
   </ItemGroup>
 </Project>

@@ -16,21 +16,22 @@
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
-
+#include "randgen.h"
 #include "Vertex.h"
 #include "Quad.h"
+#include "Effects.h"
 #include "ThirdPersonCam.h"
 #include "Cube.h"
 #include "GraphicalObject.h"
 #include "Projectile.h"
 #include "Effect.h"
-
+#include "fmod.hpp"
+#include "fmod_errors.h"
 #include "FontRasterizer.h"
 #include "Terrain.h"
 #include "Player.h"
 #include "SkyBox.h"
 #include "GeometryGenerator.h"
-
 #include "Blinky.h"
 #include "Inky.h"
 #include "Pinky.h"
@@ -74,7 +75,27 @@ private:
 	void BuildParticleVB();
 	void BuildBlendStates();
 	void BuildDSStates();
-
+	void resetGame();
+	void loadSystem();
+	void loadGhostDeathSFX();
+	void playGhostDeathSFX();
+	void loadScaredGhostSFX();
+	void playScaredGhostSFX();
+	void loadDeathSFX();
+	void playDeathSFX();
+	void loadFruitSFX();
+	void playFruitSFX();
+	void loadBeginningSFX();
+	void playBeginningSFX();
+	void loadExtraLifeSFX();
+	void playExtraLifeSFX();
+	void loadSirenSFX();
+	void playSirenSFX();
+	void loadWaSFX();
+	void playWaSFX();
+	void loadKaSFX();
+	void playKaSFX();
+	void updateGhosts(float dt);
 	void UpdateParticleVB();
 	bool UpdateGroundCollision();
 	void UpdateKeyboardInput(float dt);
@@ -130,6 +151,18 @@ private:
 		XMFLOAT3 vel;
 
 		PacMan(FXMVECTOR pos, FXMVECTOR vel)
+		{
+			XMStoreFloat3(&this->pos, pos);
+			XMStoreFloat3(&this->vel, vel);
+		}
+
+	};
+	struct Fruit
+	{
+		XMFLOAT3 pos;
+		XMFLOAT3 vel;
+
+		Fruit(FXMVECTOR pos, FXMVECTOR vel)
 		{
 			XMStoreFloat3(&this->pos, pos);
 			XMStoreFloat3(&this->vel, vel);
@@ -217,7 +250,17 @@ private:
 	bool mBackward;
 	bool mLeft;
 	bool mRight;
+	bool powerUpActivated = false;
+	bool mIsBlue = false;
+	bool mIsMoving = false;
+	bool mIsPlayerDead = false;
 	float mSpeed;
+	float fruitR = 0.60;
+	float mNextTime = 0.0f;
+	float mCurrentTime = 0.0f;
+	float mTotalTime = 0.0f;
+	int mLevelCounter;
+	int mPelletCounter;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
@@ -225,6 +268,7 @@ private:
 	int mPacManVertexOffset;
 	int mPowerUpVertexOffset;
 	int mGhostVertexOffset;
+	//int mFruitVertexOffset;
 
 	UINT mBoxIndexOffset;
 	UINT mGridIndexOffset;
@@ -232,6 +276,7 @@ private:
 	UINT mPacManIndexOffset;
 	UINT mPowerUpIndexOffset;
 	UINT mGhostIndexOffset;
+	//UINT mFruitIndexOffset;
 
 	UINT mBoxIndexCount;
 	UINT mGridIndexCount;
@@ -239,6 +284,10 @@ private:
 	UINT mPacManIndexCount;
 	UINT mPowerUpIndexCount;
 	UINT mGhostIndexCount;
+	//UINT mFruitIndexCount;
+
+	GameTimer timer;
+	GameTimer flashingTimer;
 
 	//float mPacManR;
 	//float mGhostR;
@@ -254,6 +303,10 @@ private:
 	Material mPinkyMat;
 	Material mInkyMat;
 	Material mClydeMat;
+	Material mCherry;
+	Material mPeachMat;
+	Material mAppleMat;
+	Material mGrapesMat;
 
 	// Define transformations from local spaces to world space.
 	XMFLOAT4X4 mPelletWorld[240];
@@ -262,11 +315,16 @@ private:
 	XMFLOAT4X4 mGhostWorld[4];
 	XMFLOAT4X4 mBoxWorld[55];
 	XMFLOAT4X4 mGridWorld;
+	XMFLOAT4X4 mFruitWorld[2];
 
 	std::vector<AABox> mBoxData;
 	std::vector<PacMan> mPacMan;
 	std::vector<Pellet> mPellet;
 	std::vector<PowerUp> mPowerUp;
+	//std::vector<Fruit> mFruit;
+	//std::vector<Fruit> mPeach;
+	//std::vector<Fruit> mApple;
+	//std::vector<Fruit> mGrapes;
 	Blinky* mBlinky;
 	Pinky* mPinky;
 	Inky* mInky;
@@ -281,6 +339,39 @@ private:
 	UINT mCountPowerUps;
 	UINT mCountPacMans;
 	UINT mCountGhosts;
+
+	enum GhostState
+	{
+		GS_NORMAL = 0,
+		GS_BLUE,
+		GS_FLASHING
+	};
+	enum SoundsState
+	{
+		SS_DEFAULT = 0,
+		SS_WA,
+		SS_KA
+	};
+	enum FruitState
+	{
+		FS_DEFAULT = 0,
+		FS_FRUIT
+	};
+	bool isPlaying = false;
+	GhostState ghostState = GhostState::GS_NORMAL;
+	SoundsState soundStates = SoundsState::SS_DEFAULT;
+	FruitState fruitState = FruitState::FS_DEFAULT;
+
+	FMOD::System     *sys;
+	FMOD::Sound      *sound[9];
+	FMOD::Channel    *channel[8];
+	FMOD::ChannelGroup *soundGroup, *masterGroup;
+	FMOD_RESULT result;
+	unsigned int      version;
+	void             *extradriverdata = 0;
+
+	RandGen rg;
+	int randNumber;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -305,10 +396,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
-	: D3DApp(hInstance),  mLitTexEffect(0), mMouseReleased(true), mCam(0), mTestPlayer(0), mTestTerrain(0),
+	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
 mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(1000.0f),
 mCountPellets(0), mLitMatInstanceEffect(0)
 {
+	soundStates = SoundsState::SS_KA;
+	for (int i = 0; i < 8; ++i)
+	{
+		channel[i] = 0;
+	}
+
 	XMVECTOR pos = XMVectorSet(1.0f, 1.0f, 5.0f, 0.0f);
 	XMVECTOR look = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -325,6 +422,26 @@ mCountPellets(0), mLitMatInstanceEffect(0)
 	XMStoreFloat4x4(&mGridWorld, I);
 
 	srand((UINT)time(NULL));
+
+	/*for (int i = 0; i < mFruit.size(); ++i)
+	{
+		XMStoreFloat4x4(&mFruitWorld[i], XMMatrixTranslation(mFruit[i].pos.x, mFruit[i].pos.y, mFruit[i].pos.z));
+	}
+
+	for (int i = 0; i < mPeach.size(); ++i)
+	{
+		XMStoreFloat4x4(&mFruitWorld[i], XMMatrixTranslation(mPeach[i].pos.x, mPeach[i].pos.y, mPeach[i].pos.z));
+	}
+
+	for (int i = 0; i < mApple.size(); ++i)
+	{
+		XMStoreFloat4x4(&mFruitWorld[i], XMMatrixTranslation(mApple[i].pos.x, mApple[i].pos.y, mApple[i].pos.z));
+	}
+
+	for (int i = 0; i < mGrapes.size(); ++i)
+	{
+		XMStoreFloat4x4(&mFruitWorld[i], XMMatrixTranslation(mGrapes[i].pos.x, mGrapes[i].pos.y, mGrapes[i].pos.z));
+	}*/
 
 	AllocConsole();
 	freopen("CON", "w", stdout);
@@ -422,6 +539,19 @@ void PuckMan3D::BuildSceneLights()
 
 bool PuckMan3D::Init()
 {
+	loadSystem();
+
+	//load the sound effects
+	loadScaredGhostSFX();
+	loadGhostDeathSFX();
+	loadDeathSFX();
+	loadFruitSFX();
+	loadBeginningSFX();
+	loadExtraLifeSFX();
+	loadSirenSFX();
+	loadWaSFX();
+	loadKaSFX();
+
 	if(!D3DApp::Init())
 		return false;
 
@@ -709,6 +839,9 @@ void PuckMan3D::UpdateScene(float dt)
 
 		if (PacManPelletOverlapTest(pos, ghostPos) == true)
 		{
+			playDeathSFX();
+			mIsPlayerDead = true;
+			mIsMoving = false;
 			mPacMan.pop_back();
 			mPacMan[0].pos.x = 0.0f;
 			mPacMan[0].pos.y = 0.75f;
@@ -727,6 +860,21 @@ void PuckMan3D::UpdateScene(float dt)
 
 		if (PacManPelletOverlapTest(pos, pelPos) == true)
 		{
+			if (!isPlaying)
+			{
+
+			}
+
+			if (soundStates == SoundsState::SS_KA)
+			{
+				playKaSFX();
+			}
+
+			if (soundStates == SoundsState::SS_WA)
+			{
+				playWaSFX();
+			}
+			mPelletCounter++;
 			MazeLoader::ErasePellet(i);
 			break;
 			//--i;
@@ -742,11 +890,74 @@ void PuckMan3D::UpdateScene(float dt)
 
 		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
 		{
-			powerUps.erase(powerUps.begin() + i);
+			powerUpActivated = true;
+			ghostState = GhostState::GS_BLUE;
+			mCurrentTime = 0.0f;
+			mTotalTime = 3.0f;
+			timer.Reset();
+			timer.Start();
+			MazeLoader::ErasePowerUp(i);
 			break;
 			//--i;
 		}
 	}
+
+	//// If collision is true remove the cherry.
+	/*for (int i = 0; i < mFruit.size(); ++i)
+	{
+		XMVECTOR pUpPos = XMLoadFloat3(&mFruit[i].pos);
+
+		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
+		{
+			playFruitSFX();
+			mFruit.erase(mFruit.begin() + i);
+			fruitState = FruitState::FS_DEFAULT;
+			--i;
+			break;
+		}
+	}
+
+	for (int i = 0; i < mPeach.size(); ++i)
+	{
+		XMVECTOR pUpPos = XMLoadFloat3(&mPeach[i].pos);
+
+		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
+		{
+			playFruitSFX();
+			mPeach.erase(mPeach.begin() + i);
+			fruitState = FruitState::FS_DEFAULT;
+			--i;
+			break;
+		}
+	}
+
+	for (int i = 0; i < mApple.size(); ++i)
+	{
+		XMVECTOR pUpPos = XMLoadFloat3(&mApple[i].pos);
+
+		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
+		{
+			playFruitSFX();
+			mApple.erase(mApple.begin() + i);
+			fruitState = FruitState::FS_DEFAULT;
+			--i;
+			break;
+		}
+	}
+
+	for (int i = 0; i < mGrapes.size(); ++i)
+	{
+		XMVECTOR pUpPos = XMLoadFloat3(&mGrapes[i].pos);
+
+		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
+		{
+			playFruitSFX();
+			mGrapes.erase(mGrapes.begin() + i);
+			fruitState = FruitState::FS_DEFAULT;
+			--i;
+			break;
+		}
+	}*/
 
 	////PacMan Tunnel Check
 
@@ -762,6 +973,89 @@ void PuckMan3D::UpdateScene(float dt)
 		MazeLoader::SetPacManPos(pos, 0);
 		//mPacMan[0].pos.x = -14.0f;
 	}
+
+	if (mIsMoving)
+	{//check if the player is moving to determine when to play the background sound
+		playSirenSFX();
+		result = channel[6]->setPaused(false);
+	}
+	else if (mIsPlayerDead)
+	{
+		powerUpActivated = false;
+		mIsBlue = false;
+		mIsMoving = false;
+		result = channel[6]->setPaused(true);
+	}
+
+
+	if (powerUpActivated)
+	{//check if the power up is activated to detrmine if playScaredGhostSFX is active or not
+		playScaredGhostSFX();
+		result = channel[1]->setPaused(false);
+	}
+	else
+	{
+		result = channel[1]->setPaused(true);
+	}
+
+	//reset board if all pellets are gone
+	if (mPellet.size() == 0 && mPowerUp.size() == 0)
+	{
+		resetGame();
+		mLevelCounter++;
+	}
+	updateGhosts(dt);
+
+	/*if (mPelletCounter == 5 && fruitState == FruitState::FS_DEFAULT)
+	{//randomly pick a fruit to draw when enough pellets are removed. 
+		randNumber = rg(8) + 1;
+		//position fruit
+		if (randNumber == 1 || randNumber == 2)
+		{
+			mFruit.push_back(Fruit(XMVectorSet(0.0f, 0.75f, -2.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+			fruitState = FruitState::FS_FRUIT;
+		}
+		else if (randNumber == 3 || randNumber == 4)
+		{
+			mPeach.push_back(Fruit(XMVectorSet(1.0f, 0.75f, -2.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+			fruitState = FruitState::FS_FRUIT;
+		}
+		else if (randNumber == 5 || randNumber == 6)
+		{
+			mApple.push_back(Fruit(XMVectorSet(2.0f, 0.75f, -2.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+			fruitState = FruitState::FS_FRUIT;
+		}
+		else if (randNumber == 7 || randNumber == 8)
+		{
+			mGrapes.push_back(Fruit(XMVectorSet(3.0f, 0.75f, -2.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+			fruitState = FruitState::FS_FRUIT;
+		}
+	}
+	if (mPelletCounter == 170)
+	{
+		randNumber = rg(8) + 1;
+		//position fruit
+		if (randNumber == 1 || randNumber == 2)
+		{
+			mFruit.push_back(Fruit(XMVectorSet(0.0f, 0.75f, -2.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+			fruitState = FruitState::FS_FRUIT;
+		}
+		else if (randNumber == 3 || randNumber == 4)
+		{
+			mPeach.push_back(Fruit(XMVectorSet(1.0f, 0.75f, -2.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+			fruitState = FruitState::FS_FRUIT;
+		}
+		else if (randNumber == 5 || randNumber == 6)
+		{
+			mApple.push_back(Fruit(XMVectorSet(2.0f, 0.75f, -2.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+			fruitState = FruitState::FS_FRUIT;
+		}
+		else if (randNumber == 7 || randNumber == 8)
+		{
+			mGrapes.push_back(Fruit(XMVectorSet(3.0f, 0.75f, -2.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+			fruitState = FruitState::FS_FRUIT;
+		}
+	}*/
 
 	//XMVECTOR camPos = mCam->GetPos();
 
@@ -906,7 +1200,7 @@ void PuckMan3D::UpdateScene(float dt)
 		pos = pos + vel;
 		XMStoreFloat3(&mParticles[i].pos, pos);
 	}
-
+	
 	UpdateParticleVB();
 	UpdateCollision();
 }
@@ -1034,6 +1328,68 @@ void PuckMan3D::DrawScene()
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
+	/*
+	// Draw the Fruit.
+	for (int i = 0; i < mFruit.size(); ++i)
+	{
+		world = XMMatrixTranslation(mFruit[i].pos.x, mFruit[i].pos.y, mFruit[i].pos.z);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+
+		Effect::BasicFX->SetWorld(world);
+		Effect::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effect::BasicFX->SetWorldViewProj(worldViewProj);
+		Effect::BasicFX->SetMaterial(mCherry);
+
+
+	//	activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mFruitIndexCount, mFruitIndexOffset, mFruitVertexOffset);
+	}
+	for (int i = 0; i < mPeach.size(); ++i)
+	{
+		world = XMMatrixTranslation(mPeach[i].pos.x, mPeach[i].pos.y, mPeach[i].pos.z);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+
+		Effect::BasicFX->SetWorld(world);
+		Effect::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effect::BasicFX->SetWorldViewProj(worldViewProj);
+		Effect::BasicFX->SetMaterial(mPeachMat);
+
+
+		//activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mFruitIndexCount, mFruitIndexOffset, mFruitVertexOffset);
+	}
+	for (int i = 0; i < mApple.size(); ++i)
+	{
+		world = XMMatrixTranslation(mApple[i].pos.x, mApple[i].pos.y, mApple[i].pos.z);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+
+		Effect::BasicFX->SetWorld(world);
+		Effect::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effect::BasicFX->SetWorldViewProj(worldViewProj);
+		Effect::BasicFX->SetMaterial(mAppleMat);
+
+
+		//activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mFruitIndexCount, mFruitIndexOffset, mFruitVertexOffset);
+	}
+	for (int i = 0; i < mGrapes.size(); ++i)
+	{
+		world = XMMatrixTranslation(mGrapes[i].pos.x, mGrapes[i].pos.y, mGrapes[i].pos.z);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+
+		Effect::BasicFX->SetWorld(world);
+		Effect::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effect::BasicFX->SetWorldViewProj(worldViewProj);
+		Effect::BasicFX->SetMaterial(mGrapesMat);
+
+
+	//	activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mFruitIndexCount, mFruitIndexOffset, mFruitVertexOffset);
+	}*/
 
 	MazeLoader::OffsetsCountsMazeElements oc = MazeLoader::GetOffsetsCounts();
 
@@ -1231,10 +1587,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	XMVECTOR vel;
 
 	// Move Forward
-	if (GetAsyncKeyState('W') & 0x8000)
+	if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
 	{
 		mIsKeyPressed = true;
 		mForward = true;
+		mIsMoving = true;
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = 1.0f * dt;
@@ -1256,10 +1613,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 
 	// Move Backwards 
-	if (GetAsyncKeyState('S') & 0x8000)
+	if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN) & 0x8000)
 	{
 		mIsKeyPressed = true;
 		mBackward = true;
+		mIsMoving = true;
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = -1.0f * dt;
@@ -1270,10 +1628,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 
 	// Move Left
-	if (GetAsyncKeyState('A') & 0x8000)
+	if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT) & 0x8000)
 	{
 		mIsKeyPressed = true;
 		mLeft = true;
+		mIsMoving = true;
 		vel.m128_f32[0] = -1.0f * dt;
 		if (mPacMan[0].vel.x > -0.00826695096f)
 		{
@@ -1284,10 +1643,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 
 	// Move Right
-	if (GetAsyncKeyState('D') & 0x8000)
+	if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT) & 0x8000)
 	{
 		mIsKeyPressed = true;
 		mRight = true;
+		mIsMoving = true;
 		vel.m128_f32[0] = 1.0f * dt;
 		if (mPacMan[0].vel.x < 0.00826695096f)
 		{
@@ -1736,6 +2096,22 @@ void PuckMan3D::SetMaterials()
 	mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.45f, 0.001f, 1.0f);
 	mClydeMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
+	mCherry.Ambient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mCherry.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mCherry.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+
+	mPeachMat.Ambient = XMFLOAT4(0.9f, 0.7f, 0.6f, 1.0f);
+	mPeachMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mPeachMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+
+	mAppleMat.Ambient = XMFLOAT4(0.7f, 1.0f, 0.0f, 1.0f);
+	mAppleMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mAppleMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+
+	mGrapesMat.Ambient = XMFLOAT4(0.1f, 0.0f, 1.0f, 1.0f);
+	mGrapesMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mGrapesMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+
 	mBoxMat.Ambient = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Diffuse = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
@@ -1805,6 +2181,10 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	GeometryGenerator::MeshData powerUp;
 	GeometryGenerator::MeshData pacMan;
 	GeometryGenerator::MeshData ghost;
+	GeometryGenerator::MeshData fruit;
+	GeometryGenerator::MeshData peach;
+	GeometryGenerator::MeshData apple;
+	GeometryGenerator::MeshData grapes;
 
 
 	// Dimensions the blocks for the Pac-Man maze
@@ -1881,6 +2261,17 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	// Ghost
 	geoGen.CreateSphere(MazeLoader::RADIUS_GHOST, 10, 10, ghost);
 
+	// Fruit
+	//geoGen.CreateSphere(fruitR, 10, 10, fruit);
+
+	// peach
+	//geoGen.CreateSphere(fruitR, 10, 10, peach);
+
+	// apple
+	//geoGen.CreateSphere(fruitR, 10, 10, apple);
+
+	// grapes
+	//geoGen.CreateSphere(fruitR, 10, 10, grapes);
 
 	// Cache the vertex offsets to each object in the concatenated vertex buffer.
 	mBoxVertexOffset = 0;
@@ -1900,6 +2291,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	mPacManVertexOffset = mPelletVertexOffset + pellet.Vertices.size();
 	mPowerUpVertexOffset = mPacManVertexOffset + pacMan.Vertices.size();
 	mGhostVertexOffset = mPowerUpVertexOffset + powerUp.Vertices.size();
+	//mFruitVertexOffset = mGhostVertexOffset + ghost.Vertices.size();
 
 
 	// Cache the index count of each object.
@@ -1920,7 +2312,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	mPacManIndexCount = pacMan.Indices.size();
 	mPowerUpIndexCount = powerUp.Indices.size();
 	mGhostIndexCount = ghost.Indices.size();
-
+	//mFruitIndexCount = fruit.Indices.size();
 
 	// Cache the starting index for each object in the concatenated index buffer.
 	mBoxIndexOffset = 0;
@@ -1929,7 +2321,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	mPacManIndexOffset = mPelletIndexOffset + mPacManIndexCount;
 	mPowerUpIndexOffset = mPacManIndexOffset + mPacManIndexCount;
 	mGhostIndexOffset = mPowerUpIndexOffset + mPowerUpIndexCount;
-
+//	mFruitIndexOffset = mGhostIndexOffset + mGhostIndexCount;
 
 	UINT totalVertexCount = box1.Vertices.size() + box2.Vertices.size() + box3.Vertices.size() + box4.Vertices.size() + box5.Vertices.size()
 		+ box6.Vertices.size() + box7.Vertices.size() + box8.Vertices.size() + box9.Vertices.size() + box10.Vertices.size()
@@ -1942,7 +2334,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 		+ box41.Vertices.size() + box42.Vertices.size() + box43.Vertices.size() + box44.Vertices.size() + box45.Vertices.size()
 		+ box46.Vertices.size() + box47.Vertices.size() + box48.Vertices.size() + box49.Vertices.size() + box50.Vertices.size()
 		+ box51.Vertices.size() + box52.Vertices.size() + box53.Vertices.size() + box54.Vertices.size() + box55.Vertices.size()
-		+ grid.Vertices.size() + pellet.Vertices.size() + pacMan.Vertices.size() + powerUp.Vertices.size() + ghost.Vertices.size();
+		+ grid.Vertices.size() + pellet.Vertices.size() + pacMan.Vertices.size() + powerUp.Vertices.size() + ghost.Vertices.size() /*+ fruit.Vertices.size()*/;
 
 
 	UINT totalIndexCount =
@@ -1952,6 +2344,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 		mPacManIndexCount +
 		mPowerUpIndexCount +
 		mGhostIndexCount;
+		//mFruitIndexCount;
 
 
 	//
@@ -2322,6 +2715,11 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 		vertices[k].normal = ghost.Vertices[i].Normal;
 	}
 
+	/*for (size_t i = 0; i < fruit.Vertices.size(); ++i, ++k)
+	{
+		vertices[k].pos = fruit.Vertices[i].Position;
+		vertices[k].normal = fruit.Vertices[i].Normal;
+	}*/
 
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -2399,7 +2797,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	indices.insert(indices.end(), pacMan.Indices.begin(), pacMan.Indices.end());
 	indices.insert(indices.end(), powerUp.Indices.begin(), powerUp.Indices.end());
 	indices.insert(indices.end(), ghost.Indices.begin(), ghost.Indices.end());
-
+	//indices.insert(indices.end(), fruit.Indices.begin(), fruit.Indices.end());
 
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -2411,5 +2809,317 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	iinitData.pSysMem = &indices[0];
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));
 }
+
+
+
+void PuckMan3D::updateGhosts(float dt)
+{
+	mCurrentTime += dt;
+
+	switch (ghostState)
+	{
+		//set the ghost to their default colours
+	case GS_NORMAL:
+		mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+		mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
+		mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
+		mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
+		break;
+
+		//set the Ghost blue
+	case GS_BLUE:
+		if (mCurrentTime < mTotalTime)
+		{
+			mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
+		}
+
+		if (mCurrentTime >= mTotalTime)
+		{
+			timer.Stop();
+			ghostState = GhostState::GS_FLASHING;
+			flashingTimer.Reset();
+			flashingTimer.Start();
+			mCurrentTime = 0.0f;
+			mNextTime = 0.3f;
+			mTotalTime = 3.0f;
+		}
+		break;
+
+		//Set the Ghost to be flashing once they are close to being in normalMode
+	case GS_FLASHING:
+		if (mCurrentTime >= mNextTime)
+		{
+			mNextTime += 0.3f;
+			mIsBlue = !mIsBlue;
+		}
+
+		if (mIsBlue)
+		{
+			mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+		}
+		else
+		{
+			mGhostMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			mPinkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			mInkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+
+		if (mCurrentTime >= mTotalTime)
+		{
+			mNextTime = 0.0f;
+			mCurrentTime = 0.0f;
+			mTotalTime = 0.0f;
+			ghostState = GhostState::GS_NORMAL;
+			powerUpActivated = false;
+			flashingTimer.Stop();
+		}
+		break;
+	}
+}
+
+void PuckMan3D::resetGame()
+{
+
+}
+
+void PuckMan3D::loadGhostDeathSFX()
+{
+	result = sys->createSound("Sounds/eatghost.wav", FMOD_DEFAULT, 0, &sound[0]);
+	result = sound[0]->setMode(FMOD_LOOP_OFF);
+}
+
+void PuckMan3D::playGhostDeathSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[0] != NULL)
+	{
+		channel[0]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[0], 0, false, &channel[0]);
+		result = channel[0]->setChannelGroup(soundGroup);
+		result = channel[0]->setPaused(false);
+	}
+}
+
+void PuckMan3D::loadScaredGhostSFX()
+{
+	result = sys->createSound("Sounds/Frightened.wav", FMOD_DEFAULT, 0, &sound[1]);
+
+	result = sound[1]->setMode(FMOD_LOOP_OFF);
+}
+
+void PuckMan3D::playScaredGhostSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[1] != NULL)
+	{
+		channel[1]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying && powerUpActivated)
+	{
+		result = sys->playSound(sound[1], 0, false, &channel[1]);
+		result = channel[1]->setChannelGroup(soundGroup);
+		result = channel[1]->setPaused(false);
+	}
+}
+
+void PuckMan3D::loadDeathSFX()
+{
+	result = sys->createSound("Sounds/death.wav", FMOD_DEFAULT, 0, &sound[2]);
+	result = sound[2]->setMode(FMOD_LOOP_OFF);
+}
+
+void PuckMan3D::playDeathSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[2] != NULL)
+	{
+		channel[2]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[2], 0, false, &channel[2]);
+		result = channel[2]->setChannelGroup(soundGroup);
+		result = channel[2]->setPaused(false);
+	}
+
+}
+
+void PuckMan3D::loadFruitSFX()
+{
+	result = sys->createSound("Sounds/eatfruit.wav", FMOD_DEFAULT, 0, &sound[3]);
+	result = sound[3]->setMode(FMOD_LOOP_OFF);
+}
+
+void PuckMan3D::playFruitSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[4] != NULL)
+	{
+		channel[4]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[3], 0, false, &channel[4]);
+		result = channel[4]->setChannelGroup(soundGroup);
+		result = channel[4]->setPaused(false);
+	}
+}
+
+void PuckMan3D::loadExtraLifeSFX()
+{
+	result = sys->createSound("Sounds/extrapac.wav", FMOD_DEFAULT, 0, &sound[4]);
+	result = sound[4]->setMode(FMOD_LOOP_OFF);
+}
+
+void PuckMan3D::playExtraLifeSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[4] != NULL)
+	{
+		channel[4]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[4], 0, false, &channel[4]);
+		result = channel[4]->setChannelGroup(soundGroup);
+		result = channel[4]->setPaused(false);
+	}
+}
+
+void PuckMan3D::loadBeginningSFX()
+{
+	result = sys->createSound("Sounds/beginning.wav", FMOD_DEFAULT, 0, &sound[5]);
+	result = sound[5]->setMode(FMOD_LOOP_OFF);
+}
+
+void PuckMan3D::playBeginningSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[5] != NULL)
+	{
+		channel[5]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[5], 0, false, &channel[5]);
+		result = channel[5]->setChannelGroup(soundGroup);
+		result = channel[5]->setPaused(false);
+	}
+}
+
+void PuckMan3D::loadSirenSFX()
+{
+	result = sys->createSound("Sounds/MainSiren.wav", FMOD_DEFAULT, 0, &sound[6]);
+	result = sound[6]->setMode(FMOD_LOOP_NORMAL);
+}
+
+void PuckMan3D::playSirenSFX()
+{
+	bool isPlaying = false;
+
+	if (channel[6] != NULL)
+	{
+		channel[6]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying && !mIsPlayerDead)
+	{
+		result = sys->playSound(sound[6], 0, false, &channel[6]);
+		result = channel[6]->setChannelGroup(soundGroup);
+		result = channel[6]->setPaused(false);
+	}
+}
+
+void PuckMan3D::loadWaSFX()
+{
+	result = sys->createSound("Sounds/Wa.wav", FMOD_DEFAULT, 0, &sound[7]);
+	result = sound[7]->setMode(FMOD_LOOP_OFF);
+}
+
+void PuckMan3D::playWaSFX()
+{
+
+	if (channel[3] != NULL)
+	{
+		channel[3]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[7], 0, false, &channel[3]);
+		result = channel[3]->setChannelGroup(soundGroup);
+		result = channel[3]->setPaused(false);
+	}
+	soundStates = SoundsState::SS_KA;
+}
+
+void PuckMan3D::loadKaSFX()
+{
+	result = sys->createSound("Sounds/Ka.wav", FMOD_DEFAULT, 0, &sound[8]);
+	result = sound[8]->setMode(FMOD_LOOP_OFF);
+}
+
+void PuckMan3D::playKaSFX()
+{
+
+	if (channel[3] != NULL)
+	{
+		channel[3]->isPlaying(&isPlaying);
+	}
+
+	if (!isPlaying)
+	{
+		result = sys->playSound(sound[8], 0, false, &channel[3]);
+		result = channel[3]->setChannelGroup(soundGroup);
+		result = channel[3]->setPaused(false);
+	}
+	soundStates = SoundsState::SS_WA;
+}
+
+void PuckMan3D::loadSystem()
+{
+	//Create a System object and initialize and set's up all audio based code
+
+	result = FMOD::System_Create(&sys);
+
+	result = sys->getVersion(&version);
+
+	if (version < FMOD_VERSION)
+	{
+		OutputDebugString(L"FMOD lib version doesn't match header version");
+	}
+
+	result = sys->init(32, FMOD_INIT_NORMAL, extradriverdata);
+
+	result = sys->createChannelGroup("SoundGroup", &soundGroup);
+
+	result = sys->getMasterChannelGroup(&masterGroup);
+
+	result = masterGroup->addGroup(soundGroup);
+}
+
 
 
