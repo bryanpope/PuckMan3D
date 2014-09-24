@@ -109,6 +109,8 @@ public:
 	static void SetGhostPos(FXMVECTOR pos, UINT index);
 	static void SetGhostVel(FXMVECTOR vel, UINT index);
 
+	static UINT GetMazeWidth(){ return mMazeWidth; }
+
 	static bool IsPellet(UINT row, UINT col);
 
 	static const float RADIUS_PAC_MAN;

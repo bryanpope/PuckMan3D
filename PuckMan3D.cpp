@@ -397,7 +397,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
-mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(1000.0f),
+mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(650.0f),
 mCountPellets(0), mLitMatInstanceEffect(0)
 {
 	soundStates = SoundsState::SS_KA;
@@ -844,7 +844,6 @@ void PuckMan3D::UpdateScene(float dt)
 
 		if (PacManPelletOverlapTest(pos, ghostPos) == true)
 		{
-<<<<<<< HEAD
 			//mPacMan.pop_back();
 			MazeLoader::ErasePacMan(pacMans.size() - 1);
 			MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
@@ -852,7 +851,6 @@ void PuckMan3D::UpdateScene(float dt)
 			//mPacMan[0].pos.x = 0.0f;
 			//mPacMan[0].pos.y = 0.75f;
 			//mPacMan[0].pos.z = -8.5f;
-=======
 			playDeathSFX();
 			mIsPlayerDead = true;
 			mIsMoving = false;
@@ -860,7 +858,6 @@ void PuckMan3D::UpdateScene(float dt)
 			mPacMan[0].pos.x = 0.0f;
 			mPacMan[0].pos.y = 0.75f;
 			mPacMan[0].pos.z = -8.5f;
->>>>>>> origin/master
 			break;
 		}
 
@@ -882,12 +879,11 @@ void PuckMan3D::UpdateScene(float dt)
 
 			if (soundStates == SoundsState::SS_KA)
 			{
-				playKaSFX();
-			}
-
-			if (soundStates == SoundsState::SS_WA)
-			{
 				playWaSFX();
+			}
+			else if (soundStates == SoundsState::SS_WA)
+			{
+				playKaSFX();
 			}
 			mPelletCounter++;
 			MazeLoader::ErasePellet(i);
@@ -905,15 +901,12 @@ void PuckMan3D::UpdateScene(float dt)
 
 		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
 		{
-<<<<<<< HEAD
-=======
 			powerUpActivated = true;
 			ghostState = GhostState::GS_BLUE;
 			mCurrentTime = 0.0f;
 			mTotalTime = 3.0f;
 			timer.Reset();
 			timer.Start();
->>>>>>> origin/master
 			MazeLoader::ErasePowerUp(i);
 			break;
 			//--i;
@@ -3083,19 +3076,20 @@ void PuckMan3D::loadWaSFX()
 
 void PuckMan3D::playWaSFX()
 {
+	//bool isPlaying = false;
 
-	if (channel[3] != NULL)
-	{
-		channel[3]->isPlaying(&isPlaying);
-	}
+	//if (channel[3] != NULL)
+	//{
+	//	channel[3]->isPlaying(&isPlaying);
+	//}
 
-	if (!isPlaying)
-	{
+	//if (!isPlaying)
+	//{
 		result = sys->playSound(sound[7], 0, false, &channel[3]);
 		result = channel[3]->setChannelGroup(soundGroup);
 		result = channel[3]->setPaused(false);
-	}
-	soundStates = SoundsState::SS_KA;
+		soundStates = SoundsState::SS_WA;
+	//}
 }
 
 void PuckMan3D::loadKaSFX()
@@ -3106,19 +3100,20 @@ void PuckMan3D::loadKaSFX()
 
 void PuckMan3D::playKaSFX()
 {
+	//bool isPlaying = false;
 
-	if (channel[3] != NULL)
-	{
-		channel[3]->isPlaying(&isPlaying);
-	}
+	//if (channel[3] != NULL)
+	//{
+	//	channel[3]->isPlaying(&isPlaying);
+	//}
 
-	if (!isPlaying)
-	{
+	//if (!isPlaying)
+	//{
 		result = sys->playSound(sound[8], 0, false, &channel[3]);
 		result = channel[3]->setChannelGroup(soundGroup);
 		result = channel[3]->setPaused(false);
-	}
-	soundStates = SoundsState::SS_WA;
+		soundStates = SoundsState::SS_KA;
+	//}
 }
 
 void PuckMan3D::loadSystem()
