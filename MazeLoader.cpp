@@ -357,6 +357,7 @@ bool MazeLoader::IsBlocked(UINT row, UINT col)
 	return (mMazeElements[index] == ME_WALL);
 }
 
+<<<<<<< HEAD
 void MazeLoader::SetPacManPos(FXMVECTOR pos, UINT index)
 { 
 	mPacMans[index].pos.x = pos.m128_f32[0];
@@ -392,6 +393,15 @@ void MazeLoader::SetGhostVel(FXMVECTOR vel, UINT index)
 	mGhosts[index].vel.y = vel.m128_f32[1];
 	mGhosts[index].vel.z = vel.m128_f32[2];
 }
+=======
+bool MazeLoader::IsPellet(UINT row, UINT col)
+{
+	UINT index = (row * mMazeWidth) + col;
+
+	return (mMazeElements[index] == ME_PELLET);
+}
+
+>>>>>>> origin/master
 
 /*UINT MazeLoader::AddVertex(Vertex::NormalTexVertex vertex, std::vector<Vertex::NormalTexVertex>& vertBuf)
 {
