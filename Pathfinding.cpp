@@ -111,8 +111,8 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 					PathNode* newChildNode = new PathNode(childNode.xPos, childNode.zPos, g, f, currNode, "");
 					mOpenList.push_back(newChildNode);
 				}
-			//}
-		}
+			}
+		//}
 	}
 }
 
