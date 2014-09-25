@@ -893,7 +893,7 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		XMVECTOR pelPos = XMLoadFloat3(&pellets[i].pos);
 
-		if (PacManPelletOverlapTest(pos, pelPos) == true)
+		if (pellets[i].isCollider && PacManPelletOverlapTest(pos, pelPos) == true)
 		{
 			if (!isPlaying)
 			{
@@ -909,7 +909,8 @@ void PuckMan3D::UpdateScene(float dt)
 				playKaSFX();
 			}
 			mPelletCounter++;
-			MazeLoader::ErasePellet(i);
+			//MazeLoader::ErasePellet(i);
+			MazeLoader::RemovePellet(i);
 			mScore += 10;
 			break;
 			//--i;
