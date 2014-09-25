@@ -1,5 +1,6 @@
 #include "MazeLoader.h"
 #include "GeometryGenerator.h"
+#include "Materials.h"
 #include <fstream>
 #include <algorithm>
 
@@ -96,7 +97,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	GeometryGenerator::MeshData meshPacMan;
 	GeometryGenerator::MeshData meshGhost;
 
-	geoGen.CreateBox(0.5f, 0.5f, 0.5f, meshBox);
+	geoGen.CreateBox(0.70f, 0.20f, 0.70f, meshBox);
 	geoGen.CreateSphere(RADIUS_PELLET, 10, 10, meshPellet);
 	geoGen.CreateSphere(RADIUS_POWERUP, 10, 10, meshPowerUp);
 	geoGen.CreateSphere(RADIUS_PAC_MAN, 10, 10, meshPacMan);
@@ -273,9 +274,9 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._41 = posX;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
-				mWalls.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				mWalls.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse));
 				instWalls[instanceCountWall].World = worldPos;
-				instWalls[instanceCountWall++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
+				instWalls[instanceCountWall++].Color = Materials::BOX.Diffuse;
 			}
 			if (mazeText[i][j] == L' ')	// pellets
 			{
@@ -283,9 +284,9 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._41 = posX;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
-				mPellets.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				mPellets.push_back(MazeElementSpecs(worldPos, Materials::PELLET.Diffuse));
 				instPellets[instanceCountPellet].World = worldPos;
-				instPellets[instanceCountPellet++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
+				instPellets[instanceCountPellet++].Color = Materials::PELLET.Diffuse;
 			}
 			if (mazeText[i][j] == L'O')	// power up
 			{
@@ -293,9 +294,9 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._41 = posX;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
-				mPowerUps.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				mPowerUps.push_back(MazeElementSpecs(worldPos, Materials::POWERUP.Diffuse));
 				instPowerUps[instanceCountPowerUp].World = worldPos;
-				instPowerUps[instanceCountPowerUp++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
+				instPowerUps[instanceCountPowerUp++].Color = Materials::POWERUP.Diffuse;
 			}
 			if (mazeText[i][j] == L'M')	// Puck Man
 			{
@@ -304,34 +305,39 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
 				mInitialPositions.pacMan = XMFLOAT3(worldPos._41, worldPos._42, worldPos._43);
-				mPacMans.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse));
 				instPacMans[instanceCountPacMan].World = worldPos;
-				instPacMans[instanceCountPacMan++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
+				instPacMans[instanceCountPacMan++].Color = Materials::PACMAN.Diffuse;
 			}
 			if (mazeText[i][j] == L'B' || mazeText[i][j] == L'I' || mazeText[i][j] == L'P' || mazeText[i][j] == L'C')	// Ghosts
 			{
+				XMFLOAT4 colour;
 				switch (mazeText[i][j])
 				{
 				case L'B':
 					mInitialPositions.blinky = XMFLOAT3(posX + 0.5f, 0.0f, -posZ);
+					colour = Materials::BLINKY.Diffuse;
 					break;
 				case L'I':
 					mInitialPositions.inky = XMFLOAT3(posX + 0.5f, 0.0f, -posZ);
+					colour = Materials::INKY.Diffuse;
 					break;
 				case L'P':
 					mInitialPositions.pinky = XMFLOAT3(posX + 0.5f, 0.0f, -posZ);
+					colour = Materials::PINKY.Diffuse;
 					break;
 				case L'C':
 					mInitialPositions.clyde = XMFLOAT3(posX + 0.5f, 0.0f, -posZ);
+					colour = Materials::CLYDE.Diffuse;
 					break;
 				}
 				mMazeElements.push_back(ME_NOTHING);
 				worldPos._41 = posX + 0.5f;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
-				mGhosts.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+				mGhosts.push_back(MazeElementSpecs(worldPos, colour));
 				instGhosts[instanceCountGhost].World = worldPos;
-				instGhosts[instanceCountGhost++].Color = XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f);
+				instGhosts[instanceCountGhost++].Color = colour;
 			}
 			if (mazeText[i][j] == L'M')	// Really nothing
 			{
@@ -344,8 +350,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		++posZ;
 	}
 
-	mPacMans.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
-	mPacMans.push_back(MazeElementSpecs(worldPos, XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f)));
+	mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse));
+	mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse));
 
 	return true;
 }

@@ -36,6 +36,7 @@
 #include "Inky.h"
 #include "Pinky.h"
 #include "Clyde.h"
+#include "Materials.h"
 
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
@@ -393,14 +394,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		return 0;
 
 	
-	
 	return theApp.Run();
 }
 
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
-mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(650.0f),
+mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(710.0f),
 mCountPellets(0), mLitMatInstanceEffect(0)
 {
 	soundStates = SoundsState::SS_KA;

@@ -125,6 +125,7 @@ float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) :
 	else
 	{
 		mat = gMaterial;
+		mat.Diffuse = pin.Color;
 	}
 
 	pin.NormalW = normalize(pin.NormalW);

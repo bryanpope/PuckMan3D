@@ -109,6 +109,7 @@
     <ClInclude Include="GraphicalGeometry.h" />
     <ClInclude Include="GraphicalObject.h" />
     <ClInclude Include="Inky.h" />
+    <ClInclude Include="Materials.h" />
     <ClInclude Include="MazeLoader.h" />
     <ClInclude Include="MeshGeometry.h" />
     <ClInclude Include="OBJLoader.h" />
@@ -149,6 +150,7 @@
     <ClCompile Include="GraphicalGeometry.cpp" />
     <ClCompile Include="GraphicalObject.cpp" />
     <ClCompile Include="Inky.cpp" />
+    <ClCompile Include="Materials.cpp" />
     <ClCompile Include="MazeLoader.cpp" />
     <ClCompile Include="Pathfinding.cpp" />
     <ClCompile Include="PathNode.cpp" />

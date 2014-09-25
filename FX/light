@@ -678,7 +678,7 @@ fxgroup
                 // TEXCOORD                 0   xy          1     NONE   float       
                 // POSITION                 0   xyz         2     NONE   float   xyz 
                 // NORMAL                   0   xyz         3     NONE   float   xyz 
-                // COLOR                    0   xyzw        4     NONE   float       
+                // COLOR                    0   xyzw        4     NONE   float   xyzw
                 //
                 //
                 // Output signature:
@@ -693,10 +693,11 @@ fxgroup
                 dcl_constantbuffer cb1[11], immediateIndexed
                 dcl_input_ps linear v2.xyz
                 dcl_input_ps linear v3.xyz
+                dcl_input_ps linear v4.xyzw
                 dcl_output o0.xyzw
                 dcl_temps 12
                 mov r0.xyzw, cb0[18].xyzw
-                mov r1.xyzw, cb0[17].xyzw
+                mov r1.xyzw, v4.xyzw
                 dp3 r2.x, v3.xyzx, v3.xyzx
                 rsq r2.x, r2.x
                 mul r2.xyz, r2.xxxx, v3.xyzx
@@ -1064,7 +1065,7 @@ fxgroup
                 // TEXCOORD                 0   xy          1     NONE   float       
                 // POSITION                 0   xyz         2     NONE   float   xyz 
                 // NORMAL                   0   xyz         3     NONE   float   xyz 
-                // COLOR                    0   xyzw        4     NONE   float       
+                // COLOR                    0   xyzw        4     NONE   float   xyzw
                 //
                 //
                 // Output signature:
@@ -1079,10 +1080,11 @@ fxgroup
                 dcl_constantbuffer cb1[11], immediateIndexed
                 dcl_input_ps linear v2.xyz
                 dcl_input_ps linear v3.xyz
+                dcl_input_ps linear v4.xyzw
                 dcl_output o0.xyzw
                 dcl_temps 12
                 mov r0.xyzw, cb0[18].xyzw
-                mov r1.xyzw, cb0[17].xyzw
+                mov r1.xyzw, v4.xyzw
                 dp3 r2.x, v3.xyzx, v3.xyzx
                 rsq r2.x, r2.x
                 mul r2.xyz, r2.xxxx, v3.xyzx

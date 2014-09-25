@@ -109,6 +109,13 @@ struct SpotLight
 struct Material
 {
 	Material() { ZeroMemory(this, sizeof(this)); }
+	Material(XMFLOAT4 a, XMFLOAT4 d, XMFLOAT4 s, XMFLOAT4 r)
+	{
+		Ambient = a;
+		Diffuse = d;
+		Specular = s;
+		Reflect = r;
+	}
 
 	XMFLOAT4 Ambient;
 	XMFLOAT4 Diffuse;
