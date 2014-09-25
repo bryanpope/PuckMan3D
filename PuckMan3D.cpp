@@ -118,16 +118,16 @@ private:
 	XNA::OrientedBox* GetOrientedBox(FXMVECTOR extents, const GraphicalObject* obj);
 	XNA::Sphere* GetBoundingSphere(const GraphicalObject* obj, float radius);
 
-	void BuildPuckMaze();
-	void BuildPellets();
+	//void BuildPuckMaze();
+	//void BuildPellets();
 	void BuildPuckMan();
 	void BuildGhosts();
-	void BuildPowerUps();
+	//void BuildPowerUps();
 	void SetMaterials();
 	void BuildShapeGeometryBuffers();
 
 private:
-	struct PowerUp
+	/*(struct PowerUp
 	{
 		XMFLOAT3 pos;
 
@@ -158,7 +158,7 @@ private:
 			XMStoreFloat3(&this->vel, vel);
 		}
 
-	};
+	};*/
 	struct Fruit
 	{
 		XMFLOAT3 pos;
@@ -172,7 +172,7 @@ private:
 
 	};
 
-	struct AABox
+	/*struct AABox
 	{
 		XMFLOAT3 pos;
 		float width; //x size
@@ -193,7 +193,7 @@ private:
 			min.z = this->pos.z - (depth / 2.0f);
 			max.z = this->pos.z + (depth / 2.0f);
 		}
-	};
+	};*/
 
 	ID3D11Buffer* mShapesVB;
 	ID3D11Buffer* mShapesIB;
@@ -319,10 +319,10 @@ private:
 	XMFLOAT4X4 mGridWorld;
 	XMFLOAT4X4 mFruitWorld[2];
 
-	std::vector<AABox> mBoxData;
-	std::vector<PacMan> mPacMan;
-	std::vector<Pellet> mPellet;
-	std::vector<PowerUp> mPowerUp;
+	//std::vector<AABox> mBoxData;
+	//std::vector<PacMan> mPacMan;
+	//std::vector<Pellet> mPellet;
+	//std::vector<PowerUp> mPowerUp;
 	//std::vector<Fruit> mFruit;
 	//std::vector<Fruit> mPeach;
 	//std::vector<Fruit> mApple;
@@ -575,7 +575,7 @@ bool PuckMan3D::Init()
 	//BuildPellets();
 	BuildPuckMan();
 	BuildGhosts();
-	BuildPowerUps();
+	//BuildPowerUps();
 	SetMaterials();
 	BuildShapeGeometryBuffers();
 
@@ -860,10 +860,6 @@ void PuckMan3D::UpdateScene(float dt)
 			playDeathSFX();
 			mIsPlayerDead = true;
 			mIsMoving = false;
-			mPacMan.pop_back();
-			mPacMan[0].pos.x = 0.0f;
-			mPacMan[0].pos.y = 0.75f;
-			mPacMan[0].pos.z = -8.5f;
 			break;
 		}
 
@@ -1018,7 +1014,7 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 
 	//reset board if all pellets are gone
-	if (mPellet.size() == 0 && mPowerUp.size() == 0)
+	if (pellets.size() == 0 && powerUps.size() == 0)
 	{
 		resetGame();
 		mLevelCounter++;
@@ -1086,17 +1082,6 @@ void PuckMan3D::UpdateScene(float dt)
 
 	float eyeOffset = 25.0f;
 	//float eyeOffset = 0.0f;
-
-	////PacMan Tunnel Check
-
-	if (mPacMan[0].pos.x < -14)
-	{
-		mPacMan[0].pos.x = 14;
-	}
-	if (mPacMan[0].pos.x > 14)
-	{
-		mPacMan[0].pos.x = -14;
-	}
 
 	// Camera X, Y, Z Positioning.
 	float x = pacMans[0].pos.x;
@@ -1620,7 +1605,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = 1.0f * dt;
-		if (mPacMan[0].vel.z < 0.00826695096f)
+		if (vel.m128_f32[2] < 0.00826695096f)
 		{
 			vel.m128_f32[2] = 0.00826695096f;
 		}
@@ -1646,7 +1631,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = -1.0f * dt;
-		if (mPacMan[0].vel.z > -0.00826695096f)
+		if (vel.m128_f32[2] > -0.00826695096f)
 		{
 			vel.m128_f32[2] = -0.00826695096f;
 		}
@@ -1659,7 +1644,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		mLeft = true;
 		mIsMoving = true;
 		vel.m128_f32[0] = -1.0f * dt;
-		if (mPacMan[0].vel.x > -0.00826695096f)
+		if (vel.m128_f32[0] > -0.00826695096f)
 		{
 			vel.m128_f32[0] = -0.00826695096f;
 		}
@@ -1674,7 +1659,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		mRight = true;
 		mIsMoving = true;
 		vel.m128_f32[0] = 1.0f * dt;
-		if (mPacMan[0].vel.x < 0.00826695096f)
+		if (vel.m128_f32[0] < 0.00826695096f)
 		{
 			vel.m128_f32[0] = 0.00826695096f;
 		}
@@ -1711,9 +1696,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 //
 void PuckMan3D::PuckManSpeed()
 {
+	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	//translate Puckmans Position to Pellet space
-	int transX = (int)floor(mPacMan[0].pos.x + 14.0f);
-	int transZ = (INT)floor(31 - mPacMan[0].pos.z + 15.5F); // inverting the z
+	//int transX = (int)floor(mPacMan[0].pos.x + 14.0f);
+	int transX = (int)floor(pacMans[0].pos.x + 14.0f);
+	int transZ = (INT)floor(31 - pacMans[0].pos.z + 15.5F); // inverting the z
 
 	if (mForward)
 	{
@@ -1939,7 +1926,7 @@ XMVECTOR PuckMan3D::CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height,
 	return ret;
 }
 
-void PuckMan3D::BuildPuckMaze()
+/*void PuckMan3D::BuildPuckMaze()
 {
 	////positioning of the 55 boxes to create the Pac-Man Maze
 	mBoxData.push_back(AABox(XMVectorSet(0.0f, 0.375f, -15.75f, 0.0f), 28.0f, 0.5f));
@@ -2002,9 +1989,9 @@ void PuckMan3D::BuildPuckMaze()
 	{
 		XMStoreFloat4x4(&mBoxWorld[i], XMMatrixTranslation(mBoxData[i].pos.x, mBoxData[i].pos.y, mBoxData[i].pos.z));
 	}
-}
+}*/
 
-void PuckMan3D::BuildPellets()
+/*void PuckMan3D::BuildPellets()
 {
 	////Positioning the Pellets
 	////Bottom Row
@@ -2022,7 +2009,7 @@ void PuckMan3D::BuildPellets()
 	{
 		XMStoreFloat4x4(&mPelletWorld[i], XMMatrixTranslation(mPellet[i].pos.x, mPellet[i].pos.y, mPellet[i].pos.z));
 	}
-}
+}*/
 
 void PuckMan3D::BuildPuckMan()
 {
@@ -2033,14 +2020,14 @@ void PuckMan3D::BuildPuckMan()
 	MazeLoader::SetPacManPos(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), 1);
 	MazeLoader::SetPacManPos(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), 2);
 
-	mPacMan.push_back(PacMan(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, -pacPos.pacMan.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	/*mPacMan.push_back(PacMan(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, -pacPos.pacMan.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPacMan.push_back(PacMan(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 	mPacMan.push_back(PacMan(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	for (int i = 0; i < mPacMan.size(); ++i)
 	{
 		XMStoreFloat4x4(&mPacManWorld[i], XMMatrixTranslation(mPacMan[i].pos.x, mPacMan[i].pos.y, mPacMan[i].pos.z));
-	}
+	}*/
 }
 
 void PuckMan3D::BuildGhosts()
@@ -2072,7 +2059,7 @@ void PuckMan3D::BuildGhosts()
 	mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));*/
 }
 
-void PuckMan3D::BuildPowerUps()
+/*void PuckMan3D::BuildPowerUps()
 {
 	////Positioning the PowerUps
 	mPowerUp.push_back(PowerUp(XMVectorSet(-12.5f, 0.75f, -8.5f, 0.0f)));
@@ -2084,7 +2071,7 @@ void PuckMan3D::BuildPowerUps()
 	{
 		XMStoreFloat4x4(&mPowerUpWorld[i], XMMatrixTranslation(mPowerUp[i].pos.x, mPowerUp[i].pos.y, mPowerUp[i].pos.z));
 	}
-}
+}*/
 
 void PuckMan3D::SetMaterials()
 {
@@ -2144,7 +2131,7 @@ void PuckMan3D::SetMaterials()
 void PuckMan3D::BuildShapeGeometryBuffers()
 {
 	// The blocks to make the Pac-Man maze
-	GeometryGenerator::MeshData box1;
+	/*GeometryGenerator::MeshData box1;
 	GeometryGenerator::MeshData box2;
 	GeometryGenerator::MeshData box3;
 	GeometryGenerator::MeshData box4;
@@ -2204,7 +2191,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	GeometryGenerator::MeshData pellet;
 	GeometryGenerator::MeshData powerUp;
 	GeometryGenerator::MeshData pacMan;
-	GeometryGenerator::MeshData ghost;
+	GeometryGenerator::MeshData ghost;*/
 	GeometryGenerator::MeshData fruit;
 	GeometryGenerator::MeshData peach;
 	GeometryGenerator::MeshData apple;
@@ -2212,7 +2199,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 
 
 	// Dimensions the blocks for the Pac-Man maze
-	GeometryGenerator geoGen;
+	/*GeometryGenerator geoGen;
 	geoGen.CreateBox(28.0f, 0.75f, 0.5f, box1);
 	//AABox aaBox1;
 	//aaBox1.
@@ -2283,7 +2270,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	geoGen.CreateSphere(MazeLoader::RADIUS_PAC_MAN, 10, 10, pacMan);
 
 	// Ghost
-	geoGen.CreateSphere(MazeLoader::RADIUS_GHOST, 10, 10, ghost);
+	geoGen.CreateSphere(MazeLoader::RADIUS_GHOST, 10, 10, ghost);*/
 
 	// Fruit
 	//geoGen.CreateSphere(fruitR, 10, 10, fruit);
@@ -2298,7 +2285,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	//geoGen.CreateSphere(fruitR, 10, 10, grapes);
 
 	// Cache the vertex offsets to each object in the concatenated vertex buffer.
-	mBoxVertexOffset = 0;
+	/*mBoxVertexOffset = 0;
 	mGridVertexOffset = box1.Vertices.size() + box2.Vertices.size() + box3.Vertices.size() + box4.Vertices.size() + box5.Vertices.size()
 		+ box6.Vertices.size() + box7.Vertices.size() + box8.Vertices.size() + box9.Vertices.size() + box10.Vertices.size()
 		+ box11.Vertices.size() + box12.Vertices.size() + box13.Vertices.size() + box14.Vertices.size() + box15.Vertices.size()
@@ -2361,7 +2348,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 		+ grid.Vertices.size() + pellet.Vertices.size() + pacMan.Vertices.size() + powerUp.Vertices.size() + ghost.Vertices.size() /*+ fruit.Vertices.size()*/;
 
 
-	UINT totalIndexCount =
+	/*UINT totalIndexCount =
 		mBoxIndexCount +
 		mGridIndexCount +
 		mPelletIndexCount +
@@ -2739,12 +2726,6 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 		vertices[k].normal = ghost.Vertices[i].Normal;
 	}
 
-	/*for (size_t i = 0; i < fruit.Vertices.size(); ++i, ++k)
-	{
-		vertices[k].pos = fruit.Vertices[i].Position;
-		vertices[k].normal = fruit.Vertices[i].Normal;
-	}*/
-
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::NormalTexVertex) * totalVertexCount;
@@ -2831,7 +2812,7 @@ void PuckMan3D::BuildShapeGeometryBuffers()
 	ibd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
-	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));
+	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));*/
 }
 
 
