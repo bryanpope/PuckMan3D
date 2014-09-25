@@ -113,6 +113,7 @@ public:
 	static void SetPacManVel(FXMVECTOR vel, UINT index);
 	static void SetGhostPos(FXMVECTOR pos, UINT index);
 	static void SetGhostVel(FXMVECTOR vel, UINT index);
+	static void SetGhostColour(XMFLOAT4 col, UINT index);
 
 	static void RemovePellet(UINT index){ mPellets[index].isShown = mPellets[index].isCollider = false; }
 

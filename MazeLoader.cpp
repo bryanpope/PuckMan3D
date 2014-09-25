@@ -406,11 +406,20 @@ void MazeLoader::SetGhostVel(FXMVECTOR vel, UINT index)
 	mGhosts[index].vel.z = vel.m128_f32[2];
 }
 
+void MazeLoader::SetGhostColour(XMFLOAT4 col, UINT index)
+{
+	mGhosts[index].colour = col;
+}
+
 bool MazeLoader::IsPellet(UINT row, UINT col)
 {
 	UINT index = (row * mMazeWidth) + col;
 
+<<<<<<< HEAD
 	if (row >= mMazeHeight || col >= mMazeWidth)
+=======
+	if ((row >= mMazeHeight) || (col >= mMazeWidth))
+>>>>>>> 11136601c3192845ad235668c741cbfe79fd37f6
 	{
 		return false;
 	}

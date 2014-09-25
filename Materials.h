@@ -18,7 +18,8 @@ public:
 	static const Material PEACH;
 	static const Material APPLE;
 	static const Material GRAPES;
-
+	static const Material GHOSTFRIGHTENED;
+	static const Material GHOSTFLASHING;
 	Materials(){}
 	~Materials(){}
 };
