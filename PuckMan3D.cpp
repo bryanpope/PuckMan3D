@@ -835,7 +835,7 @@ void PuckMan3D::UpdateScene(float dt)
 	UpdateKeyboardInput(dt);
 	updateStringStream();
 
-	mBlinky->Update();
+	mBlinky->Update(dt);
 	
 	MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z, 0.0f), 0);
 	MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);

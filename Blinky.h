@@ -6,5 +6,5 @@ public:
 	//Blinky(UINT row, UINT col, FXMVECTOR vel, float radius);
 	Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius);
 	~Blinky();
-	void Update();
+	void Update(float dt);
 };

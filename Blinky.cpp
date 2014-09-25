@@ -8,7 +8,7 @@ Blinky::~Blinky()
 {
 }
 
-void Blinky::Update()
+void Blinky::Update(float dt)
 {
 	PathNode* start = new PathNode(this->mPos.x, this->mPos.z);
 	PathNode* goal = new PathNode(10, 10);
