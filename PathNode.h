@@ -31,11 +31,6 @@ public:
 		return parent;
 	}
 
-	int getGCost(PathNode* n)
-	{
-		return n->gCost + ((xPos == n->xPos || zPos == n->zPos));
-	}
-
 	void setParent(PathNode* p)
 	{
 		parent = p;

@@ -42,5 +42,6 @@ int PathNode::getDistance(PathNode* goal, int x, int z)
 
 int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 {
-	return sqrt((child.zPos - parent->zPos) * (child.zPos - parent->zPos) + (child.xPos - parent->xPos) * (child.xPos - parent->xPos));
+	return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+	//return sqrt((child.zPos - parent->zPos) * (child.zPos - parent->zPos) + (child.xPos - parent->xPos) * (child.xPos - parent->xPos));
 }
