@@ -367,7 +367,7 @@ bool MazeLoader::IsBlocked(UINT row, UINT col)
 {
 	UINT index = (row * mMazeWidth) + col;
 
-	return ((mMazeElements[index] == ME_WALL) || (mMazeElements[index] == ME_NOTHING));
+	return ((mMazeElements[index] == ME_WALL) || (mMazeElements[index] == ME_BLANK));
 }
 
 void MazeLoader::SetPacManPos(FXMVECTOR pos, UINT index)
