@@ -115,7 +115,7 @@ public:
 	static void SetGhostVel(FXMVECTOR vel, UINT index);
 	static void SetGhostColour(XMFLOAT4 col, UINT index);
 
-	static void RemovePellet(UINT index){ mPellets[index].isShown = mPellets[index].isCollider = false; }
+	static void RemovePellet(UINT index);
 
 	static UINT GetMazeWidth(){ return mMazeWidth; }
 	static UINT GetMazeHeight(){ return mMazeHeight; }
@@ -141,6 +141,7 @@ private:
 	static InitialPosition mInitialPositions;
 	static std::vector<AABox> mBoxData;
 	static std::vector<MazeElements> mMazeElements;
+	static std::vector<MazeElements> mMazeElementsModify;
 	static std::vector<MazeElementSpecs> mWalls;
 	static std::vector<MazeElementSpecs> mPellets;
 	static std::vector<MazeElementSpecs> mPowerUps;

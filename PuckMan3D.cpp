@@ -1145,7 +1145,10 @@ void PuckMan3D::UpdateScene(float dt)
 	mCountPellets = 0;
 	for (UINT i = 0; i < pellets.size(); ++i)
 	{
-		dataView[mCountPellets++] = { pellets[i].world, pellets[i].colour };
+		if (pellets[i].isShown)
+		{
+			dataView[mCountPellets++] = { pellets[i].world, pellets[i].colour };
+		}
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBPellets(), 0);
 

@@ -11,6 +11,7 @@ MazeLoader::OffsetsCountsMazeElements MazeLoader::mElementOffsetsCounts;
 MazeLoader::InitialPosition MazeLoader::mInitialPositions;
 std::vector<MazeLoader::AABox> MazeLoader::mBoxData;
 std::vector<MazeLoader::MazeElements> MazeLoader::mMazeElements;
+std::vector<MazeLoader::MazeElements> MazeLoader::mMazeElementsModify;
 UINT MazeLoader::mMazeWidth;
 UINT MazeLoader::mMazeHeight;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mWalls;
@@ -359,6 +360,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 
 	mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse, true, true));
 	mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse, true, true));
+	mMazeElementsModify = mMazeElements;
 
 	return true;
 }
@@ -411,6 +413,16 @@ void MazeLoader::SetGhostColour(XMFLOAT4 col, UINT index)
 	mGhosts[index].colour = col;
 }
 
+void MazeLoader::RemovePellet(UINT index)
+{ 
+	mPellets[index].isShown = mPellets[index].isCollider = false;
+
+	UINT row = mMazeHeight - (UINT)floor(mPellets[index].pos.z + (mMazeHeight * 0.5));
+	UINT col = (UINT)floor(mPellets[index].pos.x + (mMazeWidth * 0.5));
+	UINT mazeIndex = (row * mMazeWidth) + col;
+	mMazeElementsModify[mazeIndex] = ME_NOTHING;
+}
+
 bool MazeLoader::IsPellet(UINT row, UINT col)
 {
 	UINT index = (row * mMazeWidth) + col;
@@ -420,7 +432,7 @@ bool MazeLoader::IsPellet(UINT row, UINT col)
 		return false;
 	}
 
-	return (mMazeElements[index] == ME_PELLET);
+	return (mMazeElementsModify[index] == ME_PELLET);
 }
 
 
