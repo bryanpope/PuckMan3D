@@ -100,6 +100,7 @@ private:
 	bool UpdateGroundCollision();
 	void UpdateKeyboardInput(float dt);
 	void UpdateCollision();
+	void updateStringStream();
 	XMVECTOR PacManAABoxOverLap(XMVECTOR s1Center);
 
 	bool PuckMan3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
@@ -372,6 +373,8 @@ private:
 
 	RandGen rg;
 	int randNumber;
+	int mScore = 0;
+	std::stringstream currScore;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -551,6 +554,8 @@ bool PuckMan3D::Init()
 	loadSirenSFX();
 	loadWaSFX();
 	loadKaSFX();
+
+	currScore << mScore;
 
 	if(!D3DApp::Init())
 		return false;
@@ -811,6 +816,7 @@ float timer = 0.0f;
 void PuckMan3D::UpdateScene(float dt)
 {
 	UpdateKeyboardInput(dt);
+	updateStringStream();
 
 	mBlinky->Update();
 	
@@ -887,6 +893,7 @@ void PuckMan3D::UpdateScene(float dt)
 			}
 			mPelletCounter++;
 			MazeLoader::ErasePellet(i);
+			mScore += 10;
 			break;
 			//--i;
 		}
@@ -908,6 +915,7 @@ void PuckMan3D::UpdateScene(float dt)
 			timer.Reset();
 			timer.Start();
 			MazeLoader::ErasePowerUp(i);
+			mScore += 50;
 			break;
 			//--i;
 		}
@@ -1510,6 +1518,7 @@ void PuckMan3D::DrawScene()
 	os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mSpeed;
 	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
 	mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
+	mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 25, "Score: " + currScore.str());
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 
@@ -3070,7 +3079,7 @@ void PuckMan3D::playSirenSFX()
 
 void PuckMan3D::loadWaSFX()
 {
-	result = sys->createSound("Sounds/Wa.wav", FMOD_DEFAULT, 0, &sound[7]);
+	result = sys->createSound("Sounds/Wa2.wav", FMOD_DEFAULT, 0, &sound[7]);
 	result = sound[7]->setMode(FMOD_LOOP_OFF);
 }
 
@@ -3136,6 +3145,12 @@ void PuckMan3D::loadSystem()
 	result = sys->getMasterChannelGroup(&masterGroup);
 
 	result = masterGroup->addGroup(soundGroup);
+}
+
+void PuckMan3D::updateStringStream()
+{
+	currScore.str("");
+	currScore << mScore;
 }
 
 
