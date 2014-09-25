@@ -415,11 +415,7 @@ bool MazeLoader::IsPellet(UINT row, UINT col)
 {
 	UINT index = (row * mMazeWidth) + col;
 
-<<<<<<< HEAD
-	if (row >= mMazeHeight || col >= mMazeWidth)
-=======
 	if ((row >= mMazeHeight) || (col >= mMazeWidth))
->>>>>>> 11136601c3192845ad235668c741cbfe79fd37f6
 	{
 		return false;
 	}

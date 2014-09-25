@@ -1652,14 +1652,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR vel;
 
-<<<<<<< HEAD
 	mIsKeyPressed = false;
 	vel.m128_f32[0] = 0.0f;
 	vel.m128_f32[1] = 0.0f;
 	vel.m128_f32[2] = 0.0f;
 	mFacingState = FCS_DEFAULT;
-=======
->>>>>>> 11136601c3192845ad235668c741cbfe79fd37f6
 
 	// Move Forward
 	if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
