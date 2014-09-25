@@ -359,18 +359,6 @@ private:
 		FS_DEFAULT = 0,
 		FS_FRUIT
 	};
-
-	enum FacingState
-	{
-		FCS_FORWARD,
-		FCS_BACKWARD,
-		FCS_RIGHT,
-		FCS_LEFT,
-		FCS_DEFAULT
-	};
-
-	FacingState mFacingState = FCS_DEFAULT;
-
 	bool isPlaying = false;
 	GhostState ghostState = GhostState::GS_NORMAL;
 	SoundsState soundStates = SoundsState::SS_DEFAULT;
@@ -840,8 +828,6 @@ void PuckMan3D::UpdateScene(float dt)
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR pos = XMLoadFloat3(&pacMans[0].pos);
 	XMVECTOR vel = XMLoadFloat3(&pacMans[0].vel);
-
-	PuckManSpeed();
 
 	pos = pos + (vel * mSpeed * dt);
 
@@ -1632,7 +1618,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
 	{
 		mIsKeyPressed = true;
-		mFacingState = FCS_FORWARD;
+		mForward = true;
 		mIsMoving = true;
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
@@ -1648,14 +1634,17 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		vel.m128_f32[0] = 0.0f;
 		vel.m128_f32[1] = 0.0f;
 		vel.m128_f32[2] = 0.0f;
-		mFacingState = FCS_DEFAULT;
+		mForward = false;
+		mBackward = false;
+		mLeft = false;
+		mRight = false;
 	}
 
 	// Move Backwards 
 	if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN) & 0x8000)
 	{
 		mIsKeyPressed = true;
-		mFacingState = FCS_BACKWARD;
+		mBackward = true;
 		mIsMoving = true;
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
@@ -1670,7 +1659,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT) & 0x8000)
 	{
 		mIsKeyPressed = true;
-		mFacingState = FCS_LEFT;
+		mLeft = true;
 		mIsMoving = true;
 		vel.m128_f32[0] = -1.0f * dt;
 		if (vel.m128_f32[0] > -0.00826695096f)
@@ -1685,7 +1674,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT) & 0x8000)
 	{
 		mIsKeyPressed = true;
-		mFacingState = FCS_RIGHT;
+		mRight = true;
 		mIsMoving = true;
 		vel.m128_f32[0] = 1.0f * dt;
 		if (vel.m128_f32[0] < 0.00826695096f)
@@ -1726,20 +1715,14 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 void PuckMan3D::PuckManSpeed()
 {
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
-	XMVECTOR pos = XMLoadFloat3(&pacMans[0].pos);
-	float posX = pacMans[0].pos.x;
-	float posZ = pacMans[0].pos.z;
-
 	//translate Puckmans Position to Pellet space
-	int transX = (int)floor(posX + 14.0f);
-	int transZ = 30 - (int)floor(posZ + 15.5F); //invert the z
-	int row = transZ;
-	int col = transX;
+	//int transX = (int)floor(mPacMan[0].pos.x + 14.0f);
+	int transX = (int)floor(pacMans[0].pos.x + 14.0f);
+	int transZ = (INT)floor(31 - pacMans[0].pos.z + 15.5F); // inverting the z
 
-	switch (mFacingState)
+	if (mForward)
 	{
-	case FCS_FORWARD:
-		if (MazeLoader::IsPellet(row + 1, col))
+		if (MazeLoader::IsPellet(transZ + 1, transX))
 		{
 			mSpeed = PUCKMAN_SPEED * 0.71f;
 		}
@@ -1747,44 +1730,10 @@ void PuckMan3D::PuckManSpeed()
 		{
 			mSpeed = PUCKMAN_SPEED * 0.8f;
 		}
-		break;
-	case FCS_BACKWARD:
-		if (MazeLoader::IsPellet(row - 1, col))
-		{
-			mSpeed = PUCKMAN_SPEED * 0.71f;
-		}
-		else
-		{
-			mSpeed = PUCKMAN_SPEED * 0.8f;
-		}
-		break;
-	case FCS_RIGHT:
-		if (MazeLoader::IsPellet(row, col + 1))
-		{
-			mSpeed = PUCKMAN_SPEED * 0.71f;
-		}
-		else
-		{
-			mSpeed = PUCKMAN_SPEED * 0.8f;
-		}
-		break;
-	case FCS_LEFT:
-		if (MazeLoader::IsPellet(row, col - 1))
-		{
-			mSpeed = PUCKMAN_SPEED * 0.71f;
-		}
-		else
-		{
-			mSpeed = PUCKMAN_SPEED * 0.8f;
-		}
-		break;
-	case FCS_DEFAULT:
-		break;
 	}
 
 
 }
-
 
 XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 {
