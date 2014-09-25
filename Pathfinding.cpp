@@ -11,7 +11,6 @@ Pathfinding::~Pathfinding()
 
 std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 {
-	//mOpenMap.clear();
 	mOpenList.clear();
 	mClosedSet.clear();
 
@@ -21,21 +20,13 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	currentNode->combineNode(currentNode, start);
 	
 
-	//Put the start node into the openList, and change isOpen to true
-	//mOpenList.push_back(start);
-	//start->isOpen = true;
-
-	
-
-	//while ((currentNode->xPos != goal->xPos) && (currentNode->zPos != goal->zPos))
-	while ((currentNode->xPos != goal->xPos) && (currentNode->zPos != goal->zPos))
+	while (!ArrivedAtEnd(currentNode, goal))
 	{		
 		if (currentNode == goal)
 		{
-			std::cout << "BREAK CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
 			break;
 		}
-		std::cout << "CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
+		//std::cout << "CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
 		PathNode tempChildNode(*currentNode);
 
 		//Get adjacent walkable tiles
@@ -58,7 +49,6 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 
 		mClosedSet.insert(currentNode);
 
-		//std::sort(mOpenList.begin(), mOpenList.end(), PathNode::FCostSort());
 		mOpenList.sort(PathNode::FCostSort());
 
 		if (mOpenList.size() > 0)
@@ -66,12 +56,8 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 			currentNode = mOpenList.back();
 			mOpenList.remove(currentNode);
 		}
-		//std::cout << "openList.size " << mOpenList.size() << std::endl;
-		//std::cout << "closedSet.size " << mClosedSet.size() << std::endl;
-		std::cout << "CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " Goal: " << goal->xPos << ", " << goal->zPos << std::endl;
 	}
-	std::cout << "OUT CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " Goal: " << goal->xPos << ", " << goal->zPos << std::endl;
-	std::cout << "OUT CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
+
 	//Populate and create the path vector
 	while (currentNode->parent != NULL && currentNode != start)
 	{
@@ -82,16 +68,29 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	return tempPath;
 }
 
+bool Pathfinding::ArrivedAtEnd(PathNode* currNode, PathNode* goal)
+{
+	return (currNode->xPos == goal->xPos) && (currNode->zPos == goal->zPos);
+}
+
 void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goal)
 {
+	int currNodeCol = (MazeLoader::GetMazeWidth()) - (int)floor(currNode->xPos + 14.5f);
+	int currNodeRow = (MazeLoader::GetMazeHeight() - 1) - (int)floor(currNode->zPos + 15.5f);
+
+	int col = (MazeLoader::GetMazeWidth()) - (int)floor(childNode.xPos + 14.5f);
+	int row = (MazeLoader::GetMazeHeight() - 1) - (int)floor(childNode.zPos + 15.5f);
+
+	std::cout << "CurrNode Row " << currNodeRow << ", Col " << currNodeCol << std::endl;
+	std::cout << "Row " << row << ", Col " << col << std::endl;
 	//Check surroundings for walkable tiles and if in closed list
-	if ((childNode.xPos >= -14 && childNode.zPos >= -15.5) && (childNode.xPos<= 14 && childNode.zPos <= 15.5))
+	if ((col >= 0 && row >= 0) && (col <= MazeLoader::GetMazeWidth() && row <= MazeLoader::GetMazeHeight()))
 	{
-		/*if (MazeLoader::IsBlocked(childNode.zPos, childNode.xPos))
+		/*if (MazeLoader::IsBlocked(row, col))
 		{
-			std::cout << "Node at " << childNode.xPos << ", " << childNode.zPos << " is blocked" << std::endl;
+			std::cout << "Node at " << row << ", " << col << " is blocked" << std::endl;
 		}
-		if (!MazeLoader::IsBlocked(childNode.zPos, childNode.xPos))
+		if (!MazeLoader::IsBlocked(row, col))
 		{*/
 			if (!InClosedList(&childNode))
 			{

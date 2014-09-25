@@ -367,7 +367,7 @@ bool MazeLoader::IsBlocked(UINT row, UINT col)
 {
 	UINT index = (row * mMazeWidth) + col;
 
-	return ((mMazeElements[index] == ME_WALL) || (mMazeElements[index] == ME_NOTHING));
+	return ((mMazeElements[index] == ME_WALL) || (mMazeElements[index] == ME_BLANK));
 }
 
 void MazeLoader::SetPacManPos(FXMVECTOR pos, UINT index)
@@ -406,9 +406,19 @@ void MazeLoader::SetGhostVel(FXMVECTOR vel, UINT index)
 	mGhosts[index].vel.z = vel.m128_f32[2];
 }
 
+void MazeLoader::SetGhostColour(XMFLOAT4 col, UINT index)
+{
+	mGhosts[index].colour = col;
+}
+
 bool MazeLoader::IsPellet(UINT row, UINT col)
 {
 	UINT index = (row * mMazeWidth) + col;
+
+	if ((row >= mMazeHeight) || (col >= mMazeWidth))
+	{
+		return false;
+	}
 
 	return (mMazeElements[index] == ME_PELLET);
 }

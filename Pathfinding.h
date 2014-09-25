@@ -37,4 +37,5 @@ public:
 	void AddChild(PathNode childNode, PathNode* currNode, PathNode* goal);
 	void InitializePathFinding();
 	float GetDistance(PathNode* currNode, PathNode* parent);
+	bool ArrivedAtEnd(PathNode* currNode, PathNode* goal);
 };
