@@ -576,7 +576,7 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 	
-	playBeginningSFX();
+	//playBeginningSFX();
 	//pass the score into stringstream
 	currScore << mScore;
 
@@ -1051,10 +1051,10 @@ void PuckMan3D::UpdateScene(float dt)
 		mLevelCounter++;
 	}
 	updateGhosts(dt);
-	if (mPelletCounter >= MazeLoader::GetEatableCount())
-	{
-		resetGame();
-	}
+	//if (mPelletCounter >= MazeLoader::GetEatableCount())
+	//{
+	//	resetGame();
+	//}
 
 	/*if (mPelletCounter == 5 && fruitState == FruitState::FS_DEFAULT)
 	{//randomly pick a fruit to draw when enough pellets are removed. 
