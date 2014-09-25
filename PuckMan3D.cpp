@@ -371,6 +371,13 @@ private:
 		FCS_DEFAULT
 	};
 
+	enum GameState
+	{
+		GS_ATTRACT = 0,
+		GS_PLAY,
+		GS_GAMEOVER
+	};
+	GameState mGameState = GameState::GS_ATTRACT;
 	FacingState mFacingState = FCS_DEFAULT;
 
 	bool isPlaying = false;
@@ -3041,10 +3048,11 @@ void PuckMan3D::updateGhosts(float dt)
 
 void PuckMan3D::resetGame()
 {
-	GhostState ghostState = GhostState::GS_NORMAL;
-	SoundsState soundStates = SoundsState::SS_DEFAULT;
-	FruitState fruitState = FruitState::FS_DEFAULT;
-	FacingState mFacingState = FCS_DEFAULT;
+	ghostState = GhostState::GS_NORMAL;
+	soundStates = SoundsState::SS_DEFAULT;
+	fruitState = FruitState::FS_DEFAULT;
+	mFacingState = FCS_DEFAULT;
+	mGameState = GameState::GS_ATTRACT;
 	mScore = 0;
 	powerUpActivated = false;
 	mIsBlue = false;
