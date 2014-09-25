@@ -1652,6 +1652,11 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR vel;
 
+	mIsKeyPressed = false;
+	vel.m128_f32[0] = 0.0f;
+	vel.m128_f32[1] = 0.0f;
+	vel.m128_f32[2] = 0.0f;
+	mFacingState = FCS_DEFAULT;
 
 	// Move Forward
 	if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
@@ -1667,14 +1672,14 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			vel.m128_f32[2] = 0.00826695096f;
 		}
 	}
-	else
+	/*else
 	{
-		mIsKeyPressed = false;
-		vel.m128_f32[0] = 0.0f;
-		vel.m128_f32[1] = 0.0f;
-		vel.m128_f32[2] = 0.0f;
-		mFacingState = FCS_DEFAULT;
-	}
+	mIsKeyPressed = false;
+	vel.m128_f32[0] = 0.0f;
+	vel.m128_f32[1] = 0.0f;
+	vel.m128_f32[2] = 0.0f;
+	mFacingState = FCS_DEFAULT;
+	}*/
 
 	// Move Backwards 
 	if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN) & 0x8000)
@@ -1722,6 +1727,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		vel.m128_f32[2] = 0.0f * dt;
 	}
 
+
 	MazeLoader::SetPacManVel(vel, 0);
 
 }
@@ -1757,15 +1763,15 @@ void PuckMan3D::PuckManSpeed()
 	float posZ = pacMans[0].pos.z;
 
 	//translate Puckmans Position to Pellet space
-	int transX = (int)floor(posX + 14.0f);
-	int transZ = 30 - (int)floor(posZ + 15.5F); //invert the z
+	int transX = (int)floor(posX + (MazeLoader::GetMazeWidth() * 0.5));
+	int transZ = MazeLoader::GetMazeHeight() - (int)floor(posZ + (MazeLoader::GetMazeHeight() * 0.5)) - 1; //invert the z
 	int row = transZ;
 	int col = transX;
 
 	switch (mFacingState)
 	{
 	case FCS_FORWARD:
-		if (MazeLoader::IsPellet(row + 1, col))
+		if (MazeLoader::IsPellet(row - 1, col))
 		{
 			mSpeed = PUCKMAN_SPEED * 0.71f;
 		}
@@ -1775,7 +1781,7 @@ void PuckMan3D::PuckManSpeed()
 		}
 		break;
 	case FCS_BACKWARD:
-		if (MazeLoader::IsPellet(row - 1, col))
+		if (MazeLoader::IsPellet(row + 1, col))
 		{
 			mSpeed = PUCKMAN_SPEED * 0.71f;
 		}
