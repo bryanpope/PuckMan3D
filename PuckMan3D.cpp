@@ -1044,6 +1044,10 @@ void PuckMan3D::UpdateScene(float dt)
 		mLevelCounter++;
 	}
 	updateGhosts(dt);
+	if (mPelletCounter >= MazeLoader::GetEatableCount())
+	{
+		resetGame();
+	}
 
 	/*if (mPelletCounter == 5 && fruitState == FruitState::FS_DEFAULT)
 	{//randomly pick a fruit to draw when enough pellets are removed. 
@@ -1732,7 +1736,10 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = 0.0f * dt;
 	}
-
+	if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+	{
+		std::exit(1);
+	}
 
 	MazeLoader::SetPacManVel(vel, 0);
 
@@ -3034,6 +3041,18 @@ void PuckMan3D::updateGhosts(float dt)
 
 void PuckMan3D::resetGame()
 {
+	GhostState ghostState = GhostState::GS_NORMAL;
+	SoundsState soundStates = SoundsState::SS_DEFAULT;
+	FruitState fruitState = FruitState::FS_DEFAULT;
+	FacingState mFacingState = FCS_DEFAULT;
+	mScore = 0;
+	powerUpActivated = false;
+	mIsBlue = false;
+	mIsMoving = false;
+	mIsPlayerDead = false;
+	mIsBeginningPlaying = false;
+	isPlaying = false;
+	ResetGhosts();
 
 }
 
