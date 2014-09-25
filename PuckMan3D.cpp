@@ -848,7 +848,7 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		XMVECTOR ghostPos = XMLoadFloat3(&ghosts[i].pos);
 
-		if (PacManPelletOverlapTest(pos, ghostPos) == true)
+		if (PacManGhostOverlapTest(pos, ghostPos) == true)
 		{
 			//mPacMan.pop_back();
 			MazeLoader::ErasePacMan(pacMans.size() - 1);
@@ -1150,6 +1150,21 @@ void PuckMan3D::UpdateScene(float dt)
 	mCountGhosts = 0;
 	for (UINT i = 0; i < ghosts.size(); ++i)
 	{
+		switch (i)
+		{
+		case 0:
+			ghosts[i].colour = mGhostMat.Diffuse;
+			break;
+		case 1:
+			ghosts[i].colour = mInkyMat.Diffuse;
+			break;
+		case 2:
+			ghosts[i].colour = mPinkyMat.Diffuse;
+			break;
+		case 3:
+			ghosts[i].colour = mClydeMat.Diffuse;
+			break;
+		}
 		dataView[mCountGhosts++] = { ghosts[i].world, ghosts[i].colour };
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
