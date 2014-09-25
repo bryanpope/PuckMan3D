@@ -32,6 +32,7 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	{		
 		if (currentNode == goal)
 		{
+			std::cout << "BREAK CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
 			break;
 		}
 		std::cout << "CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
@@ -67,7 +68,10 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 		}
 		//std::cout << "openList.size " << mOpenList.size() << std::endl;
 		//std::cout << "closedSet.size " << mClosedSet.size() << std::endl;
+		std::cout << "CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " Goal: " << goal->xPos << ", " << goal->zPos << std::endl;
 	}
+	std::cout << "OUT CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " Goal: " << goal->xPos << ", " << goal->zPos << std::endl;
+	std::cout << "OUT CurrNode: " << currentNode->xPos << ", " << currentNode->zPos << " gCost: " << currentNode->gCost << " fCost: " << currentNode->fCost << std::endl;
 	//Populate and create the path vector
 	while (currentNode->parent != NULL && currentNode != start)
 	{

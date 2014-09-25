@@ -12,6 +12,7 @@ MazeLoader::InitialPosition MazeLoader::mInitialPositions;
 std::vector<MazeLoader::AABox> MazeLoader::mBoxData;
 std::vector<MazeLoader::MazeElements> MazeLoader::mMazeElements;
 UINT MazeLoader::mMazeWidth;
+UINT MazeLoader::mMazeHeight;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mWalls;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPellets;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPowerUps;
@@ -89,6 +90,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 
 		mazeText.push_back(line);
 	}
+
+	mMazeHeight = lineCount;
 
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData meshBox;;
@@ -274,7 +277,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._41 = posX;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
-				mWalls.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse));
+				mWalls.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
 				instWalls[instanceCountWall].World = worldPos;
 				instWalls[instanceCountWall++].Color = Materials::BOX.Diffuse;
 			}
@@ -284,7 +287,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._41 = posX;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
-				mPellets.push_back(MazeElementSpecs(worldPos, Materials::PELLET.Diffuse));
+				mPellets.push_back(MazeElementSpecs(worldPos, Materials::PELLET.Diffuse, true, true));
 				instPellets[instanceCountPellet].World = worldPos;
 				instPellets[instanceCountPellet++].Color = Materials::PELLET.Diffuse;
 			}
@@ -294,7 +297,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._41 = posX;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
-				mPowerUps.push_back(MazeElementSpecs(worldPos, Materials::POWERUP.Diffuse));
+				mPowerUps.push_back(MazeElementSpecs(worldPos, Materials::POWERUP.Diffuse, true, true));
 				instPowerUps[instanceCountPowerUp].World = worldPos;
 				instPowerUps[instanceCountPowerUp++].Color = Materials::POWERUP.Diffuse;
 			}
@@ -305,7 +308,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
 				mInitialPositions.pacMan = XMFLOAT3(worldPos._41, worldPos._42, worldPos._43);
-				mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse));
+				mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse, true, true));
 				instPacMans[instanceCountPacMan].World = worldPos;
 				instPacMans[instanceCountPacMan++].Color = Materials::PACMAN.Diffuse;
 			}
@@ -335,7 +338,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				worldPos._41 = posX + 0.5f;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
-				mGhosts.push_back(MazeElementSpecs(worldPos, colour));
+				mGhosts.push_back(MazeElementSpecs(worldPos, colour, true, true));
 				instGhosts[instanceCountGhost].World = worldPos;
 				instGhosts[instanceCountGhost++].Color = colour;
 			}
@@ -350,8 +353,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		++posZ;
 	}
 
-	mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse));
-	mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse));
+	mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse, true, true));
+	mPacMans.push_back(MazeElementSpecs(worldPos, Materials::PACMAN.Diffuse, true, true));
 
 	return true;
 }

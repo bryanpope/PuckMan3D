@@ -68,8 +68,10 @@ public:
 		XMFLOAT4 colour;
 		XMFLOAT3 pos;
 		XMFLOAT3 vel;
+		bool isShown;			// true - element is displayed
+		bool isCollider;		// true - element triggers a collision
 
-		MazeElementSpecs(XMFLOAT4X4 w, XMFLOAT4 c)
+		MazeElementSpecs(XMFLOAT4X4 w, XMFLOAT4 c, bool s, bool t)
 		{
 			world = w;
 			colour = c;
@@ -77,6 +79,8 @@ public:
 			pos.y = world._42;
 			pos.z = world._43;
 			XMStoreFloat3(&vel, XMVectorZero());
+			isShown = s;
+			isCollider = t;
 		}
 	};
 	enum MazeElements
@@ -109,7 +113,10 @@ public:
 	static void SetGhostPos(FXMVECTOR pos, UINT index);
 	static void SetGhostVel(FXMVECTOR vel, UINT index);
 
+	static void RemovePellet(UINT index){ mPellets[index].isShown = mPellets[index].isCollider = false; }
+
 	static UINT GetMazeWidth(){ return mMazeWidth; }
+	static UINT GetMazeHeight(){ return mMazeHeight; }
 
 	static bool IsPellet(UINT row, UINT col);
 
@@ -138,6 +145,7 @@ private:
 	static std::vector<MazeElementSpecs> mPacMans;
 	static std::vector<MazeElementSpecs> mGhosts;
 	static UINT mMazeWidth;
+	static UINT mMazeHeight;
 
 	//static UINT AddVertex(Vertex::NormalTexVertex, std::vector<Vertex::NormalTexVertex>& vertBuf);
 
