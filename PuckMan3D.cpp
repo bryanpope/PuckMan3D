@@ -125,6 +125,7 @@ private:
 	//void BuildPowerUps();
 	void SetMaterials();
 	void BuildShapeGeometryBuffers();
+	void ResetGhosts();
 
 private:
 	/*(struct PowerUp
@@ -880,6 +881,7 @@ void PuckMan3D::UpdateScene(float dt)
 				playDeathSFX();
 				mIsPlayerDead = true;
 				mIsMoving = false;
+				ResetGhosts();
 				break;
 			}
 		}
@@ -2137,32 +2139,50 @@ void PuckMan3D::BuildPuckMan()
 
 void PuckMan3D::BuildGhosts()
 {
+
+	//mGhost.push_back(Ghost(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	//mInky.push_back(Ghost(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	//mPinky.push_back(Ghost(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	//mClyde.push_back(Ghost(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+	mBlinky = new Blinky(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
+	mInky = new Inky(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
+	mPinky = new Pinky(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
+	mClyde = new Clyde(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
+
+	ResetGhosts();
+	/*mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));*/
+}
+
+void PuckMan3D::ResetGhosts()
+{
 	////Positioning the Ghost
 	MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
 	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
-	ghosts[0].world._41 = gPos.blinky.x;
+	
+	mBlinky->setPos(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f));
+	mInky->setPos(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f));
+	mPinky->setPos(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f));
+	mClyde->setPos(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f));
+
+	MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z, 0.0f), 0);
+	MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);
+	MazeLoader::SetGhostPos(XMVectorSet(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z, 0.0f), 2);
+	MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);
+
+	/*ghosts[0].world._41 = gPos.blinky.x;
 	ghosts[0].world._43 = gPos.blinky.z;
 	ghosts[1].world._41 = gPos.inky.x;
 	ghosts[1].world._43 = gPos.inky.z;
 	ghosts[2].world._41 = gPos.pinky.x;
 	ghosts[2].world._43 = gPos.pinky.z;
 	ghosts[3].world._41 = gPos.clyde.x;
-	ghosts[3].world._43 = gPos.clyde.z;
-	
-	//mGhost.push_back(Ghost(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	//mInky.push_back(Ghost(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	//mPinky.push_back(Ghost(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	//mClyde.push_back(Ghost(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mBlinky = new Blinky(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
-	mInky = new Inky(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
-	mPinky = new Pinky(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
-	mClyde = new Clyde(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
-
-	/*mGhost.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mPinky.push_back(Ghost(XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mInky.push_back(Ghost(XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
-	mClyde.push_back(Ghost(XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));*/
+	ghosts[3].world._43 = gPos.clyde.z;*/
 }
+
 
 /*void PuckMan3D::BuildPowerUps()
 {
