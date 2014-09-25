@@ -850,17 +850,20 @@ void PuckMan3D::UpdateScene(float dt)
 
 		if (PacManGhostOverlapTest(pos, ghostPos) == true)
 		{
-			//mPacMan.pop_back();
-			MazeLoader::ErasePacMan(pacMans.size() - 1);
-			MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
-			MazeLoader::SetPacManPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f), 0);
-			//mPacMan[0].pos.x = 0.0f;
-			//mPacMan[0].pos.y = 0.75f;
-			//mPacMan[0].pos.z = -8.5f;
-			playDeathSFX();
-			mIsPlayerDead = true;
-			mIsMoving = false;
-			break;
+			if (!powerUpActivated)
+			{
+				//mPacMan.pop_back();
+				MazeLoader::ErasePacMan(pacMans.size() - 1);
+				MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
+				MazeLoader::SetPacManPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f), 0);
+				//mPacMan[0].pos.x = 0.0f;
+				//mPacMan[0].pos.y = 0.75f;
+				//mPacMan[0].pos.z = -8.5f;
+				playDeathSFX();
+				mIsPlayerDead = true;
+				mIsMoving = false;
+				break;
+			}
 		}
 
 	}
