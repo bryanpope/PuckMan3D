@@ -256,6 +256,7 @@ private:
 	bool mIsBlue = false;
 	bool mIsMoving = false;
 	bool mIsPlayerDead = false;
+	bool mIsBeginningPlaying = false;
 	float mSpeed;
 	float fruitR = 0.60;
 	float mNextTime = 0.0f;
@@ -296,7 +297,7 @@ private:
 	//float mPelletR;
 	//float mPowerUpR;
 
-	Material mGridMat;
+	/*Material mGridMat;
 	Material mBoxMat;
 	Material mPelletMat;
 	Material mPowerUpMat;
@@ -308,7 +309,7 @@ private:
 	Material mCherry;
 	Material mPeachMat;
 	Material mAppleMat;
-	Material mGrapesMat;
+	Material mGrapesMat;*/
 
 	// Define transformations from local spaces to world space.
 	XMFLOAT4X4 mPelletWorld[240];
@@ -554,7 +555,9 @@ bool PuckMan3D::Init()
 	loadSirenSFX();
 	loadWaSFX();
 	loadKaSFX();
-
+	
+	playBeginningSFX();
+	//pass the score into stringstream
 	currScore << mScore;
 
 	if(!D3DApp::Init())
@@ -580,7 +583,8 @@ bool PuckMan3D::Init()
 	BuildShapeGeometryBuffers();
 
 	//mMazeModel->GetMesh()->SetMaterial(mBoxMat);
-	mMazeModelInstanced->GetMesh()->SetMaterial(mBoxMat);
+	//mMazeModelInstanced->GetMesh()->SetMaterial(mBoxMat);
+	mMazeModelInstanced->GetMesh()->SetMaterial(Materials::BOX);
 
 	mLitTexEffect = new LitTexEffect();
 	mLitTexEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
@@ -1156,16 +1160,20 @@ void PuckMan3D::UpdateScene(float dt)
 		switch (i)
 		{
 		case 0:
-			ghosts[i].colour = mGhostMat.Diffuse;
+		//	ghosts[i].colour = mGhostMat.Diffuse;
+			ghosts[i].colour = Materials::BLINKY.Diffuse;
 			break;
 		case 1:
-			ghosts[i].colour = mInkyMat.Diffuse;
+			//ghosts[i].colour = mInkyMat.Diffuse;
+			ghosts[i].colour = Materials::INKY.Diffuse;
 			break;
 		case 2:
-			ghosts[i].colour = mPinkyMat.Diffuse;
+			//ghosts[i].colour = mPinkyMat.Diffuse;
+			ghosts[i].colour = Materials::PINKY.Diffuse;
 			break;
 		case 3:
-			ghosts[i].colour = mClydeMat.Diffuse;
+			//ghosts[i].colour = mClydeMat.Diffuse;
+			ghosts[i].colour = Materials::CLYDE.Diffuse;
 			break;
 		}
 		dataView[mCountGhosts++] = { ghosts[i].world, ghosts[i].colour };
@@ -1417,20 +1425,26 @@ void PuckMan3D::DrawScene()
 
 	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
 	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mBoxMat);
+	Material boxColour = Materials::BOX;
+	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mBoxMat);
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, boxColour);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBWalls(),
 		mCountWalls, oc.walls.indexOffset, oc.walls.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.walls.indexOffset, oc.walls.indexCount);
 
 	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
 	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPelletMat);
+	Material pelletColour = Materials::PELLET;
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pelletColour);
+	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPelletMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPellets(),
 		mCountPellets, oc.pellets.indexOffset, oc.pellets.indexCount);
 
 	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
 	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPowerUpMat);
+	Material powerUpColour = Materials::POWERUP;
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, powerUpColour);
+	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPowerUpMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(),
 		mCountPowerUps, oc.powerUps.indexOffset, oc.powerUps.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.powerUps.indexOffset, oc.powerUps.indexCount);
@@ -1443,7 +1457,9 @@ void PuckMan3D::DrawScene()
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 		worldViewProj = world*view*proj;
-		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPacManMat);
+		Material pacManColour = Materials::PACMAN;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pacManColour);
+		//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPacManMat);
 		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPacMans(),
 			mCountPacMans, oc.pacMan.indexOffset, oc.pacMan.indexCount);
 		//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.pacMan.indexOffset, oc.pacMan.indexCount);
@@ -1453,16 +1469,20 @@ void PuckMan3D::DrawScene()
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mGhostMat);
+	Material blinkyColour = Materials::BLINKY;
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, blinkyColour);
+	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mGhostMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
 		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset, oc.pacMan.indexCount);
 
-	/*world = XMMatrixTranslation(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z);
+	world = XMMatrixTranslation(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z);
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mInkyMat);
+	Material inkyColour = Materials::INKY;
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, inkyColour);
+	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mInkyMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
 		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + oc.pacMan.indexCount, oc.pacMan.indexCount);
@@ -1471,7 +1491,9 @@ void PuckMan3D::DrawScene()
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPinkyMat);
+	Material pinkyColour = Materials::PINKY;
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pinkyColour);
+	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPinkyMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
 		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 2), oc.pacMan.indexCount);
@@ -1480,11 +1502,13 @@ void PuckMan3D::DrawScene()
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mClydeMat);
+	Material clydeColour = Materials::CLYDE;
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, clydeColour);
+	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mClydeMat);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
 		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 3), oc.pacMan.indexCount);
-	*/
+	
 
 	//mMazeCharacter->Draw(md3dImmediateContext, vp);
 
@@ -1614,6 +1638,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR vel;
 
+
 	// Move Forward
 	if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
 	{
@@ -1687,6 +1712,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 
 	MazeLoader::SetPacManVel(vel, 0);
+
 }
 //PuckMan’s Speed while eating dots :
 //In First level PuckMan’s speed is 0.71 meters per second.
@@ -2093,7 +2119,7 @@ void PuckMan3D::BuildGhosts()
 
 void PuckMan3D::SetMaterials()
 {
-	mGridMat.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	/*mGridMat.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	mGridMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	mGridMat.Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -2143,7 +2169,7 @@ void PuckMan3D::SetMaterials()
 
 	mBoxMat.Ambient = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
 	mBoxMat.Diffuse = XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f);
-	mBoxMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+	mBoxMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);*/
 }
 
 void PuckMan3D::BuildShapeGeometryBuffers()
@@ -2843,21 +2869,23 @@ void PuckMan3D::updateGhosts(float dt)
 	{
 		//set the ghost to their default colours
 	case GS_NORMAL:
-		mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+		/*mGhostMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 		mPinkyMat.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
 		mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
-		mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);
+		mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);*/
+		//Materials::BLINKY.Diffuse = Materials::BLINKY.Diffuse;
 		break;
 
 		//set the Ghost blue
 	case GS_BLUE:
 		if (mCurrentTime < mTotalTime)
 		{
-			mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			/*mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 			mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-
+			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);*/
+			//Materials::BLINKY.Diffuse = Materials::GHOSTFRIGHTENED.Diffuse;
+		
 		}
 
 		if (mCurrentTime >= mTotalTime)
@@ -2882,17 +2910,17 @@ void PuckMan3D::updateGhosts(float dt)
 
 		if (mIsBlue)
 		{
-			mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			/*mGhostMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 			mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);*/
 		}
 		else
 		{
-			mGhostMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			/*mGhostMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			mPinkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			mInkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-			mClydeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			mClydeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);*/
 		}
 
 		if (mCurrentTime >= mTotalTime)
@@ -3049,7 +3077,7 @@ void PuckMan3D::playBeginningSFX()
 	{
 		result = sys->playSound(sound[5], 0, false, &channel[5]);
 		result = channel[5]->setChannelGroup(soundGroup);
-		result = channel[5]->setPaused(false);
+		result = channel[5]->setPaused(false);		
 	}
 }
 
@@ -3084,12 +3112,12 @@ void PuckMan3D::loadWaSFX()
 
 void PuckMan3D::playWaSFX()
 {
-	//bool isPlaying = false;
+	bool isPlaying = false;
 
-	//if (channel[3] != NULL)
-	//{
-	//	channel[3]->isPlaying(&isPlaying);
-	//}
+	if (channel[3] != NULL)
+	{
+		channel[3]->isPlaying(&isPlaying);
+	}
 
 	//if (!isPlaying)
 	//{
@@ -3108,12 +3136,12 @@ void PuckMan3D::loadKaSFX()
 
 void PuckMan3D::playKaSFX()
 {
-	//bool isPlaying = false;
+	bool isPlaying = false;
 
-	//if (channel[3] != NULL)
-	//{
-	//	channel[3]->isPlaying(&isPlaying);
-	//}
+	if (channel[3] != NULL)
+	{
+		channel[3]->isPlaying(&isPlaying);
+	}
 
 	//if (!isPlaying)
 	//{
