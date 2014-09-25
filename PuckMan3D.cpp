@@ -1171,7 +1171,7 @@ void PuckMan3D::UpdateScene(float dt)
 	mCountGhosts = 0;
 	for (UINT i = 0; i < ghosts.size(); ++i)
 	{
-		switch (i)
+		/*switch (i)
 		{
 		case 0:
 		//	ghosts[i].colour = mGhostMat.Diffuse;
@@ -1189,7 +1189,7 @@ void PuckMan3D::UpdateScene(float dt)
 			//ghosts[i].colour = mClydeMat.Diffuse;
 			ghosts[i].colour = Materials::CLYDE.Diffuse;
 			break;
-		}
+		}*/
 		dataView[mCountGhosts++] = { ghosts[i].world, ghosts[i].colour };
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
@@ -2925,6 +2925,10 @@ void PuckMan3D::updateGhosts(float dt)
 		mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.98f, 1.0f, 1.0f);
 		mClydeMat.Diffuse = XMFLOAT4(1.0f, 0.66f, 0.0f, 1.0f);*/
 		//Materials::BLINKY.Diffuse = Materials::BLINKY.Diffuse;
+		MazeLoader::SetGhostColour(Materials::BLINKY.Diffuse, 0);
+		MazeLoader::SetGhostColour(Materials::PINKY.Diffuse, 1);
+		MazeLoader::SetGhostColour(Materials::INKY.Diffuse, 2);
+		MazeLoader::SetGhostColour(Materials::CLYDE.Diffuse, 3);
 		break;
 
 		//set the Ghost blue
@@ -2935,7 +2939,10 @@ void PuckMan3D::updateGhosts(float dt)
 			mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);*/
-			//Materials::BLINKY.Diffuse = Materials::GHOSTFRIGHTENED.Diffuse;
+			MazeLoader::SetGhostColour(Materials::GHOSTFRIGHTENED.Diffuse, 0);
+			MazeLoader::SetGhostColour(Materials::GHOSTFRIGHTENED.Diffuse, 1);
+			MazeLoader::SetGhostColour(Materials::GHOSTFRIGHTENED.Diffuse, 2);
+			MazeLoader::SetGhostColour(Materials::GHOSTFRIGHTENED.Diffuse, 3);
 		
 		}
 
@@ -2965,6 +2972,10 @@ void PuckMan3D::updateGhosts(float dt)
 			mPinkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 			mInkyMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 			mClydeMat.Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);*/
+			MazeLoader::SetGhostColour(Materials::GHOSTFRIGHTENED.Diffuse, 0);
+			MazeLoader::SetGhostColour(Materials::GHOSTFRIGHTENED.Diffuse, 1);
+			MazeLoader::SetGhostColour(Materials::GHOSTFRIGHTENED.Diffuse, 2);
+			MazeLoader::SetGhostColour(Materials::GHOSTFRIGHTENED.Diffuse, 3);
 		}
 		else
 		{
@@ -2972,6 +2983,10 @@ void PuckMan3D::updateGhosts(float dt)
 			mPinkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			mInkyMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			mClydeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);*/
+			MazeLoader::SetGhostColour(Materials::GHOSTFLASHING.Diffuse, 0);
+			MazeLoader::SetGhostColour(Materials::GHOSTFLASHING.Diffuse, 1);
+			MazeLoader::SetGhostColour(Materials::GHOSTFLASHING.Diffuse, 2);
+			MazeLoader::SetGhostColour(Materials::GHOSTFLASHING.Diffuse, 3);
 		}
 
 		if (mCurrentTime >= mTotalTime)
