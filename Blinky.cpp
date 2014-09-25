@@ -18,11 +18,7 @@ void Blinky::Update()
 		//std::cout << "Blinky pos " << mPos.x << ", " << mPos.y << ", " << mPos.z << std::endl;
 		this->setPos(XMVectorSet(testVec.front()->xPos, mPos.y, testVec.front()->zPos, 0.0f));
 	}
-	
-	if (testVec.size() == 0)
-	{
-		//std::cout << "testVec is empty!" << std::endl;
-	}
+
 	switch (mGhostStates)
 	{
 	case SCATTER:
