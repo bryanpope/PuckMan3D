@@ -119,6 +119,7 @@ public:
 
 	static UINT GetMazeWidth(){ return mMazeWidth; }
 	static UINT GetMazeHeight(){ return mMazeHeight; }
+	static UINT GetEatableCount(){ return mElementCount.pellets + mElementCount.powerUps; }
 
 	static bool IsPellet(UINT row, UINT col);
 
