@@ -88,6 +88,7 @@ public:
 		ME_WALL,
 		ME_PELLET,
 		ME_POWERUP,
+		ME_BLANK, 
 		ME_NOTHING
 	};
 

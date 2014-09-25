@@ -342,9 +342,13 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				instGhosts[instanceCountGhost].World = worldPos;
 				instGhosts[instanceCountGhost++].Color = colour;
 			}
-			if (mazeText[i][j] == L'M')	// Really nothing
+			if (mazeText[i][j] == L'=')	// Really blank, but okay to travel to
 			{
 				mMazeElements.push_back(ME_NOTHING);
+			}
+			if (mazeText[i][j] == L'-')	// Really blank, don't go here
+			{
+				mMazeElements.push_back(ME_BLANK);
 			}
 			++posX;
 			//iBlock += iCount;
