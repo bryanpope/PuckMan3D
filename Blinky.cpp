@@ -12,11 +12,27 @@ void Blinky::Update(float dt)
 {
 	PathNode* start = new PathNode(this->mPos.x, this->mPos.z);
 	PathNode* goal = new PathNode(10, 10);
-	std::list<PathNode*> testVec = test.FindPath(start, goal);
-	if (testVec.size() != 0)
+	std::list<PathNode*> waypoints = test.FindPath(start, goal);
+
+	if (waypoints.size() != 0)
 	{
-		//std::cout << "Blinky pos " << mPos.x << ", " << mPos.y << ", " << mPos.z << std::endl;
-		this->setPos(XMVectorSet(testVec.front()->xPos, mPos.y, testVec.front()->zPos, 0.0f));
+	
+		//PathNode* currWaypoint = waypoints.front();
+		this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
+		//this->MoveGhost(waypoints.front());
+		/*XMVECTOR toWaypoint = XMVectorSet(currWaypoint->xPos - mPos.x, mPos.y, currWaypoint->zPos - mPos.z, 0.0f);
+		float distance = sqrt((toWaypoint.m128_f32[0] * toWaypoint.m128_f32[0]) + (toWaypoint.m128_f32[2] * toWaypoint.m128_f32[2]));
+
+		if (distance <= mSpeed + 0.01)
+		{
+			currWaypoint = waypoints.front() + 1;
+		}
+		
+		//currWaypoint = waypoints.front();
+		toWaypoint = XMVectorSet(currWaypoint->xPos - mPos.x, mPos.y, currWaypoint->zPos - mPos.z, 0.0f);*/
+		
+		std::cout << "Blinky pos " << mPos.x << ", " << mPos.y << ", " << mPos.z << std::endl;
+
 	}
 
 	switch (mGhostStates)
@@ -44,9 +60,7 @@ void Blinky::Update(float dt)
 			break;
 		}
 	case CHASE:
-		//A simple call to pathfinding will suffice
-		//Pathfinding::FindPath(this->mCol, this->mRow, 15, 30);
-		
+		//A simple call to pathfinding will suffice		
 		break;
 	case FRIGHTENED:
 		if (mLevelNumber == 1)

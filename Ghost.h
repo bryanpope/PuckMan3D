@@ -16,22 +16,24 @@ protected:
 		//IN_TUNNEL = 5 //Maybe make this a state?
 	};
 
-	/*UINT mRow; //Originally set as XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f)
-	UINT mCol;*/
 	XMFLOAT3 mPos;
 	XMFLOAT3 mVel; //Originally set as XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)
+	float mSpeed;
 	float mRadius; //Originally set as 0.75f
 	int mLevelNumber;
 	std::string mFacing;
 
 	Pathfinding test;
 
+	void MoveToPuckMan();
+
 	GameTimer mGhostStateTimer;
 	GHOST_STATES mGhostStates;
 
+	void MoveGhost(PathNode* target);
+
 public:
 	Ghost();
-	//Ghost(UINT row, UINT col, FXMVECTOR vel, float radius);
 	Ghost(FXMVECTOR pos, FXMVECTOR vel, float radius);
 	~Ghost();
 	virtual void Update();
@@ -45,14 +47,4 @@ public:
 	{
 		XMStoreFloat3(&mPos, pos);
 	}
-
-	/*virtual UINT getCol()
-	{
-		return this->mCol;
-	}
-
-	virtual UINT getRow()
-	{
-		return this->mRow;
-	}*/
 };
