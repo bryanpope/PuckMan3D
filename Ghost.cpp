@@ -18,16 +18,20 @@ Ghost::~Ghost()
 
 void Ghost::MoveGhost(PathNode* target, float dt)
 {
+	XMVECTOR pos = XMLoadFloat3(&mPos);
+	XMVECTOR vel = XMLoadFloat3(&mVel);
 	//Calculate the vector in the direction to move
 	XMVECTOR dir = XMVectorSet(this->mPos.x - target->xPos, this->mPos.y, this->mPos.z - target->zPos, 0.0f);
+	
+	//dir.m128_f32[0] = abs(dir.m128_f32[0]);
 	//Normalize vector
 	dir = XMVector3Normalize(dir);
-	dir.m128_f32[0] = floor(dir.m128_f32[0]);
-	dir.m128_f32[1] = floor(dir.m128_f32[1]);
-	dir.m128_f32[2] = floor(dir.m128_f32[2]);
 	//Add vector to ghost position * speed
-	this->mPos.x += dir.m128_f32[0] * mVel.x * dt;
-	this->mPos.z += dir.m128_f32[2] * mVel.z * dt;
+	
+	pos +=  dir * vel * dt;
+	XMStoreFloat3(&mPos, pos);
+	/*this->mPos.x += (dir.m128_f32[0] * mVel.x) * dt;
+	this->mPos.z += (dir.m128_f32[2] * mVel.z) * dt;*/
 }
 
 void Ghost::Update()

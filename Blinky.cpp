@@ -11,12 +11,11 @@ Blinky::~Blinky()
 void Blinky::Update(float dt)
 {
 	PathNode* start = new PathNode(this->mPos.x, this->mPos.z);
-	PathNode* goal = new PathNode(10, 10);
+	PathNode* goal = new PathNode(-10, -11);
 	std::list<PathNode*> waypoints = test.FindPath(start, goal);
 
 	if (waypoints.size() != 0)
 	{
-	
 		//PathNode* currWaypoint = waypoints.front();
 		this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
 		//this->MoveGhost(waypoints.front(), dt);
@@ -32,7 +31,6 @@ void Blinky::Update(float dt)
 		toWaypoint = XMVectorSet(currWaypoint->xPos - mPos.x, mPos.y, currWaypoint->zPos - mPos.z, 0.0f);*/
 		
 		std::cout << "Blinky pos " << mPos.x << ", " << mPos.y << ", " << mPos.z << std::endl;
-
 	}
 
 	switch (mGhostStates)

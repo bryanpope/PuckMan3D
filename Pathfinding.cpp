@@ -70,8 +70,8 @@ bool Pathfinding::ArrivedAtEnd(PathNode* currNode, PathNode* goal)
 
 void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goal)
 {
-	int col = (MazeLoader::GetMazeWidth()) - (int)floor(childNode.xPos + 14.5f);
-	int row = (MazeLoader::GetMazeHeight() - 1) - (int)floor(childNode.zPos + 15.5f);
+	int col = (MazeLoader::GetMazeWidth()) - (int)round(childNode.xPos + 14.5f);
+	int row = (MazeLoader::GetMazeHeight()) - (int)round(childNode.zPos + 15.5f);
 
 	//Check surroundings for walkable tiles and if in closed list
 	if ((col >= 0 && row >= 0) && (col <= MazeLoader::GetMazeWidth() && row <= MazeLoader::GetMazeHeight()))
