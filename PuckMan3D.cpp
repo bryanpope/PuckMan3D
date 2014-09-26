@@ -842,7 +842,10 @@ void PuckMan3D::UpdateScene(float dt)
 	UpdateKeyboardInput(dt);
 	updateStringStream();
 
-	mBlinky->Update(dt);
+	if (mGameState == GameState::GS_PLAY)
+	{
+		mBlinky->Update(dt);
+	}
 	
 	MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z, 0.0f), 0);
 	MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);
@@ -1044,17 +1047,18 @@ void PuckMan3D::UpdateScene(float dt)
 		result = channel[1]->setPaused(true);
 	}
 
-	//reset board if all pellets are gone
-	if (pellets.size() == 0 && powerUps.size() == 0)
+	if (pacMans.size() <= 0)
 	{
-		resetGame();
-		mLevelCounter++;
+		mGameState = GameState::GS_GAMEOVER;
 	}
-	updateGhosts(dt);
-	//if (mPelletCounter >= MazeLoader::GetEatableCount())
-	//{
+	//pacMans
+	//reset board if all pellets are gone
+//	if (mPelletCounter >= MazeLoader::GetEatableCount())
+//	{
 	//	resetGame();
+//		mLevelCounter++;
 	//}
+	updateGhosts(dt);
 
 	/*if (mPelletCounter == 5 && fruitState == FruitState::FS_DEFAULT)
 	{//randomly pick a fruit to draw when enough pellets are removed. 
@@ -1291,7 +1295,7 @@ void PuckMan3D::DrawScene()
 	XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
 	XMMATRIX worldViewProj = world*view*proj;
 	XMMATRIX viewProj = view*proj;
-
+	
 	/*mLitMatEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mGridMat);
 	mLitMatEffect->Draw(md3dImmediateContext, mShapesVB, mShapesIB, mGridIndexOffset, mGridIndexCount, mGridVertexOffset);
 
@@ -1462,31 +1466,32 @@ void PuckMan3D::DrawScene()
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBWalls(),
 		mCountWalls, oc.walls.indexOffset, oc.walls.indexCount);
 	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.walls.indexOffset, oc.walls.indexCount);
+	if (mGameState == GameState::GS_PLAY)
+	{
+		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+		mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+		Material pelletColour = Materials::PELLET;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pelletColour);
+		//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPelletMat);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPellets(),
+			mCountPellets, oc.pellets.indexOffset, oc.pellets.indexCount);
 
-	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
-	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
-	Material pelletColour = Materials::PELLET;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pelletColour);
-	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPelletMat);
-	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPellets(),
-		mCountPellets, oc.pellets.indexOffset, oc.pellets.indexCount);
+		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+		mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+		Material powerUpColour = Materials::POWERUP;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, powerUpColour);
+		//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPowerUpMat);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(),
+			mCountPowerUps, oc.powerUps.indexOffset, oc.powerUps.indexCount);
+		//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.powerUps.indexOffset, oc.powerUps.indexCount);
 
-	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
-	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
-	Material powerUpColour = Materials::POWERUP;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, powerUpColour);
-	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPowerUpMat);
-	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(),
-		mCountPowerUps, oc.powerUps.indexOffset, oc.powerUps.indexCount);
-	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.powerUps.indexOffset, oc.powerUps.indexCount);
-
-	//for (int i = 0; i < mPacMan.size(); ++i)
-	//{
+		//for (int i = 0; i < mPacMan.size(); ++i)
+		//{
 		//world = XMMatrixTranslation(mPacMan[i].pos.x, mPacMan[i].pos.y, mPacMan[i].pos.z);
-	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
-	//world = XMMatrixTranslation(pacMans[0].pos.x, pacMans[0].pos.y, pacMans[0].pos.z);
-	world = XMLoadFloat4x4(&mGridWorld);
-	worldInvTranspose = MathHelper::InverseTranspose(world);
+		std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+		//world = XMMatrixTranslation(pacMans[0].pos.x, pacMans[0].pos.y, pacMans[0].pos.z);
+		world = XMLoadFloat4x4(&mGridWorld);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
 		worldViewProj = world*view*proj;
 		Material pacManColour = Materials::PACMAN;
 		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pacManColour);
@@ -1494,89 +1499,105 @@ void PuckMan3D::DrawScene()
 		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPacMans(),
 			mCountPacMans, oc.pacMan.indexOffset, oc.pacMan.indexCount);
 		//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.pacMan.indexOffset, oc.pacMan.indexCount);
-	//}
+		//}
 
-	world = XMMatrixTranslation(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z);
-	world = XMLoadFloat4x4(&mGridWorld);
-	worldInvTranspose = MathHelper::InverseTranspose(world);
-	worldViewProj = world*view*proj;
-	Material blinkyColour = Materials::BLINKY;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, blinkyColour);
-	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mGhostMat);
-	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
-		mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
-	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset, oc.pacMan.indexCount);
+		world = XMMatrixTranslation(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z);
+		world = XMLoadFloat4x4(&mGridWorld);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+		Material blinkyColour = Materials::BLINKY;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, blinkyColour);
+		//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mGhostMat);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
+			mCountGhosts, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+		//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset, oc.pacMan.indexCount);
 
-	world = XMMatrixTranslation(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z);
-	world = XMLoadFloat4x4(&mGridWorld);
-	worldInvTranspose = MathHelper::InverseTranspose(world);
-	worldViewProj = world*view*proj;
-	Material inkyColour = Materials::INKY;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, inkyColour);
-	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mInkyMat);
-	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
-		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
-	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + oc.pacMan.indexCount, oc.pacMan.indexCount);
+		world = XMMatrixTranslation(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z);
+		world = XMLoadFloat4x4(&mGridWorld);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+		Material inkyColour = Materials::INKY;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, inkyColour);
+		//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mInkyMat);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
+			1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+		//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + oc.pacMan.indexCount, oc.pacMan.indexCount);
 
-	world = XMMatrixTranslation(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z);
-	world = XMLoadFloat4x4(&mGridWorld);
-	worldInvTranspose = MathHelper::InverseTranspose(world);
-	worldViewProj = world*view*proj;
-	Material pinkyColour = Materials::PINKY;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pinkyColour);
-	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPinkyMat);
-	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
-		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
-	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 2), oc.pacMan.indexCount);
+		world = XMMatrixTranslation(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z);
+		world = XMLoadFloat4x4(&mGridWorld);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+		Material pinkyColour = Materials::PINKY;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pinkyColour);
+		//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mPinkyMat);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
+			1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+		//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 2), oc.pacMan.indexCount);
 
-	world = XMMatrixTranslation(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z);
-	world = XMLoadFloat4x4(&mGridWorld);
-	worldInvTranspose = MathHelper::InverseTranspose(world);
-	worldViewProj = world*view*proj;
-	Material clydeColour = Materials::CLYDE;
-	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, clydeColour);
-	//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mClydeMat);
-	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
-		1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
-	//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 3), oc.pacMan.indexCount);
-	
+		world = XMMatrixTranslation(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z);
+		world = XMLoadFloat4x4(&mGridWorld);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+		Material clydeColour = Materials::CLYDE;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, clydeColour);
+		//mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, mClydeMat);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
+			1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+		//mLitMatInstanceEffect->Draw(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), oc.ghosts.indexOffset + (oc.pacMan.indexCount * 3), oc.pacMan.indexCount);
 
-	//mMazeCharacter->Draw(md3dImmediateContext, vp);
 
-	//mSkyBox->Draw(md3dImmediateContext, vp, mCam->GetPos());
+		//mMazeCharacter->Draw(md3dImmediateContext, vp);
 
-	/*mTestTerrain->Draw(md3dImmediateContext, vp);
+		//mSkyBox->Draw(md3dImmediateContext, vp, mCam->GetPos());
 
-	mTestPlayer->Draw(md3dImmediateContext, vp);
+		/*mTestTerrain->Draw(md3dImmediateContext, vp);
 
-	for (int i = 0; i < mTestChars.size(); ++i)
-	{
+		mTestPlayer->Draw(md3dImmediateContext, vp);
+
+		for (int i = 0; i < mTestChars.size(); ++i)
+		{
 		mTestChars[i]->Draw(md3dImmediateContext, vp);
-	}
+		}
 
-	for (int i = 0; i < mProjectiles.size(); ++i)
-	{
+		for (int i = 0; i < mProjectiles.size(); ++i)
+		{
 		mProjectiles[i]->Draw(md3dImmediateContext, vp);
+		}
+
+		vp = XMMatrixIdentity();
+		proj = XMLoadFloat4x4(&m2DProj);
+		view = m2DCam->GetView();
+
+		vp = vp * view * proj;
+
+		mTestTerrain->Draw(md3dImmediateContext, vp);
+		DrawParticles();*/
+		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
+		md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
+
+		std::stringstream os;
+		os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mSpeed;
+		mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 25, "Score: " + currScore.str());
+		md3dImmediateContext->OMSetDepthStencilState(0, 0);
+		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 	}
-
-	vp = XMMatrixIdentity();
-	proj = XMLoadFloat4x4(&m2DProj);
-	view = m2DCam->GetView();
-
-	vp = vp * view * proj;
-
-	mTestTerrain->Draw(md3dImmediateContext, vp);
-	DrawParticles();*/
-	
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
 
-	std::stringstream os;
-	os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mSpeed;
 	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
-	mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
-	mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 25, "Score: " + currScore.str());
+	
+	if (mGameState == GameState::GS_ATTRACT)
+	{
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 15, "Press space to begin");
+	}
+	if (mGameState == GameState::GS_GAMEOVER)
+	{
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 15, "Press space to go back.");
+	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 
@@ -1674,80 +1695,96 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	vel.m128_f32[1] = 0.0f;
 	vel.m128_f32[2] = 0.0f;
 	mFacingState = FCS_DEFAULT;
-
-	// Move Forward
-	if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
+	if (mGameState == GameState::GS_PLAY)
 	{
-		mIsKeyPressed = true;
-		mFacingState = FCS_FORWARD;
-		mIsMoving = true;
-		vel.m128_f32[0] = 0.0f * dt;
-		vel.m128_f32[1] = 0.0f * dt;
-		vel.m128_f32[2] = 1.0f * dt;
-		if (vel.m128_f32[2] < 0.00826695096f)
+		// Move Forward
+		if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
 		{
-			vel.m128_f32[2] = 0.00826695096f;
+			mIsKeyPressed = true;
+			mFacingState = FCS_FORWARD;
+			mIsMoving = true;
+			vel.m128_f32[0] = 0.0f * dt;
+			vel.m128_f32[1] = 0.0f * dt;
+			vel.m128_f32[2] = 1.0f * dt;
+			if (vel.m128_f32[2] < 0.00826695096f)
+			{
+				vel.m128_f32[2] = 0.00826695096f;
+			}
 		}
-	}
-	/*else
-	{
-	mIsKeyPressed = false;
-	vel.m128_f32[0] = 0.0f;
-	vel.m128_f32[1] = 0.0f;
-	vel.m128_f32[2] = 0.0f;
-	mFacingState = FCS_DEFAULT;
-	}*/
-
-	// Move Backwards 
-	if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN) & 0x8000)
-	{
-		mIsKeyPressed = true;
-		mFacingState = FCS_BACKWARD;
-		mIsMoving = true;
-		vel.m128_f32[0] = 0.0f * dt;
-		vel.m128_f32[1] = 0.0f * dt;
-		vel.m128_f32[2] = -1.0f * dt;
-		if (vel.m128_f32[2] > -0.00826695096f)
+		/*else
 		{
-			vel.m128_f32[2] = -0.00826695096f;
-		}
-	}
+		mIsKeyPressed = false;
+		vel.m128_f32[0] = 0.0f;
+		vel.m128_f32[1] = 0.0f;
+		vel.m128_f32[2] = 0.0f;
+		mFacingState = FCS_DEFAULT;
+		}*/
 
-	// Move Left
-	if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT) & 0x8000)
-	{
-		mIsKeyPressed = true;
-		mFacingState = FCS_LEFT;
-		mIsMoving = true;
-		vel.m128_f32[0] = -1.0f * dt;
-		if (vel.m128_f32[0] > -0.00826695096f)
+		// Move Backwards 
+		if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
-			vel.m128_f32[0] = -0.00826695096f;
-		}
-		vel.m128_f32[1] = 0.0f * dt;
-		vel.m128_f32[2] = 0.0f * dt;
-	}
-
-	// Move Right
-	if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT) & 0x8000)
-	{
-		mIsKeyPressed = true;
-		mFacingState = FCS_RIGHT;
-		mIsMoving = true;
-		vel.m128_f32[0] = 1.0f * dt;
-		if (vel.m128_f32[0] < 0.00826695096f)
-		{
-			vel.m128_f32[0] = 0.00826695096f;
+			mIsKeyPressed = true;
+			mFacingState = FCS_BACKWARD;
+			mIsMoving = true;
+			vel.m128_f32[0] = 0.0f * dt;
+			vel.m128_f32[1] = 0.0f * dt;
+			vel.m128_f32[2] = -1.0f * dt;
+			if (vel.m128_f32[2] > -0.00826695096f)
+			{
+				vel.m128_f32[2] = -0.00826695096f;
+			}
 		}
 
-		vel.m128_f32[1] = 0.0f * dt;
-		vel.m128_f32[2] = 0.0f * dt;
+		// Move Left
+		if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT) & 0x8000)
+		{
+			mIsKeyPressed = true;
+			mFacingState = FCS_LEFT;
+			mIsMoving = true;
+			vel.m128_f32[0] = -1.0f * dt;
+			if (vel.m128_f32[0] > -0.00826695096f)
+			{
+				vel.m128_f32[0] = -0.00826695096f;
+			}
+			vel.m128_f32[1] = 0.0f * dt;
+			vel.m128_f32[2] = 0.0f * dt;
+		}
+
+		// Move Right
+		if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT) & 0x8000)
+		{
+			mIsKeyPressed = true;
+			mFacingState = FCS_RIGHT;
+			mIsMoving = true;
+			vel.m128_f32[0] = 1.0f * dt;
+			if (vel.m128_f32[0] < 0.00826695096f)
+			{
+				vel.m128_f32[0] = 0.00826695096f;
+			}
+
+			vel.m128_f32[1] = 0.0f * dt;
+			vel.m128_f32[2] = 0.0f * dt;
+		}
 	}
 	if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
 	{
 		std::exit(1);
 	}
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+	{
+		if (mGameState == GameState::GS_ATTRACT)
+		{
+			mGameState = GameState::GS_PLAY;
+		}
+		else if (mGameState == GameState::GS_PLAY)
+		{
 
+		}
+		else if (mGameState == GameState::GS_GAMEOVER)
+		{
+			mGameState = GameState::GS_ATTRACT;
+		}
+	}
 	MazeLoader::SetPacManVel(vel, 0);
 
 }
