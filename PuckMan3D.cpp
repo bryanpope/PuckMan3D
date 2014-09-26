@@ -944,6 +944,7 @@ void PuckMan3D::UpdateScene(float dt)
 			mTotalTime = 3.0f;
 			timer.Reset();
 			timer.Start();
+			mPelletCounter++;
 			MazeLoader::ErasePowerUp(i);
 			mScore += 50;
 			break;
@@ -1036,6 +1037,17 @@ void PuckMan3D::UpdateScene(float dt)
 		result = channel[6]->setPaused(true);
 	}
 
+	if (pacMans.size() == 0)
+	{
+		mGameState = GameState::GS_GAMEOVER;
+	}
+
+	//reset board if all pellets are gone
+	if (mPelletCounter == MazeLoader::GetEatableCount())
+	{
+		resetGame();
+		mLevelCounter++;
+	}
 
 	if (powerUpActivated)
 	{//check if the power up is activated to detrmine if playScaredGhostSFX is active or not
@@ -1046,18 +1058,6 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		result = channel[1]->setPaused(true);
 	}
-
-	if (pacMans.size() <= 0)
-	{
-		mGameState = GameState::GS_GAMEOVER;
-	}
-	//pacMans
-	//reset board if all pellets are gone
-//	if (mPelletCounter >= MazeLoader::GetEatableCount())
-//	{
-	//	resetGame();
-//		mLevelCounter++;
-	//}
 	updateGhosts(dt);
 
 	/*if (mPelletCounter == 5 && fruitState == FruitState::FS_DEFAULT)
