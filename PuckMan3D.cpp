@@ -264,7 +264,7 @@ private:
 	float mCurrentTime = 0.0f;
 	float mTotalTime = 0.0f;
 	int mLevelCounter;
-	int mPelletCounter;
+	int mPelletCounter = 0;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
@@ -420,7 +420,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
-	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
+	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
 mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(710.0f),
 mCountPellets(0), mLitMatInstanceEffect(0)
 {
@@ -3091,6 +3091,7 @@ void PuckMan3D::resetGame()
 	mFacingState = FCS_DEFAULT;
 	mGameState = GameState::GS_ATTRACT;
 	mScore = 0;
+	mPelletCounter = 0;
 	powerUpActivated = false;
 	mIsBlue = false;
 	mIsMoving = false;
