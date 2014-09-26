@@ -396,6 +396,9 @@ private:
 	int randNumber;
 	int mScore = 0;
 	std::stringstream currScore;
+
+	float mTimeGhostCurrent;
+	float mTimeGhostNext;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -420,8 +423,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
-mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(710.0f),
-mCountPellets(0), mLitMatInstanceEffect(0)
+	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(710.0f),
+	mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -679,6 +682,9 @@ bool PuckMan3D::Init()
 
 	mFont = new FontRasterizer(m2DCam, XMLoadFloat4x4(&m2DProj), mLitTexEffect, 10, 10, font, md3dDevice);
 
+	mTimeGhostCurrent = 0.0f;
+	mTimeGhostNext = mTimeGhostCurrent + (1/30);
+
 	return true;
 }
 
@@ -841,15 +847,20 @@ void PuckMan3D::UpdateScene(float dt)
 	UpdateKeyboardInput(dt);
 	updateStringStream();
 
-	if (mGameState == GameState::GS_PLAY)
+
+	mTimeGhostCurrent += dt;
+	if (mTimeGhostCurrent >= mTimeGhostNext)
 	{
-		mBlinky->Update(dt);
+		if (mGameState == GameState::GS_PLAY)
+		{
+			mBlinky->Update(dt);
+		}
+		MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z, 0.0f), 0);
+		MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);
+		MazeLoader::SetGhostPos(XMVectorSet(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z, 0.0f), 2);
+		MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);
+		mTimeGhostNext += (0.125f);
 	}
-	
-	MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z, 0.0f), 0);
-	MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);
-	MazeLoader::SetGhostPos(XMVectorSet(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z, 0.0f), 2);
-	MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);
 
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR pos = XMLoadFloat3(&pacMans[0].pos);
