@@ -423,6 +423,62 @@ void MazeLoader::RemovePellet(UINT index)
 	mMazeElementsModify[mazeIndex] = ME_NOTHING;
 }
 
+void MazeLoader::RemovePowerUp(UINT index)
+{
+	mPowerUps[index].isShown = mPowerUps[index].isCollider = false;
+
+	UINT row = mMazeHeight - (UINT)floor(mPowerUps[index].pos.z + (mMazeHeight * 0.5));
+	UINT col = (UINT)floor(mPowerUps[index].pos.x + (mMazeWidth * 0.5));
+	UINT mazeIndex = (row * mMazeWidth) + col;
+	mMazeElementsModify[mazeIndex] = ME_NOTHING;
+}
+
+void MazeLoader::RemoveLastPacMan()
+{
+	for (int i = mPacMans.size() - 1; i >= 0; --i)
+	{
+		if (mPacMans[i].isShown)
+		{
+			mPacMans[i].isShown = mPacMans[i].isCollider = false;
+			break;
+		}
+	}
+}
+
+void MazeLoader::ResetPellets()
+{
+	for (int i = 0; i < mPellets.size(); ++i)
+	{
+		mPellets[i].isShown = mPellets[i].isCollider = true;
+	}
+	mMazeElementsModify = mMazeElements;
+}
+
+void MazeLoader::ResetPowerUps()
+{
+	for (int i = 0; i < mPowerUps.size(); ++i)
+	{
+		mPowerUps[i].isShown = mPowerUps[i].isCollider = true;
+	}
+	mMazeElementsModify = mMazeElements;
+}
+
+void MazeLoader::ResetPacMan()
+{
+	for (int i = 0; i < mPacMans.size(); ++i)
+	{
+		mPacMans[i].isShown = mPacMans[i].isCollider = true;
+	}
+	ResetPacManPosition();
+}
+
+void MazeLoader::ResetPacManPosition()
+{
+	mPacMans[0].pos.x = mInitialPositions.pacMan.x;
+	mPacMans[0].pos.y = mInitialPositions.pacMan.y;
+	mPacMans[0].pos.z = mInitialPositions.pacMan.z;
+}
+
 bool MazeLoader::IsPellet(UINT row, UINT col)
 {
 	UINT index = (row * mMazeWidth) + col;

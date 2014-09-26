@@ -116,6 +116,12 @@ public:
 	static void SetGhostColour(XMFLOAT4 col, UINT index);
 
 	static void RemovePellet(UINT index);
+	static void RemovePowerUp(UINT index);
+	static void RemoveLastPacMan();
+	static void ResetPellets();
+	static void ResetPowerUps();
+	static void ResetPacMan();
+	static void ResetPacManPosition();
 
 	static UINT GetMazeWidth(){ return mMazeWidth; }
 	static UINT GetMazeHeight(){ return mMazeHeight; }
