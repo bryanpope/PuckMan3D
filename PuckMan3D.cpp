@@ -125,6 +125,7 @@ private:
 	//void BuildPowerUps();
 	void SetMaterials();
 	void BuildShapeGeometryBuffers();
+	void ResetPuckMan();
 	void ResetGhosts();
 
 private:
@@ -880,9 +881,11 @@ void PuckMan3D::UpdateScene(float dt)
 			if (!powerUpActivated)
 			{
 				//mPacMan.pop_back();
-				MazeLoader::ErasePacMan(pacMans.size() - 1);
+				//MazeLoader::ErasePacMan(pacMans.size() - 1);
+				MazeLoader::RemoveLastPacMan();
 				MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
 				MazeLoader::SetPacManPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f), 0);
+				std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 				//mPacMan[0].pos.x = 0.0f;
 				//mPacMan[0].pos.y = 0.75f;
 				//mPacMan[0].pos.z = -8.5f;
@@ -929,7 +932,7 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		XMVECTOR pUpPos = XMLoadFloat3(&powerUps[i].pos);
 
-		if (PacManPowerUpOverlapTest(pos, pUpPos) == true)
+		if (powerUps[i].isCollider && PacManPowerUpOverlapTest(pos, pUpPos) == true)
 		{
 			powerUpActivated = true;
 			ghostState = GhostState::GS_BLUE;
@@ -938,7 +941,8 @@ void PuckMan3D::UpdateScene(float dt)
 			timer.Reset();
 			timer.Start();
 			mPelletCounter++;
-			MazeLoader::ErasePowerUp(i);
+			//MazeLoader::ErasePellet(i);
+			MazeLoader::RemovePowerUp(i);
 			mScore += 50;
 			break;
 			//--i;
@@ -1030,7 +1034,7 @@ void PuckMan3D::UpdateScene(float dt)
 		result = channel[6]->setPaused(true);
 	}
 
-	if (pacMans.size() == 0)
+	if (!pacMans[0].isShown)
 	{
 		mGameState = GameState::GS_GAMEOVER;
 	}
@@ -1167,7 +1171,10 @@ void PuckMan3D::UpdateScene(float dt)
 	mCountPowerUps = 0;
 	for (UINT i = 0; i < powerUps.size(); ++i)
 	{
-		dataView[mCountPowerUps++] = { powerUps[i].world, powerUps[i].colour };
+		if (powerUps[i].isShown)
+		{
+			dataView[mCountPowerUps++] = { powerUps[i].world, powerUps[i].colour };
+		}
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(), 0);
 
@@ -1176,7 +1183,10 @@ void PuckMan3D::UpdateScene(float dt)
 	mCountPacMans = 0;
 	for (UINT i = 0; i < pacMans.size(); ++i)
 	{
-		dataView[mCountPacMans++] = { pacMans[i].world, pacMans[i].colour };
+		if (pacMans[i].isShown)
+		{
+			dataView[mCountPacMans++] = { pacMans[i].world, pacMans[i].colour };
+		}
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBPacMans(), 0);
 
@@ -1776,6 +1786,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		else if (mGameState == GameState::GS_GAMEOVER)
 		{
 			mGameState = GameState::GS_ATTRACT;
+			resetGame();
 		}
 	}
 	MazeLoader::SetPacManVel(vel, 0);
@@ -2178,6 +2189,25 @@ void PuckMan3D::BuildPuckMan()
 	for (int i = 0; i < mPacMan.size(); ++i)
 	{
 		XMStoreFloat4x4(&mPacManWorld[i], XMMatrixTranslation(mPacMan[i].pos.x, mPacMan[i].pos.y, mPacMan[i].pos.z));
+	}*/
+}
+
+void PuckMan3D::ResetPuckMan()
+{
+	////Positioning the PacMans
+	//mPacMan.push_back(PacMan(XMVectorSet(0.0f, 0.75f, -8.5f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
+	//std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+	MazeLoader::SetPacManPos(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), 1);
+	MazeLoader::SetPacManPos(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), 2);
+
+	/*mPacMan.push_back(PacMan(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, -pacPos.pacMan.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mPacMan.push_back(PacMan(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+	mPacMan.push_back(PacMan(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)));
+
+	for (int i = 0; i < mPacMan.size(); ++i)
+	{
+	XMStoreFloat4x4(&mPacManWorld[i], XMMatrixTranslation(mPacMan[i].pos.x, mPacMan[i].pos.y, mPacMan[i].pos.z));
 	}*/
 }
 
@@ -3082,8 +3112,12 @@ void PuckMan3D::resetGame()
 	soundStates = SoundsState::SS_DEFAULT;
 	fruitState = FruitState::FS_DEFAULT;
 	mFacingState = FCS_DEFAULT;
-	mGameState = GameState::GS_ATTRACT;
-	mScore = 0;
+	//mGameState = GameState::GS_ATTRACT;
+	if (mGameState == GS_GAMEOVER)
+	{
+		mScore = 0;
+		MazeLoader::ResetPacMan();
+	}
 	mPelletCounter = 0;
 	powerUpActivated = false;
 	mIsBlue = false;
@@ -3092,6 +3126,9 @@ void PuckMan3D::resetGame()
 	mIsBeginningPlaying = false;
 	ResetGhosts();
 
+	MazeLoader::ResetPellets();
+	MazeLoader::ResetPowerUps();
+	MazeLoader::ResetPacManPosition();
 }
 
 void PuckMan3D::loadGhostDeathSFX()
