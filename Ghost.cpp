@@ -16,7 +16,7 @@ Ghost::~Ghost()
 {
 }
 
-void Ghost::MoveGhost(PathNode* target)
+void Ghost::MoveGhost(PathNode* target, float dt)
 {
 	//Calculate the vector in the direction to move
 	XMVECTOR dir = XMVectorSet(this->mPos.x - target->xPos, this->mPos.y, this->mPos.z - target->zPos, 0.0f);
@@ -26,8 +26,8 @@ void Ghost::MoveGhost(PathNode* target)
 	dir.m128_f32[1] = floor(dir.m128_f32[1]);
 	dir.m128_f32[2] = floor(dir.m128_f32[2]);
 	//Add vector to ghost position * speed
-	this->mPos.x += dir.m128_f32[0] * mVel.x;
-	this->mPos.z += dir.m128_f32[2] * mVel.z;
+	this->mPos.x += dir.m128_f32[0] * mVel.x * dt;
+	this->mPos.z += dir.m128_f32[2] * mVel.z * dt;
 }
 
 void Ghost::Update()

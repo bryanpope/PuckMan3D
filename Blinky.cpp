@@ -18,8 +18,8 @@ void Blinky::Update(float dt)
 	{
 	
 		//PathNode* currWaypoint = waypoints.front();
-		//this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
-		this->MoveGhost(waypoints.front());
+		this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
+		//this->MoveGhost(waypoints.front(), dt);
 		/*XMVECTOR toWaypoint = XMVectorSet(currWaypoint->xPos - mPos.x, mPos.y, currWaypoint->zPos - mPos.z, 0.0f);
 		float distance = sqrt((toWaypoint.m128_f32[0] * toWaypoint.m128_f32[0]) + (toWaypoint.m128_f32[2] * toWaypoint.m128_f32[2]));
 

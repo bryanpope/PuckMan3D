@@ -30,7 +30,7 @@ protected:
 	GameTimer mGhostStateTimer;
 	GHOST_STATES mGhostStates;
 
-	void MoveGhost(PathNode* target);
+	void MoveGhost(PathNode* target, float dt);
 
 public:
 	Ghost();
