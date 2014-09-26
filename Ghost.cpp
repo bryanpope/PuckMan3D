@@ -9,10 +9,25 @@ Ghost::Ghost(FXMVECTOR pos, FXMVECTOR vel, float radius)
 	XMStoreFloat3(&mPos, pos);
 	XMStoreFloat3(&mVel, vel);
 	mRadius = radius;
+	mSpeed = 1.0f;
 }
 
 Ghost::~Ghost()
 {
+}
+
+void Ghost::MoveGhost(PathNode* target)
+{
+	//Calculate the vector in the direction to move
+	XMVECTOR dir = XMVectorSet(this->mPos.x - target->xPos, this->mPos.y, this->mPos.z - target->zPos, 0.0f);
+	//Normalize vector
+	dir = XMVector3Normalize(dir);
+	dir.m128_f32[0] = floor(dir.m128_f32[0]);
+	dir.m128_f32[1] = floor(dir.m128_f32[1]);
+	dir.m128_f32[2] = floor(dir.m128_f32[2]);
+	//Add vector to ghost position * speed
+	this->mPos.x += dir.m128_f32[0] * mVel.x;
+	this->mPos.z += dir.m128_f32[2] * mVel.z;
 }
 
 void Ghost::Update()
