@@ -379,8 +379,6 @@ private:
 	};
 	GameState mGameState = GameState::GS_ATTRACT;
 	FacingState mFacingState = FCS_DEFAULT;
-
-	bool isPlaying = false;
 	GhostState ghostState = GhostState::GS_NORMAL;
 	SoundsState soundStates = SoundsState::SS_DEFAULT;
 	FruitState fruitState = FruitState::FS_DEFAULT;
@@ -907,11 +905,6 @@ void PuckMan3D::UpdateScene(float dt)
 
 		if (pellets[i].isCollider && PacManPelletOverlapTest(pos, pelPos) == true)
 		{
-			if (!isPlaying)
-			{
-
-			}
-
 			if (soundStates == SoundsState::SS_KA)
 			{
 				playWaSFX();
@@ -1029,7 +1022,7 @@ void PuckMan3D::UpdateScene(float dt)
 		playSirenSFX();
 		result = channel[6]->setPaused(false);
 	}
-	else if (mIsPlayerDead)
+	else if (mIsPlayerDead || mGameState != GameState::GS_PLAY)
 	{
 		powerUpActivated = false;
 		mIsBlue = false;
@@ -3097,7 +3090,6 @@ void PuckMan3D::resetGame()
 	mIsMoving = false;
 	mIsPlayerDead = false;
 	mIsBeginningPlaying = false;
-	isPlaying = false;
 	ResetGhosts();
 
 }
