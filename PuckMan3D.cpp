@@ -1570,7 +1570,7 @@ void PuckMan3D::DrawScene()
 		md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
 
 		std::stringstream os;
-		os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mSpeed;
+		os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mPelletCounter;
 		mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 25, "Score: " + currScore.str());
