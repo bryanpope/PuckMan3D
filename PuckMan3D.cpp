@@ -202,11 +202,13 @@ private:
 	bool mIsPlayerDead = false;
 	bool mIsBeginningPlaying = false;
 	bool mCanMove = true;
+	bool mIsPaused = false;
 	float mSpeed;
 	float fruitR = 0.60;
 	float mNextTime = 0.0f;
 	float mCurrentTime = 0.0f;
 	float mTotalTime = 0.0f;
+	float mPauseTime = 0.0f;
 	float mTotalDeathTime = 0.0f;
 	int mLevelCounter;
 	int mPelletCounter = 0;
@@ -681,7 +683,7 @@ void PuckMan3D::UpdateScene(float dt)
 	mTimeGhostCurrent += dt;
 	if (mTimeGhostCurrent >= mTimeGhostNext)
 	{
-		if (mGameState == GameState::GS_PLAY && mCanMove)
+		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused)
 		{
 			mBlinky->Update(dt);
 		}
@@ -816,6 +818,18 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		resetGame();
 		mLevelCounter++;
+		mIsPaused = true;
+	}
+
+	if (mIsPaused)
+	{
+		mPauseTime += dt;
+	}
+
+	if (mPauseTime >= 2.0f)
+	{
+		mIsPaused = false;
+		mPauseTime = 0.0f;
 	}
 
 	if (powerUpActivated)
@@ -1127,7 +1141,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	vel.m128_f32[1] = 0.0f;
 	vel.m128_f32[2] = 0.0f;
 	mFacingState = FCS_DEFAULT;
-	if (mGameState == GameState::GS_PLAY && mCanMove)
+	if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused)
 	{
 		// Move Forward
 		if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
