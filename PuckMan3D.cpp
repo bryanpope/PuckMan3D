@@ -718,6 +718,7 @@ void PuckMan3D::UpdateScene(float dt)
 		{
 			if (!powerUpActivated)
 			{
+				result = channel[6]->setPaused(true);
 				MazeLoader::RemoveLastPacMan();
 				MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
 				MazeLoader::SetPacManPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f), 0);
@@ -726,6 +727,7 @@ void PuckMan3D::UpdateScene(float dt)
 				mIsPlayerDead = true;
 				mIsMoving = false;
 				mCanMove = false;
+				mIsPaused = true;
 				ResetGhosts();
 				break;
 			}
@@ -829,6 +831,7 @@ void PuckMan3D::UpdateScene(float dt)
 	if (mPauseTime >= 2.0f)
 	{
 		mIsPaused = false;
+		mCanMove = true;
 		mPauseTime = 0.0f;
 	}
 
@@ -1921,8 +1924,9 @@ void PuckMan3D::updateGhosts(float dt)
 
 void PuckMan3D::resetGame()
 {
+	result = channel[6]->setPaused(true);
 	ghostState = GhostState::GS_NORMAL;
-	soundStates = SoundsState::SS_DEFAULT;
+	soundStates = SoundsState::SS_KA;
 	fruitState = FruitState::FS_DEFAULT;
 	mFacingState = FCS_DEFAULT;
 	if (mGameState == GS_GAMEOVER)
