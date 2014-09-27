@@ -719,6 +719,7 @@ void PuckMan3D::UpdateScene(float dt)
 			if (!powerUpActivated)
 			{
 				result = channel[6]->setPaused(true);
+				mIsPaused = true;
 				MazeLoader::RemoveLastPacMan();
 				MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
 				MazeLoader::SetPacManPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f), 0);
@@ -727,7 +728,6 @@ void PuckMan3D::UpdateScene(float dt)
 				mIsPlayerDead = true;
 				mIsMoving = false;
 				mCanMove = false;
-				mIsPaused = true;
 				ResetGhosts();
 				break;
 			}
