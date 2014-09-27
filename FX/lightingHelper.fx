@@ -191,3 +191,43 @@ void ComputeSpotLightToon(Material mat, SpotLight light, float3 pos,
 	diffuse *= spotFactor;
 	specular *= spotFactor;
 }
+
+void CRTshader(float4 pixelPos, float4 inColour, out float4 outColour)
+{
+	float vertForce1 = 0.255f;
+	float vertForce2 = 0.51f;
+	// R (1, vF1, vF2, 1), G (vF2, 1, vF1, 1), B (vF1, vF2, 1, 1)
+	float4 muls;
+
+	float brightness = 27;		// -200 - 200
+	float contrast = 2.1;		// -2 - 20
+	float scanColour = 0.55f;
+
+	float2 ps = pixelPos.xy - float2(0.5, 0.5);
+	uint pp = (uint)ps.x % 3;
+	
+	outColour = float4(0, 0, 0, 1);
+
+	if (pp == 1)
+	{
+		muls = float4(1, vertForce1, vertForce2, 1);
+	}
+	else if (pp == 2)
+	{
+		muls = float4(vertForce2, 1, vertForce1, 1);
+	}
+	else
+	{
+		muls = float4(vertForce1, vertForce2, 1, 1);
+	}
+
+	if ((uint)ps.y % 3 == 0)
+	{
+		muls *= float4(scanColour, scanColour, scanColour, 1);
+	}
+
+	outColour = inColour * muls;
+
+	outColour += (brightness / 255);
+	outColour = outColour - contrast * (outColour - 1.0) * outColour * (outColour - 0.5);
+}
