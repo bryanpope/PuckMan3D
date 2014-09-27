@@ -1859,8 +1859,8 @@ void PuckMan3D::updateGhosts(float dt)
 		//set the ghost to their default colours
 	case GS_NORMAL:
 		MazeLoader::SetGhostColour(Materials::BLINKY.Diffuse, 0);
-		MazeLoader::SetGhostColour(Materials::PINKY.Diffuse, 1);
-		MazeLoader::SetGhostColour(Materials::INKY.Diffuse, 2);
+		MazeLoader::SetGhostColour(Materials::INKY.Diffuse, 1);
+		MazeLoader::SetGhostColour(Materials::PINKY.Diffuse, 2);
 		MazeLoader::SetGhostColour(Materials::CLYDE.Diffuse, 3);
 		break;
 
