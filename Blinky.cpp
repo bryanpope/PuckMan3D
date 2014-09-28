@@ -10,8 +10,10 @@ Blinky::~Blinky()
 
 void Blinky::Update(float dt)
 {
+	int pacManX = round(MazeLoader::GetPacManData().at(0).pos.x);
+	int pacManZ = round(MazeLoader::GetPacManData().at(0).pos.z);
 	PathNode* start = new PathNode(this->mPos.x, this->mPos.z);
-	PathNode* goal = new PathNode(-10, -11);
+	PathNode* goal = new PathNode(pacManX, pacManZ);
 	std::list<PathNode*> waypoints = test.FindPath(start, goal);
 
 	if (waypoints.size() != 0)

@@ -28,7 +28,8 @@ void Ghost::MoveGhost(PathNode* target, float dt)
 	dir = XMVector3Normalize(dir);
 	//Add vector to ghost position * speed
 	
-	pos +=  dir * vel * dt;
+	pos += (dir * -1.0f) * vel * dt;
+
 	XMStoreFloat3(&mPos, pos);
 	/*this->mPos.x += (dir.m128_f32[0] * mVel.x) * dt;
 	this->mPos.z += (dir.m128_f32[2] * mVel.z) * dt;*/
