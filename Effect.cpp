@@ -318,3 +318,16 @@ void ParticleEffect::SetDiffuseMap(ID3D11ShaderResourceView* texture)
 {
 	mfxDiffuseMap->SetResource(texture);
 }
+
+void BlurEffect::LoadEffectParams()
+{
+	Effect::LoadEffectParams();
+
+	HorzBlurTech = mEffect->GetTechniqueByName("HorzBlur");
+	VertBlurTech = mEffect->GetTechniqueByName("VertBlur");
+
+	mfxWeights = mEffect->GetVariableByName("gWeights")->AsScalar();
+	mfxInputMap = mEffect->GetVariableByName("gInput")->AsShaderResource();
+	mfxOutputMap = mEffect->GetVariableByName("gOutput")->AsUnorderedAccessView();
+}
+

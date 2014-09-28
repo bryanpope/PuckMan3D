@@ -194,14 +194,17 @@ void ComputeSpotLightToon(Material mat, SpotLight light, float3 pos,
 
 void CRTshader(float4 pixelPos, float4 inColour, out float4 outColour)
 {
-	float vertForce1 = 0.255f;
-	float vertForce2 = 0.51f;
+	//outColour = inColour;
+	//return;
+
+	float vertForce1 = 0.80f;
+	float vertForce2 = 0.70f;
 	// R (1, vF1, vF2, 1), G (vF2, 1, vF1, 1), B (vF1, vF2, 1, 1)
 	float4 muls;
 
 	float brightness = 27;		// -200 - 200
 	float contrast = 2.1;		// -2 - 20
-	float scanColour = 0.55f;
+	float scanColour = 0.75f;
 
 	float2 ps = pixelPos.xy - float2(0.5, 0.5);
 	uint pp = (uint)ps.x % 3;

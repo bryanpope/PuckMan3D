@@ -160,3 +160,36 @@ protected:
 	virtual void LoadEffectParams();
 
 };
+
+class BlurEffect : public Effect
+{
+protected:
+	ID3DX11EffectVectorVariable* mfxEyePos;
+	ID3DX11EffectShaderResourceVariable* mfxDiffuseMap;
+
+	ID3DX11EffectScalarVariable* mfxWeights;
+	ID3DX11EffectShaderResourceVariable* mfxInputMap;
+	ID3DX11EffectUnorderedAccessViewVariable* mfxOutputMap;
+
+public:
+	virtual ~BlurEffect(){}
+
+	//virtual void SetPerFrameParams(FXMVECTOR eyePos);
+
+	//virtual void SetPerObjectParams(CXMMATRIX wvp, ID3D11ShaderResourceView* texture);
+
+	//virtual void SetDiffuseMap(ID3D11ShaderResourceView* texture);
+
+	virtual void SetWeights(const float weights[9])           { mfxWeights->SetFloatArray(weights, 0, 9); }
+	virtual void SetInputMap(ID3D11ShaderResourceView* tex)   { mfxInputMap->SetResource(tex); }
+	virtual void SetOutputMap(ID3D11UnorderedAccessView* tex) { mfxOutputMap->SetUnorderedAccessView(tex); }
+
+	ID3DX11EffectTechnique* HorzBlurTech;
+	ID3DX11EffectTechnique* VertBlurTech;
+
+protected:
+
+	virtual void LoadEffectParams();
+
+};
+

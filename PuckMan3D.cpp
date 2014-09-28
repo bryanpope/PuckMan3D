@@ -37,6 +37,7 @@
 #include "Pinky.h"
 #include "Clyde.h"
 #include "Materials.h"
+#include "BlurFilter.h"
 
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
@@ -76,6 +77,9 @@ private:
 	void BuildParticleVB();
 	void BuildBlendStates();
 	void BuildDSStates();
+	void BuildScreenQuadGeometryBuffers();
+	void BuildOffscreenViews();
+
 	void resetGame();
 	void loadSystem();
 	void loadGhostDeathSFX();
@@ -124,6 +128,9 @@ private:
 	void BuildShapeGeometryBuffers();
 	void ResetPuckMan();
 	void ResetGhosts();
+
+	void DrawWrapper();
+	void DrawScreenQuad();
 
 private:
 	struct Fruit
@@ -313,6 +320,14 @@ private:
 
 	float mTimeGhostCurrent;
 	float mTimeGhostNext;
+
+	ID3D11ShaderResourceView* mOffscreenSRV;
+	ID3D11UnorderedAccessView* mOffscreenUAV;
+	ID3D11RenderTargetView* mOffscreenRTV;
+
+	BlurFilter mBlur;
+	BasicMeshGeometry *mGeometryQuadFullScreen;
+	//BlurEffect* mBlurEffect;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -338,7 +353,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(710.0f),
-	mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f)
+	mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
+	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -414,6 +430,13 @@ PuckMan3D::~PuckMan3D()
 
 	if (mNoDepthDS)
 		ReleaseCOM(mNoDepthDS);
+
+	if (mGeometryQuadFullScreen)
+		delete(mGeometryQuadFullScreen);
+
+	ReleaseCOM(mOffscreenSRV);
+	ReleaseCOM(mOffscreenUAV);
+	ReleaseCOM(mOffscreenRTV);
 }
 
 void PuckMan3D::BuildSceneLights()
@@ -487,6 +510,12 @@ bool PuckMan3D::Init()
 
 	mLitTexEffect = new LitTexEffect();
 	mLitTexEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
+
+	//mBlurEffect = new BlurEffect();
+	//mBlurEffect->LoadEffect(L"FX/Blur.fx", md3dDevice);
+	mGeometryQuadFullScreen = new BasicMeshGeometry(mLitTexEffect);
+	BuildScreenQuadGeometryBuffers();
+	BuildOffscreenViews();
 
 	mParticleEffect = new ParticleEffect();
 	mParticleEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
@@ -647,6 +676,10 @@ void PuckMan3D::UpdateParticleVB()
 void PuckMan3D::OnResize()
 {
 	D3DApp::OnResize();
+
+	// Recreate the resources that depend on the client area size.
+	BuildOffscreenViews();
+	mBlur.Init(md3dDevice, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM);
 
 	// The window resized, so update the aspect ratio and recompute the projection matrix.
 	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
@@ -979,13 +1012,49 @@ void PuckMan3D::UpdateScene(float dt)
 
 void PuckMan3D::DrawScene()
 {
-	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, 
-		reinterpret_cast<const float*>(&Colors::Black));
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, 
-			D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+	//md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	// Render to our offscreen texture.  Note that we can use the same depth/stencil buffer
+	// we normally use since our offscreen texture matches the dimensions.  
+
+	ID3D11RenderTargetView* renderTargets[1] = { mOffscreenRTV };
+	md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
+
+	md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Black));
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	//
+	// Draw the scene to the offscreen texture
+	//
+	DrawWrapper();
+
+	//
+	// Restore the back buffer.  The offscreen render target will serve as an input into
+	// the compute shader for blurring, so we must unbind it from the OM stage before we
+	// can use it as an input into the compute shader.
+	//
+	renderTargets[0] = mRenderTargetView;
+	md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
+
+	//mBlur.SetGaussianWeights(4.0f);
+	mBlur.BlurInPlace(md3dImmediateContext, mOffscreenSRV, mOffscreenUAV, 4);
+
+	//
+	// Draw fullscreen quad with texture of blurred scene on it.
+	//
+	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	DrawScreenQuad();
+
+	HR(mSwapChain->Present(1, 0));
+}
+
+void PuckMan3D::DrawWrapper()
+{
 	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
-    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	XMVECTOR ambient = XMLoadFloat4(&mAmbientColour);
 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
@@ -1002,7 +1071,7 @@ void PuckMan3D::DrawScene()
 	XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
 	XMMATRIX worldViewProj = world*view*proj;
 	XMMATRIX viewProj = view*proj;
-	
+
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
@@ -1093,7 +1162,7 @@ void PuckMan3D::DrawScene()
 	md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
 
 	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
-	
+
 	if (mGameState == GameState::GS_ATTRACT)
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 15, "Press space to begin");
@@ -1104,8 +1173,39 @@ void PuckMan3D::DrawScene()
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
+}
 
-	HR(mSwapChain->Present(1, 0));
+void PuckMan3D::DrawScreenQuad()
+{
+	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	UINT stride = sizeof(Vertex::NormalTexVertex);
+	UINT offset = 0;
+
+	XMMATRIX identity = XMMatrixIdentity();
+
+	mLitTexEffect->SetPerObjectParams(identity, identity, identity, mBlur.GetBlurredOutput());
+	mLitTexEffect->Draw(md3dImmediateContext, mGeometryQuadFullScreen->GetVB(), mGeometryQuadFullScreen->GetIB(), mGeometryQuadFullScreen->GetIndexCount());
+	
+	/*ID3DX11EffectTechnique* texOnlyTech = Effects::BasicFX->Light0TexTech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+
+	texOnlyTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mScreenQuadVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mScreenQuadIB, DXGI_FORMAT_R32_UINT, 0);
+
+		Effects::BasicFX->SetWorld(identity);
+		Effects::BasicFX->SetWorldInvTranspose(identity);
+		Effects::BasicFX->SetWorldViewProj(identity);
+		Effects::BasicFX->SetTexTransform(identity);
+		Effects::BasicFX->SetDiffuseMap(mBlur.GetBlurredOutput());
+
+		texOnlyTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(6, 0, 0);
+	}*/
 }
 
 void PuckMan3D::OnMouseDown(WPARAM btnState, int x, int y)
@@ -2185,5 +2285,83 @@ void PuckMan3D::updateStringStream()
 	currScore << mScore;
 }
 
+void PuckMan3D::BuildScreenQuadGeometryBuffers()
+{
+	GeometryGenerator::MeshData quad;
+
+	GeometryGenerator geoGen;
+	geoGen.CreateFullscreenQuad(quad);
+
+	std::vector<Vertex::NormalTexVertex> vertices(quad.Vertices.size());
+
+	for (UINT i = 0; i < quad.Vertices.size(); ++i)
+	{
+		vertices[i].pos = quad.Vertices[i].Position;
+		vertices[i].normal = quad.Vertices[i].Normal;
+		vertices[i].tex = quad.Vertices[i].TexC;
+	}
+
+	mGeometryQuadFullScreen->SetVertices(md3dDevice, &vertices[0], vertices.size());
+	mGeometryQuadFullScreen->SetIndices(md3dDevice, &quad.Indices[0], quad.Indices.size());
+
+	/*D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::NormalTexVertex) * quad.Vertices.size();
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA vinitData;
+	vinitData.pSysMem = &vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mScreenQuadVB));
+
+	//
+	// Pack the indices of all the meshes into one index buffer.
+	//
+
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT) * quad.Indices.size();
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &quad.Indices[0];
+	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mScreenQuadIB));*/
+}
+
+void PuckMan3D::BuildOffscreenViews()
+{
+	// We call this function everytime the window is resized so that the render target is a quarter
+	// the client area dimensions.  So Release the previous views before we create new ones.
+	ReleaseCOM(mOffscreenSRV);
+	ReleaseCOM(mOffscreenRTV);
+	ReleaseCOM(mOffscreenUAV);
+
+	D3D11_TEXTURE2D_DESC texDesc;
+
+	texDesc.Width = mClientWidth;
+	texDesc.Height = mClientHeight;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	ID3D11Texture2D* offscreenTex = 0;
+	HR(md3dDevice->CreateTexture2D(&texDesc, 0, &offscreenTex));
+
+	// Null description means to create a view to all mipmap levels using 
+	// the format the texture was created with.
+	HR(md3dDevice->CreateShaderResourceView(offscreenTex, 0, &mOffscreenSRV));
+	HR(md3dDevice->CreateRenderTargetView(offscreenTex, 0, &mOffscreenRTV));
+	HR(md3dDevice->CreateUnorderedAccessView(offscreenTex, 0, &mOffscreenUAV));
+
+	// View saves a reference to the texture so we can release our reference.
+	ReleaseCOM(offscreenTex);
+}
 
 
