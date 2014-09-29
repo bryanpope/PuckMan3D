@@ -38,10 +38,10 @@ void Blinky::Update(float dt)
 		}
 	case CHASE:
 		//A simple call to pathfinding will suffice
-		mStart = new PathNode(this->mPos.x, this->mPos.z);
-		mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+		start = new PathNode(this->mPos.x, this->mPos.z);
+		goal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 
-		waypoints = test.FindPath(mStart, mGoal);
+		waypoints = test.FindPath(start, goal);
 
 		if (waypoints.size() != 0)
 		{

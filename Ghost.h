@@ -3,7 +3,6 @@
 #include "PathNode.h"
 #include "Pathfinding.h"
 #include "GameTimer.h"
-#include "PuckMan3D.h"
 
 class Ghost
 {
@@ -27,8 +26,8 @@ protected:
 	Pathfinding test;
 
 	std::list<PathNode*> waypoints;
-	PathNode* mStart;
-	PathNode* mGoal;
+	PathNode* start;
+	PathNode* goal;
 
 	void MoveToPuckMan();
 

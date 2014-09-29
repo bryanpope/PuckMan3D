@@ -6,5 +6,5 @@ public:
 	//Pinky(UINT row, UINT col, FXMVECTOR vel, float radius);
 	Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius);
 	~Pinky();
-	virtual void Update(float dt, PuckMan3D::FacingState facingState);
+	virtual void Update();
 };
