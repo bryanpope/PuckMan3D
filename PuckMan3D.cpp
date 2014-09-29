@@ -538,6 +538,26 @@ void PuckMan3D::UpdateScene(float dt)
 		mIsPaused = true;
 	}
 
+	if (mMuteAll)
+	{
+		MuteAllAudio();
+	}
+	if (mMuteBackGroundSFX)
+	{
+		MuteBackGroundSFX();
+	}
+	if (mMuteDeathSFX)
+	{
+		MuteDeathSFX();
+	}
+	if (mMuteEatingSFX)
+	{
+		MuteEatingSFX();
+	}
+	if (mMuteGhostSFX)
+	{
+		MuteGhostSFX();
+	}
 	if (mIsPaused)
 	{
 		mPauseTime += dt;
@@ -870,8 +890,55 @@ void PuckMan3D::DrawWrapper()
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, "Fog - (1)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 400.0f, 0.0f, 0.0f), 50, 75, 25, "Bloom - (2)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 300.0f, 0.0f, 0.0f), 50, 75, 25, "Audio - (3)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 150.0f, 0.0f, 0.0f), 40, 75, 25, "Press Backspace");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 100.0f, 0.0f, 0.0f), 40, 75, 25, "to retun");
+	}
+	if (mGameState == GameState::GS_SOUNDOPTIONS)
+	{
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 600.0f, 0.0f, 0.0f), 40, 75, 25, "Mute All - (1)");
+
+		if (mMuteDeathSFX || mMuteAll)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 540.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Death SFX");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 480.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (2) - (on)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 540.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Death SFX");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 480.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (2) - (off)");
+		}
+		if (mMuteBackGroundSFX || mMuteAll)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 420.0f, 0.0f, 0.0f), 40, 75, 25, "Mute BackGround");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (3) - (on)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 420.0f, 0.0f, 0.0f), 40, 75, 25, "Mute BackGround");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (3) - (off)");
+		}
+		if (mMuteEatingSFX || mMuteAll)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Eating");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 240.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (4) - (on)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Eating");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 240.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (4) - (off)");
+		}
+		if (mMuteGhostSFX || mMuteAll)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 180.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Ghosts");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 120.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (5) - (on)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 180.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Ghosts");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 120.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (5) - (off)");
+		}
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 60.0f, 0.0f, 0.0f), 40, 75, 25, "Backspace to return");
 	}
 	if (mGameState == GameState::GS_MAINMENU)
 	{
@@ -1028,7 +1095,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 	if (GetAsyncKeyState(VK_BACK) & 0x8000)
 	{
-		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS)
+		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_SOUNDOPTIONS)
 		{
 			mGameState = GS_MAINMENU;
 		}
@@ -1043,6 +1110,17 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 
 		}
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteAll)
+			{
+				mMuteAll = false;
+			}
+			else
+			{
+				mMuteAll = true;
+			}
+		}
 	}
 	if (GetAsyncKeyState('2') & 0x8000)
 	{
@@ -1054,12 +1132,66 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 
 		}
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteDeathSFX)
+			{
+				mMuteDeathSFX = false;
+			}
+			else
+			{
+				mMuteDeathSFX = true;
+			}
+		}
 	}
 	if (GetAsyncKeyState('3') & 0x8000)
 	{
 		if (mGameState == GS_MAINMENU)
 		{
 			mGameState = GS_CREDITS;
+		}
+		if (mGameState == GS_OPTIONS)
+		{
+			mGameState = GS_SOUNDOPTIONS;
+		}
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteBackGroundSFX)
+			{
+				mMuteBackGroundSFX = false;
+			}
+			else
+			{
+				mMuteBackGroundSFX = true;
+			}	
+		}
+	}
+	if (GetAsyncKeyState('4') & 0x8000)
+	{
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteEatingSFX)
+			{
+				mMuteEatingSFX = false;
+			}
+			else
+			{
+				mMuteEatingSFX = true;
+			}
+		}
+	}
+	if (GetAsyncKeyState('5') & 0x8000)
+	{
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteGhostSFX)
+			{
+				mMuteGhostSFX = false;
+			}
+			else
+			{
+				mMuteGhostSFX = true;
+			}	
 		}
 	}
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
@@ -1812,7 +1944,7 @@ void PuckMan3D::playGhostDeathSFX()
 		channel[0]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying)
+	if (!isPlaying && !mMuteAll)
 	{
 		result = sys->playSound(sound[0], 0, false, &channel[0]);
 		result = channel[0]->setChannelGroup(soundGroup);
@@ -1836,7 +1968,7 @@ void PuckMan3D::playScaredGhostSFX()
 		channel[1]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying && powerUpActivated)
+	if (!isPlaying && powerUpActivated && !mMuteAll)
 	{
 		result = sys->playSound(sound[1], 0, false, &channel[1]);
 		result = channel[1]->setChannelGroup(soundGroup);
@@ -1859,12 +1991,12 @@ void PuckMan3D::playDeathSFX()
 		channel[2]->isPlaying(&isPlaying);
 	}
 
-	//if (!isPlaying)
-	//{
+	if (!isPlaying && !mMuteAll)
+	{
 		result = sys->playSound(sound[2], 0, false, &channel[2]);
 		result = channel[2]->setChannelGroup(soundGroup);
 		result = channel[2]->setPaused(false);
-	//}
+	}
 
 }
 
@@ -1883,7 +2015,7 @@ void PuckMan3D::playFruitSFX()
 		channel[4]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying)
+	if (!isPlaying && !mMuteAll)
 	{
 		result = sys->playSound(sound[3], 0, false, &channel[4]);
 		result = channel[4]->setChannelGroup(soundGroup);
@@ -1906,7 +2038,7 @@ void PuckMan3D::playExtraLifeSFX()
 		channel[4]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying)
+	if (!isPlaying && !mMuteAll)
 	{
 		result = sys->playSound(sound[4], 0, false, &channel[4]);
 		result = channel[4]->setChannelGroup(soundGroup);
@@ -1929,7 +2061,7 @@ void PuckMan3D::playBeginningSFX()
 		channel[5]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying)
+	if (!isPlaying && !mMuteAll)
 	{
 		result = sys->playSound(sound[5], 0, false, &channel[5]);
 		result = channel[5]->setChannelGroup(soundGroup);
@@ -1952,7 +2084,7 @@ void PuckMan3D::playSirenSFX()
 		channel[6]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying && !mIsPlayerDead)
+	if (!isPlaying && !mIsPlayerDead && !mMuteAll)
 	{
 		result = sys->playSound(sound[6], 0, false, &channel[6]);
 		result = channel[6]->setChannelGroup(soundGroup);
@@ -1975,13 +2107,13 @@ void PuckMan3D::playWaSFX()
 		channel[3]->isPlaying(&isPlaying);
 	}
 
-	//if (!isPlaying)
-	//{
+	if (!mMuteAll)
+	{
 		result = sys->playSound(sound[7], 0, false, &channel[3]);
 		result = channel[3]->setChannelGroup(soundGroup);
 		result = channel[3]->setPaused(false);
 		soundStates = SoundsState::SS_WA;
-	//}
+	}
 }
 
 void PuckMan3D::loadKaSFX()
@@ -1999,13 +2131,13 @@ void PuckMan3D::playKaSFX()
 		channel[3]->isPlaying(&isPlaying);
 	}
 
-	//if (!isPlaying)
-	//{
+	if (!mMuteAll)
+	{
 		result = sys->playSound(sound[8], 0, false, &channel[3]);
 		result = channel[3]->setChannelGroup(soundGroup);
 		result = channel[3]->setPaused(false);
 		soundStates = SoundsState::SS_KA;
-	//}
+	}
 }
 
 void PuckMan3D::loadSystem()
@@ -2034,6 +2166,37 @@ void PuckMan3D::updateStringStream()
 {
 	currScore.str("");
 	currScore << mScore;
+}
+
+void PuckMan3D::MuteAllAudio()
+{
+	MuteDeathSFX();
+	MuteEatingSFX();
+	MuteGhostSFX();
+	MuteBackGroundSFX();
+}
+
+void PuckMan3D::MuteDeathSFX()
+{
+	result = channel[0]->setPaused(true);
+	result = channel[2]->setPaused(true);
+}
+
+void PuckMan3D::MuteEatingSFX()
+{
+	result = channel[3]->setPaused(true);
+	result = channel[4]->setPaused(true);
+}
+
+void PuckMan3D::MuteGhostSFX()
+{
+	result = channel[1]->setPaused(true);
+}
+
+void PuckMan3D::MuteBackGroundSFX()
+{
+	result = channel[5]->setPaused(true);
+	result = channel[6]->setPaused(true);
 }
 
 void PuckMan3D::BuildScreenQuadGeometryBuffers()

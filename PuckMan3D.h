@@ -57,7 +57,7 @@ public:
 	void OnMouseDown(WPARAM btnState, int x, int y);
 	void OnMouseUp(WPARAM btnState, int x, int y);
 	void OnMouseMove(WPARAM btnState, int x, int y);
-
+	void OnKeyUp(WPARAM btnState);
 private:
 	const float PUCKMAN_SPEED = 1000.0f;
 	void BuildTestPyramid();
@@ -117,7 +117,11 @@ private:
 	void BuildShapeGeometryBuffers();
 	void ResetPuckMan();
 	void ResetGhosts();
-
+	void MuteAllAudio();
+	void MuteGhostSFX();
+	void MuteEatingSFX();
+	void MuteDeathSFX();
+	void MuteBackGroundSFX();
 	void DrawWrapper();
 	void DrawScreenQuad();
 
@@ -200,6 +204,10 @@ private:
 	bool mCanMove = true;
 	bool mIsPaused = false;
 	bool mMuteAll = false;
+	bool mMuteEatingSFX = false;
+	bool mMuteBackGroundSFX = false;
+	bool mMuteGhostSFX = false;
+	bool mMuteDeathSFX = false;
 	float mSpeed;
 	float fruitR = 0.60;
 	float mNextTime = 0.0f;
@@ -292,7 +300,8 @@ private:
 		GS_PLAY,
 		GS_GAMEOVER,
 		GS_OPTIONS,
-		GS_CREDITS
+		GS_CREDITS,
+		GS_SOUNDOPTIONS
 	};
 	GameState mGameState = GameState::GS_MAINMENU;
 	FacingState mFacingState = FCS_DEFAULT;
