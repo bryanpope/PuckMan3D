@@ -49,6 +49,15 @@ public:
 	PuckMan3D(HINSTANCE hInstance);
 	~PuckMan3D();
 
+	enum FacingState
+	{
+		FCS_FORWARD,
+		FCS_BACKWARD,
+		FCS_RIGHT,
+		FCS_LEFT,
+		FCS_DEFAULT
+	};
+
 	bool Init();
 	void OnResize();
 	void UpdateScene(float dt);
@@ -274,15 +283,6 @@ private:
 	{
 		FS_DEFAULT = 0,
 		FS_FRUIT
-	};
-
-	enum FacingState
-	{
-		FCS_FORWARD,
-		FCS_BACKWARD,
-		FCS_RIGHT,
-		FCS_LEFT,
-		FCS_DEFAULT
 	};
 
 	enum GameState

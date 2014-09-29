@@ -2,6 +2,7 @@
 
 Pinky::Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
+	mGhostStates = GHOST_STATES::CHASE;
 }
 
 
@@ -9,7 +10,7 @@ Pinky::~Pinky()
 {
 }
 
-void Pinky::Update()
+void Pinky::Update(float dt, PuckMan3D::FacingState facingState)
 {
 	switch (mGhostStates)
 	{
@@ -37,21 +38,37 @@ void Pinky::Update()
 		}
 	case CHASE:
 		//Target 4 tiles in front of PuckMan's facing
-		//std::string goalFacing = mPuckMan->getFacing();
-		/*if (goalFacing == "forward" || goalFacing == "backward")
+		if (facingState == PuckMan3D::FacingState::FCS_BACKWARD)
 		{
-			//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
-			//mGoal = new PathNode(mPuckMan->getRow() + (4 * goalFacing), mPuckMan->getCol(), 0, 0, NULL, mPuckMan->getFacing());
-		}*/
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x - 4), round(MazeLoader::GetPacManData().at(0).pos.z));
+			test.FindPath(mStart, mGoal);
+			break;
+		}
 
-		/*if (goalFacing == "left" || goalFacing == "right")
+		else if (facingState == PuckMan3D::FacingState::FCS_FORWARD)
 		{
-			//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
-			//mGoal = new PathNode(mPuckMan->getRow(), mPuckMan->getCol() + (4 * goalFacing), 0, 0, NULL, mPuckMan->getFacing());
-		}*/
-		
-		//mPath = FindPath(mStart, mGoal);
-		break;
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x + 4), round(MazeLoader::GetPacManData().at(0).pos.z));
+			test.FindPath(mStart, mGoal);
+			break;
+		}
+
+		else if (facingState == PuckMan3D::FacingState::FCS_LEFT)
+		{
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z - 4));
+			test.FindPath(mStart, mGoal);
+			break;
+		}
+
+		else if (facingState == PuckMan3D::FacingState::FCS_RIGHT)
+		{
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z + 4));
+			test.FindPath(mStart, mGoal);
+			break;
+		}
 	case FRIGHTENED:
 		if (mLevelNumber == 1)
 		{
