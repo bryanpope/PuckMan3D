@@ -1089,18 +1089,22 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			vel.m128_f32[2] = 0.0f * dt;
 		}
 	}
-	if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
 	{
 		std::exit(1);
 	}
-	if (GetAsyncKeyState(VK_BACK) & 0x8000)
+	if (GetAsyncKeyState(VK_BACK) & 0x0001)
 	{
-		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_SOUNDOPTIONS)
+		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS)
 		{
 			mGameState = GS_MAINMENU;
 		}
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			mGameState = GS_OPTIONS;
+		}
 	}
-	if (GetAsyncKeyState('1') & 0x8000)
+	if (GetAsyncKeyState('1') & 0x0001)
 	{
 		if (mGameState == GS_MAINMENU)
 		{
@@ -1122,7 +1126,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			}
 		}
 	}
-	if (GetAsyncKeyState('2') & 0x8000)
+	if (GetAsyncKeyState('2') & 0x0001)
 	{
 		if (mGameState == GS_MAINMENU)
 		{
@@ -1144,7 +1148,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			}
 		}
 	}
-	if (GetAsyncKeyState('3') & 0x8000)
+	if (GetAsyncKeyState('3') & 0x0001)
 	{
 		if (mGameState == GS_MAINMENU)
 		{
@@ -1166,7 +1170,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			}	
 		}
 	}
-	if (GetAsyncKeyState('4') & 0x8000)
+	if (GetAsyncKeyState('4') & 0x0001)
 	{
 		if (mGameState == GS_SOUNDOPTIONS)
 		{
@@ -1180,7 +1184,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			}
 		}
 	}
-	if (GetAsyncKeyState('5') & 0x8000)
+	if (GetAsyncKeyState('5') & 0x0001)
 	{
 		if (mGameState == GS_SOUNDOPTIONS)
 		{
