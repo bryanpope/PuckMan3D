@@ -70,12 +70,12 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		return false;
 	}
 
-	if (!OBJLoader::Load(device, "Models/cylinder90degreebend.obj", mCylVerticesBent, mCylIndicesBent, mCylSubsetsBent, true, false))
+	if (!OBJLoader::Load(device, "Models/cylinder90degreebend2.obj", mCylVerticesBent, mCylIndicesBent, mCylSubsetsBent, false, false))
 	{
 		OutputDebugString(L"Error loading cylinderBent.obj");
 		return false;
 	}
-	if (!OBJLoader::Load(device, "Models/cylinderStraight.obj", mCylVerticesStraight, mCylIndicesStraight, mCylSubsetsStraight, true, false))
+	if (!OBJLoader::Load(device, "Models/cylinderStraight.obj", mCylVerticesStraight, mCylIndicesStraight, mCylSubsetsStraight, false, false))
 	{
 		OutputDebugString(L"Error loading cylinderStraight.obj");
 		return false;
