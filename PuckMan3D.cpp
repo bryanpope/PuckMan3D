@@ -111,19 +111,19 @@ PuckMan3D::~PuckMan3D()
 
 void PuckMan3D::BuildSceneLights()
 {
-	mPointLights[0].pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mPointLights[0].pos = XMFLOAT3(0.0f, 0.0f, 12.0f);
 	mPointLights[0].lightColour = XMFLOAT4(1.00f, 0.001f, 0.001f, 1.0f);
 	mPointLights[0].range = 1000.0f;
 	mPointLights[0].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
 	mPointLights[0].pad = 0.0f;
 
-	mPointLights[1].pos = XMFLOAT3(-10.0f, 0.0f, -15.0f);
+	mPointLights[1].pos = XMFLOAT3(-10.0f, 0.0f, -8.0f);
 	mPointLights[1].lightColour = XMFLOAT4(0.001f, 1.00f, 0.001f, 1.0f);
 	mPointLights[1].range = 1000.0f;
 	mPointLights[1].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
 	mPointLights[1].pad = 0.0f;
 
-	mPointLights[2].pos = XMFLOAT3(10.0f, 0.0f, -15.0f);
+	mPointLights[2].pos = XMFLOAT3(10.0f, 0.0f, -8.0f);
 	mPointLights[2].lightColour = XMFLOAT4(0.001f, 0.001f, 1.00f, 1.0f);
 	mPointLights[2].range = 1000.0f;
 	mPointLights[2].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
@@ -387,7 +387,7 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 
 	mTimeGhostCurrent += dt;
-	if (mTimeGhostCurrent >= mTimeGhostNext)
+	/*if (mTimeGhostCurrent >= mTimeGhostNext)
 	{
 		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 		{
@@ -398,7 +398,7 @@ void PuckMan3D::UpdateScene(float dt)
 		MazeLoader::SetGhostPos(XMVectorSet(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z, 0.0f), 2);
 		MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);
 		mTimeGhostNext += (1.0f / 10.0f);
-	}
+	}*/
 
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR pos = XMLoadFloat3(&pacMans[0].pos);
@@ -603,6 +603,16 @@ void PuckMan3D::UpdateScene(float dt)
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	Vertex::InstancedData* dataView;
 
+	std::vector<MazeLoader::MazeElementSpecs> floors = MazeLoader::GetFloorData();
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBFloor(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountFloors = 0;
+	for (UINT i = 0; i < floors.size(); ++i)
+	{
+		dataView[mCountFloors++] = { floors[i].world, floors[i].colour };
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBFloor(), 0);
+
 	std::vector<MazeLoader::MazeElementSpecs> wallsBent = MazeLoader::GetWallBentData();
 	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBWallsBent(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
@@ -727,21 +737,22 @@ void PuckMan3D::DrawScene()
 	//md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	//md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// Render to our offscreen texture.  Note that we can use the same depth/stencil buffer
+	/*// Render to our offscreen texture.  Note that we can use the same depth/stencil buffer
 	// we normally use since our offscreen texture matches the dimensions.  
-
 	ID3D11RenderTargetView* renderTargets[1] = { mOffscreenRTV };
 	md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
 
 	md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Black));
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);*/
 
+	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//
 	// Draw the scene to the offscreen texture
 	//
 	DrawWrapper();
 
-	//
+	/*//
 	// Restore the back buffer.  The offscreen render target will serve as an input into
 	// the compute shader for blurring, so we must unbind it from the OM stage before we
 	// can use it as an input into the compute shader.
@@ -758,7 +769,7 @@ void PuckMan3D::DrawScene()
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	DrawScreenQuad();
+	DrawScreenQuad();*/
 
 	HR(mSwapChain->Present(1, 0));
 }
@@ -792,6 +803,12 @@ void PuckMan3D::DrawWrapper()
 
 	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
 	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+
+	Material floorColour = Materials::GRID;
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, floorColour);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBFloor(),
+		mCountFloors, oc.floors.indexOffset, oc.floors.indexCount);
+
 	Material boxColour = Materials::BOX;
 	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, boxColour);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBWallsBent(),

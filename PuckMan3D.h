@@ -259,6 +259,7 @@ private:
 
 	std::vector<Vertex::NormalTexVertex> mMazeVerts;
 	std::vector<UINT> mMazeInd;
+	UINT mCountFloors;
 	UINT mCountWallsBent;
 	UINT mCountWallsStraight;
 	UINT mCountPellets;

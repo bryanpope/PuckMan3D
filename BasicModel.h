@@ -25,6 +25,7 @@ protected:
 
 	std::vector<UINT> mIndices;
 
+	std::vector<Vertex::InstancedData> mInstancesFloors;
 	std::vector<Vertex::InstancedData> mInstancesWallsBent;
 	std::vector<Vertex::InstancedData> mInstancesWallsStraight;
 	std::vector<Vertex::InstancedData> mInstancesPellets;
