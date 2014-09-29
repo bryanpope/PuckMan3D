@@ -199,6 +199,7 @@ private:
 	bool mIsBeginningPlaying = false;
 	bool mCanMove = true;
 	bool mIsPaused = false;
+	bool mMuteAll = false;
 	float mSpeed;
 	float fruitR = 0.60;
 	float mNextTime = 0.0f;
@@ -206,6 +207,7 @@ private:
 	float mTotalTime = 0.0f;
 	float mPauseTime = 0.0f;
 	float mTotalDeathTime = 0.0f;
+	float mBeginningTime = 0.0f;
 	int mLevelCounter;
 	int mPelletCounter = 0;
 

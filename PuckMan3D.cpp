@@ -156,8 +156,7 @@ bool PuckMan3D::Init()
 	loadSirenSFX();
 	loadWaSFX();
 	loadKaSFX();
-	
-	playBeginningSFX();
+
 	//pass the score into stringstream
 	currScore << mScore;
 
@@ -382,11 +381,15 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		mTotalDeathTime += dt;
 	}
+	if (mIsBeginningPlaying)
+	{
+		mBeginningTime += dt;
+	}
 
 	mTimeGhostCurrent += dt;
 	if (mTimeGhostCurrent >= mTimeGhostNext)
 	{
-		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused)
+		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 		{
 			mBlinky->Update(dt);
 		}
@@ -498,6 +501,15 @@ void PuckMan3D::UpdateScene(float dt)
 	{//allow movement
 		mCanMove = true;
 		mTotalDeathTime = 0.0;
+	}
+	if (mGameState == GS_PLAY)
+	{
+		mIsBeginningPlaying = true;
+		playBeginningSFX();
+	}
+	if (mBeginningTime >= 4.3f)
+	{
+		mIsBeginningPlaying = false;
 	}
 
 	if (mIsMoving)
@@ -854,6 +866,13 @@ void PuckMan3D::DrawWrapper()
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 15, "Press space to go back.");
 	}
+	if (mGameState == GameState::GS_OPTIONS)
+	{
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, "Fog - (1)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 400.0f, 0.0f, 0.0f), 50, 75, 25, "Bloom - (2)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 150.0f, 0.0f, 0.0f), 40, 75, 25, "Press Backspace");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 100.0f, 0.0f, 0.0f), 40, 75, 25, "to retun");
+	}
 	if (mGameState == GameState::GS_MAINMENU)
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, "Play Game - (1)");
@@ -940,7 +959,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	vel.m128_f32[1] = 0.0f;
 	vel.m128_f32[2] = 0.0f;
 	mFacingState = FCS_DEFAULT;
-	if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused)
+	if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 	{
 		// Move Forward
 		if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
@@ -1020,12 +1039,20 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mGameState = GS_ATTRACT;
 		}
+		if (mGameState == GS_OPTIONS)
+		{
+
+		}
 	}
 	if (GetAsyncKeyState('2') & 0x8000)
 	{
 		if (mGameState == GS_MAINMENU)
 		{
 			mGameState = GS_OPTIONS;
+		}
+		if (mGameState == GS_OPTIONS)
+		{
+
 		}
 	}
 	if (GetAsyncKeyState('3') & 0x8000)
