@@ -1387,6 +1387,7 @@ void PuckMan3D::BuildPuckMan()
 void PuckMan3D::ResetPuckMan()
 {
 	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
+	mPuckMan->SetPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f));
 	MazeLoader::SetPacManPos(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), 1);
 	MazeLoader::SetPacManPos(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), 2);
 }
@@ -1522,7 +1523,9 @@ void PuckMan3D::resetGame()
 	ResetGhosts();
 	MazeLoader::ResetPellets();
 	MazeLoader::ResetPowerUps();
-	MazeLoader::ResetPacManPosition();
+	//MazeLoader::ResetPacManPosition()
+	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
+	mPuckMan->SetPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f));
 }
 
 void PuckMan3D::loadGhostDeathSFX()
