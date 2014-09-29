@@ -13,10 +13,10 @@ cbuffer cbSettings
 	};*/
 	
 	// Test use  gBlurRadius = 5
-	/*loat gWeights[11] =
+	float gWeights[11] =
 	{
 		0.00f, 0.00f, 0.00f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.00f, 0.00f,
-	};*/
+	};
 
 	// After tweaking to get bloom, gBlurRadius = 5
 	/*float gWeights[11] =
@@ -25,12 +25,12 @@ cbuffer cbSettings
 	};*/
 
 	// To maybe use  gBlurRadius = 7
-	float gWeights[15] =
+	/*float gWeights[15] =
 	{
 		0.005f, 0.01f, 0.015f, 0.02f, 0.025f, 0.05f, 0.25f,
 		0.50f, 
 		0.25f, 0.05f, 0.025f, 0.02f, 0.015f, 0.01f, 0.005f
-	};
+	};*/
 
 	// gBlurRadius = 10
 	/*float gWeights[21] =
@@ -43,7 +43,7 @@ cbuffer cbSettings
 
 cbuffer cbFixed
 {
-	static const int gBlurRadius = 7;
+	static const int gBlurRadius = 5;
 };
 
 Texture2D gInput;
