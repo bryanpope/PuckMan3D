@@ -21,9 +21,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
-	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mTestPlayer(0), mTestTerrain(0),
-	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mSpeed(710.0f),
-	mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
+	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
+	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
 	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0)
 {
 	soundStates = SoundsState::SS_KA;
@@ -57,10 +56,10 @@ PuckMan3D::~PuckMan3D()
 {
 	Vertex::CleanLayouts();
 
-	for (int i = 0; i < mTestChars.size(); ++i)
+	/*for (int i = 0; i < mPuckMen.size(); ++i)
 	{
-		delete mTestChars[i];
-	}
+		delete mPuckMen[i];
+	}*/
 
 	if(mTestTerrain)
 		delete mTestTerrain;
@@ -71,8 +70,8 @@ PuckMan3D::~PuckMan3D()
 	if (mLitTexEffect)
 		delete mLitTexEffect;
 
-	if (mTestPlayer)
-		delete mTestPlayer;
+	if (mPuckMan)
+		delete mPuckMan;
 	
 	if(mCam)
 		delete mCam;
@@ -361,14 +360,14 @@ void PuckMan3D::OnResize()
 void PuckMan3D::UpdateCollision()
 {
 	return;
-	for (int i = 0; i < mTestChars.size(); ++i)
+	/*for (int i = 0; i < mPuckMen.size(); ++i)
 	{
-		XMVECTOR playerPos = mTestPlayer->GetPos();
-		XMVECTOR correct = CylToCyl(playerPos, 1, 5, mTestChars[i]->GetPos(),
+		XMVECTOR playerPos = mPuckMan->GetPos();
+		XMVECTOR correct = CylToCyl(playerPos, 1, 5, mPuckMen[i]->GetPos(),
 			1, 5);
 		playerPos -= correct;
-		mTestPlayer->SetPos(playerPos);
-	}
+		mPuckMan->SetPos(playerPos);
+	}*/
 }
 
 float timer = 0.0f;
@@ -391,7 +390,8 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 		{
-			//mBlinky->Update(dt);
+			mBlinky->Update(dt);
+			mPinky->Update(dt, mPuckMan->GetFacing());
 		}
 		MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z + 0.5f, 0.0f), 0);
 		MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);
@@ -401,18 +401,13 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
-	XMVECTOR pos = XMLoadFloat3(&pacMans[0].pos);
-	XMVECTOR vel = XMLoadFloat3(&pacMans[0].vel);
+	XMVECTOR pos = mPuckMan->GetPos();
 
-	PuckManSpeed();
-
-	pos = pos + (vel * mSpeed * dt);
-
-	MazeLoader::SetPacManPos(pos, 0);
-	MazeLoader::SetPacManVel(vel, 0);
+	mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated);
 
 	//// Checking PacMan collision with maze
-	MazeLoader::SetPacManPos(PacManAABoxOverLap(pos), 0);
+	MazeLoader::SetPacManPos(PacManAABoxOverLap(mPuckMan->GetPos()), 0);
+	std::cout << "PuckMan pos " << mPuckMan->GetPos().m128_f32[0] << ", " << mPuckMan->GetPos().m128_f32[2] << std::endl;
 
 	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
 	////Checking PacMan Collision with Ghost
@@ -428,7 +423,7 @@ void PuckMan3D::UpdateScene(float dt)
 				mIsPaused = true;
 				MazeLoader::RemoveLastPacMan();
 				MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
-				MazeLoader::SetPacManPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f), 0);
+				mPuckMan->SetPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f));
 				std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 				playDeathSFX();
 				mIsPlayerDead = true;
@@ -489,12 +484,12 @@ void PuckMan3D::UpdateScene(float dt)
 	if (pacMans[0].pos.x < -14.0f)
 	{
 		pos.m128_f32[0] = 14.0f;
-		MazeLoader::SetPacManPos(pos, 0);
+		mPuckMan->SetPos(pos);
 	}
 	if (pacMans[0].pos.x > 14.0f)
 	{
 		pos.m128_f32[0] = -14.0f;
-		MazeLoader::SetPacManPos(pos, 0);
+		mPuckMan->SetPos(pos);
 	}
 
 	if (mTotalDeathTime >= 2.0f)
@@ -649,32 +644,11 @@ void PuckMan3D::UpdateScene(float dt)
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
 
 	return;
-	mTestPlayer->AddForce(XMVectorSet(0.0f, -20.0f * dt, 0.0f, 0.0f));
-
-	mTestPlayer->Update(dt);
-
-	if (!UpdateGroundCollision())
-	{
-		mTestPlayer->RemoveVelocityApplied();
-	}
-	float terrainHeight = mTestTerrain->GetHeight(mTestPlayer->GetPos().m128_f32[0], mTestPlayer->GetPos().m128_f32[2]);
-
-	XMVECTOR playerPos = mTestPlayer->GetPos();
-	XMVECTOR toPlayer = playerPos - mCam->GetPos();
-	toPlayer = XMVector3Normalize(toPlayer);
-	mCam->SetFacing(toPlayer, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-	mCam->SetPos(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-	mCam->Update();
 
 	m2DCam->Update();
 
 	XMStoreFloat3(&mSpotLight.pos, mCam->GetPos());
 	XMStoreFloat3(&mSpotLight.direction, mCam->GetLook());
-
-	for (int i = 0; i < mTestChars.size(); ++i)
-	{
-		mTestChars[i]->Update(dt);
-	}
 	
 	for (int i = 0; i < mProjectiles.size(); ++i)
 	{
@@ -951,75 +925,40 @@ void PuckMan3D::OnMouseMove(WPARAM btnState, int x, int y)
 
 void PuckMan3D::UpdateKeyboardInput(float dt)
 {
-	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
-	XMVECTOR vel;
-
 	mIsKeyPressed = false;
-	vel.m128_f32[0] = 0.0f;
-	vel.m128_f32[1] = 0.0f;
-	vel.m128_f32[2] = 0.0f;
-	mFacingState = FCS_DEFAULT;
+
 	if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 	{
 		// Move Forward
 		if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP) & 0x8000)
 		{
-			mIsKeyPressed = true;
-			mFacingState = FCS_FORWARD;
 			mIsMoving = true;
-			vel.m128_f32[0] = 0.0f * dt;
-			vel.m128_f32[1] = 0.0f * dt;
-			vel.m128_f32[2] = 1.0f * dt;
-			if (vel.m128_f32[2] < 0.00826695096f)
-			{
-				vel.m128_f32[2] = 0.00826695096f;
-			}
+			mIsKeyPressed = true;
+			mPuckMan->Move(dt, "forward");
 		}
 
 		// Move Backwards 
 		if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
 			mIsKeyPressed = true;
-			mFacingState = FCS_BACKWARD;
 			mIsMoving = true;
-			vel.m128_f32[0] = 0.0f * dt;
-			vel.m128_f32[1] = 0.0f * dt;
-			vel.m128_f32[2] = -1.0f * dt;
-			if (vel.m128_f32[2] > -0.00826695096f)
-			{
-				vel.m128_f32[2] = -0.00826695096f;
-			}
+			mPuckMan->Move(dt, "backward");
 		}
 
 		// Move Left
 		if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			mIsKeyPressed = true;
-			mFacingState = FCS_LEFT;
 			mIsMoving = true;
-			vel.m128_f32[0] = -1.0f * dt;
-			if (vel.m128_f32[0] > -0.00826695096f)
-			{
-				vel.m128_f32[0] = -0.00826695096f;
-			}
-			vel.m128_f32[1] = 0.0f * dt;
-			vel.m128_f32[2] = 0.0f * dt;
+			mPuckMan->Move(dt, "left");
 		}
 
 		// Move Right
 		if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			mIsKeyPressed = true;
-			mFacingState = FCS_RIGHT;
 			mIsMoving = true;
-			vel.m128_f32[0] = 1.0f * dt;
-			if (vel.m128_f32[0] < 0.00826695096f)
-			{
-				vel.m128_f32[0] = 0.00826695096f;
-			}
-
-			vel.m128_f32[1] = 0.0f * dt;
-			vel.m128_f32[2] = 0.0f * dt;
+			mPuckMan->Move(dt, "right");
 		}
 	}
 	if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
@@ -1078,373 +1017,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			mGameState = GameState::GS_ATTRACT;
 		}
 	}
-	MazeLoader::SetPacManVel(vel, 0);
 }
-//PuckMan’s Speed while eating dots :
-//In First level PuckMan’s speed is 0.71 meters per second.
-//In Second to Fourth level speed is 0.79 meters per second.
-//In Fifth to Twentieth level speed is 0.87 meters per second.
-//Levels Twenty - one plus speed is 0.79 meters per second.
-//
-//PuckMan’s Speed while NOT eating dots :
-//In First level PuckMan’s speed is 0.8 meters per second.
-//In Second to Fourth level speed is 0.9 meters per second.
-//In Fifth to Twentieth level speed is 1.0 meters per second.
-//Levels Twenty - one plus speed is 0.9 meters per second.
-//
-//PuckMan’s Speed while eating dots and ghost frightened :
-//In First level PuckMan’s speed is 0.79 meters per second.
-//In Second to Fourth level speed is 0.83 meters per second.
-//In Fifth to Twentieth level speed is 0.87 meters per second.
-//Levels Twenty - one plus speed is 0.87 meters per second.
-//
-//PuckMan’s Speed while NOT eating dots and ghost frightened :
-//In First level PuckMan’s speed is 0.9 meters per second.
-//In Second to Fourth level speed is 0.95 meters per second.
-//In Fifth to Twentieth level speed is 1.0 meters per second.
-//Levels Twenty - one plus speed is 1.0 meters per second.
-//
-void PuckMan3D::PuckManSpeed()
-{
-	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
-	XMVECTOR pos = XMLoadFloat3(&pacMans[0].pos);
-	float posX = pacMans[0].pos.x;
-	float posZ = pacMans[0].pos.z;
-
-	//translate Puckmans Position to Pellet space
-	int transX = (int)floor(posX + (MazeLoader::GetMazeWidth() * 0.5));
-	int transZ = MazeLoader::GetMazeHeight() - (int)round(posZ + (MazeLoader::GetMazeHeight() * 0.5)); //invert the z
-	int row = transZ;
-	int col = transX;
-
-	switch (mFacingState)
-	{
-	case FCS_FORWARD:
-		if (mLevelCounter == 1)
-		{
-
-			if (MazeLoader::IsPellet(row - 1, col))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.71f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row - 1, col)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.8f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter > 1 && mLevelCounter < 5) // levels 2 through 4
-		{
-			if (MazeLoader::IsPellet(row - 1, col))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row - 1, col)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.83f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.95f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter > 4 && mLevelCounter < 21) // levels 5 through 20
-		{
-			if (MazeLoader::IsPellet(row - 1, col))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row - 1, col)))
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter >= 21) // Level 21 and up
-		{
-			if (MazeLoader::IsPellet(row - 1, col))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row - 1, col)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-			}
-		}
-
-		break;
-
-	case FCS_BACKWARD:
-		if (mLevelCounter == 1)
-		{
-			if (MazeLoader::IsPellet(row + 1, col))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.71f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row + 1, col)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.8f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter > 1 && mLevelCounter < 5) // levels 2 through 4
-		{
-			if (MazeLoader::IsPellet(row + 1, col))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row + 1, col)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.83f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.95f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter > 4 && mLevelCounter < 21) // levels 5 through 20
-		{
-			if (MazeLoader::IsPellet(row + 1, col))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row + 1, col)))
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter >= 21) // Level 21 and up
-		{
-			if (MazeLoader::IsPellet(row + 1, col))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row + 1, col)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-			}
-		}
-
-		break;
-
-	case FCS_RIGHT:
-		if (mLevelCounter == 1)
-		{
-			if (MazeLoader::IsPellet(row, col + 1))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.71f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row, col + 1)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.8f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter > 1 && mLevelCounter < 5) // levels 2 through 4
-		{
-			if (MazeLoader::IsPellet(row, col + 1))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row, col + 1)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.83f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.95f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter > 4 && mLevelCounter < 21) // levels 5 through 20
-		{
-			if (MazeLoader::IsPellet(row, col + 1))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row, col + 1)))
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter >= 21) // Level 21 and up
-		{
-			if (MazeLoader::IsPellet(row, col + 1))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row, col + 1)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-			}
-		}
-
-		break;
-
-	case FCS_LEFT:
-		if (mLevelCounter == 1)
-		{
-			if (MazeLoader::IsPellet(row, col - 1))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.71f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row, col - 1)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.8f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter > 1 && mLevelCounter < 5) // levels 2 through 4
-		{
-			if (MazeLoader::IsPellet(row, col - 1))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row, col - 1)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.83f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.95f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter > 4 && mLevelCounter < 21) // levels 5 through 20
-		{
-			if (MazeLoader::IsPellet(row, col - 1))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row, col - 1)))
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-			}
-		}
-		if (mLevelCounter >= 21) // Level 21 and up
-		{
-			if (MazeLoader::IsPellet(row, col - 1))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-			}
-			if (!(MazeLoader::IsPellet(row, col - 1)))
-			{
-				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-			}
-			if (MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-			}
-			if (!MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
-			{
-				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-			}
-		}
-
-		break;
-
-	case FCS_DEFAULT:
-		mSpeed = PUCKMAN_SPEED * 0.0f;
-	}
-}
-
 
 XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 {
@@ -1538,7 +1111,7 @@ bool PuckMan3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
 
 bool PuckMan3D::UpdateGroundCollision()
 {
-	XMVECTOR playerPos = mTestPlayer->GetPos();
+	XMVECTOR playerPos = mPuckMan->GetPos();
 	float terrainHeight = mTestTerrain->GetHeight(playerPos.m128_f32[0],
 							playerPos.m128_f32[2]);
 	//player is collided with the ground if the player's y is less than the terrain's y
@@ -1547,17 +1120,17 @@ bool PuckMan3D::UpdateGroundCollision()
 	{
 		return false;
 	}
-	if(playerPos.m128_f32[1] <= terrainHeight)
+	/*if(playerPos.m128_f32[1] <= terrainHeight)
 	{
-		mTestPlayer->SetPos(XMVectorSet(playerPos.m128_f32[0], terrainHeight,
+		mPuckMan->SetPos(XMVectorSet(playerPos.m128_f32[0], terrainHeight,
 			playerPos.m128_f32[2], 1.0f));
 
-		mTestPlayer->HitGround();
+		mPuckMan->HitGround();
 	}
 	else
 	{
-		mTestPlayer->LeaveGround();
-	}
+		mPuckMan->LeaveGround();
+	}*/
 }
 
 void PuckMan3D::DrawParticles()
@@ -1651,7 +1224,9 @@ XMVECTOR PuckMan3D::CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height,
 
 void PuckMan3D::BuildPuckMan()
 {
+	//mPuckMan = new PuckMan(XMVectorSet())
 	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
+	mPuckMan = new PuckMan(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f));
 	MazeLoader::SetPacManPos(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), 1);
 	MazeLoader::SetPacManPos(XMVectorSet(-9.5f, 0.75f, -17.0f, 0.0f), 2);
 }
@@ -2114,5 +1689,3 @@ void PuckMan3D::BuildOffscreenViews()
 	// View saves a reference to the texture so we can release our reference.
 	ReleaseCOM(offscreenTex);
 }
-
-

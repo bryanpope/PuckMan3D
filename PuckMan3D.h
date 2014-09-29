@@ -1,3 +1,4 @@
+#pragma once
 #include "d3dApp.h"
 #include "d3dx11Effect.h"
 #include "MathHelper.h"
@@ -27,6 +28,7 @@
 #include "Clyde.h"
 #include "Materials.h"
 #include "BlurFilter.h"
+#include "Character.h"
 
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
@@ -49,6 +51,15 @@ public:
 	PuckMan3D(HINSTANCE hInstance);
 	~PuckMan3D();
 
+	enum FacingState
+	{
+		FCS_FORWARD,
+		FCS_BACKWARD,
+		FCS_RIGHT,
+		FCS_LEFT,
+		FCS_DEFAULT
+	};
+
 	bool Init();
 	void OnResize();
 	void UpdateScene(float dt);
@@ -58,8 +69,13 @@ public:
 	void OnMouseUp(WPARAM btnState, int x, int y);
 	void OnMouseMove(WPARAM btnState, int x, int y);
 
+	int GetLevelNumber()
+	{
+		return mLevelCounter;
+	}
+
 private:
-	const float PUCKMAN_SPEED = 1000.0f;
+	//const float PUCKMAN_SPEED = 1000.0f;
 	void BuildTestPyramid();
 	void BuildVertexLayout();
 	void BuildSceneLights();
@@ -101,10 +117,7 @@ private:
 	bool PuckMan3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 	bool PuckMan3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 
-	void PuckManSpeed();
-
-	XMVECTOR CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height,
-		FXMVECTOR c2Pos, float c2Rad, float c2Height);
+	XMVECTOR CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height, FXMVECTOR c2Pos, float c2Rad, float c2Height);
 
 	void DrawParticles();
 
@@ -156,7 +169,7 @@ private:
 	PointLightOptimized mPointLights[3];
 	SpotLightOptimized mSpotLight;
 
-	Player* mTestPlayer;
+	PuckMan* mPuckMan;
 	Terrain* mTestTerrain;
 	SkyBox* mSkyBox;
 	BasicModel* mBarnProjectile;
@@ -168,7 +181,8 @@ private:
 	BasicModel* mMazeModelInstanced;
 	Character* mMazeCharacterInstanced;
 
-	std::vector<Character*> mTestChars;
+	//std::vector<Character*> mTestChars;
+	//std::vector<PuckMan*> mPuckMen;
 
 	std::vector<Projectile*> mProjectiles;
 
@@ -200,7 +214,7 @@ private:
 	bool mCanMove = true;
 	bool mIsPaused = false;
 	bool mMuteAll = false;
-	float mSpeed;
+	//float mSpeed;
 	float fruitR = 0.60;
 	float mNextTime = 0.0f;
 	float mCurrentTime = 0.0f;
@@ -274,15 +288,6 @@ private:
 	{
 		FS_DEFAULT = 0,
 		FS_FRUIT
-	};
-
-	enum FacingState
-	{
-		FCS_FORWARD,
-		FCS_BACKWARD,
-		FCS_RIGHT,
-		FCS_LEFT,
-		FCS_DEFAULT
 	};
 
 	enum GameState

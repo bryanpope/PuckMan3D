@@ -26,8 +26,8 @@ protected:
 	Pathfinding test;
 
 	std::list<PathNode*> waypoints;
-	PathNode* start;
-	PathNode* goal;
+	PathNode* mStart;
+	PathNode* mGoal;
 
 	void MoveToPuckMan();
 

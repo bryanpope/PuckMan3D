@@ -2,14 +2,14 @@
 
 Pinky::Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
+	this->mGhostStates = GHOST_STATES::DEAD;
 }
-
 
 Pinky::~Pinky()
 {
 }
 
-void Pinky::Update()
+void Pinky::Update(float dt, PuckMan::Facing facingState)
 {
 	switch (mGhostStates)
 	{
@@ -37,6 +37,39 @@ void Pinky::Update()
 		}
 	case CHASE:
 		//Target 4 tiles in front of PuckMan's facing
+		//GetFacing();
+		if (facingState == PuckMan::Facing::F_FORWARD)
+		{
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x + 4), round(MazeLoader::GetPacManData().at(0).pos.z));
+			test.FindPath(mStart, mGoal);
+			break;
+		}
+
+		if (facingState == PuckMan::Facing::F_BACKWARD)
+		{
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x - 4), round(MazeLoader::GetPacManData().at(0).pos.z));
+			test.FindPath(mStart, mGoal);
+			break;
+		}
+
+		if (facingState == PuckMan::Facing::F_LEFT)
+		{
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z - 4));
+			test.FindPath(mStart, mGoal);
+			break;
+		}
+
+		if (facingState == PuckMan::Facing::F_RIGHT)
+		{
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z + 4));
+			test.FindPath(mStart, mGoal);
+			break;
+		}
+
 		//std::string goalFacing = mPuckMan->getFacing();
 		/*if (goalFacing == "forward" || goalFacing == "backward")
 		{

@@ -1,34 +1,61 @@
 #pragma once
-#include "character.h"
-class Player :
-	public Character
+//#include "Character.h"
+#include "MazeLoader.h"
+
+class PuckMan// :	public Character
 {
-private:
-	const float JUMP_FORCE;
+protected:
+
+	const float PUCKMAN_SPEED = 1000.0f;
+	XMFLOAT3 mVel;
+	XMFLOAT3 mPos;
+	float mSpeed;
+
 public:
-	Player(void) : JUMP_FORCE(100.0f)
+	PuckMan(void)
 	{}
 
-	/*Player(FXMVECTOR pos, FXMVECTOR look, FXMVECTOR up,
-					ID3D11Device* device, LitTexEffect* effect, std::string filename,
-					bool isRHS = false, bool isVFlipped = false,
-					float speed = 0.0f, float sprintSpeed = 0.0f, float health = 0.0f)
-					: Character(pos, look, up, device, effect, filename, isRHS,
-									  isVFlipped, speed, sprintSpeed, health),
-						JUMP_FORCE(10.0f)
+	/*PuckMan(FXMVECTOR pos, FXMVECTOR look, FXMVECTOR up, BasicModel& model,
+		float speed = 0.0f, float sprintSpeed = 0.0f, float health = 0.0f)
+		: Character(pos, look, up, model, speed, sprintSpeed, health)
 	{
+		//mFacing = Facing::F_DEFAULT;
 	}*/
 
-	Player(FXMVECTOR pos, FXMVECTOR look, FXMVECTOR up, BasicModel& model,
-		float speed = 0.0f, float sprintSpeed = 0.0f, float health = 0.0f)
-		: Character(pos, look, up, model, speed, sprintSpeed, health),
-		JUMP_FORCE(10.0f)
+	PuckMan(FXMVECTOR pos)
 	{
+		XMStoreFloat3(&mPos, pos);
 	}
 
-	~Player(void);
+	~PuckMan(void);
 
-	void Jump();
+	enum Facing
+	{
+		F_FORWARD,
+		F_BACKWARD,
+		F_LEFT,
+		F_RIGHT
+	};
 
+	void Move(float dt, std::string direction);
+	void CalculateSpeed(int levelNumber, bool powerUpActivated);
+
+	FXMVECTOR GetPos() const
+	{
+		return XMLoadFloat3(&mPos);
+	}
+
+	void SetPos(FXMVECTOR pos)
+	{
+		XMStoreFloat3(&mPos, pos);
+	}
+
+	Facing GetFacing() const
+	{
+		return mFacing;
+	}
+
+protected:
+	Facing mFacing = F_LEFT;
 };
 
