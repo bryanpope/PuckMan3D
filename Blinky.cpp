@@ -2,6 +2,7 @@
 
 Blinky::Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
+	this->mGhostStates = GHOST_STATES::DEAD;
 }
 
 Blinky::~Blinky()
@@ -10,29 +11,7 @@ Blinky::~Blinky()
 
 void Blinky::Update(float dt)
 {
-	int pacManX = round(MazeLoader::GetPacManData().at(0).pos.x);
-	int pacManZ = round(MazeLoader::GetPacManData().at(0).pos.z);
-	PathNode* start = new PathNode(this->mPos.x, this->mPos.z);
-	PathNode* goal = new PathNode(pacManX, pacManZ);
-	std::list<PathNode*> waypoints = test.FindPath(start, goal);
-
-	if (waypoints.size() != 0)
-	{
-		//PathNode* currWaypoint = waypoints.front();
-		this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
-		//this->MoveGhost(waypoints.front(), dt);
-		/*XMVECTOR toWaypoint = XMVectorSet(currWaypoint->xPos - mPos.x, mPos.y, currWaypoint->zPos - mPos.z, 0.0f);
-		float distance = sqrt((toWaypoint.m128_f32[0] * toWaypoint.m128_f32[0]) + (toWaypoint.m128_f32[2] * toWaypoint.m128_f32[2]));
-
-		if (distance <= mSpeed + 0.01)
-		{
-			currWaypoint = waypoints.front() + 1;
-		}
-		
-		//currWaypoint = waypoints.front();
-		toWaypoint = XMVectorSet(currWaypoint->xPos - mPos.x, mPos.y, currWaypoint->zPos - mPos.z, 0.0f);*/
-	}
-
+	
 	switch (mGhostStates)
 	{
 	case SCATTER:
@@ -58,7 +37,16 @@ void Blinky::Update(float dt)
 			break;
 		}
 	case CHASE:
-		//A simple call to pathfinding will suffice		
+		//A simple call to pathfinding will suffice
+		start = new PathNode(this->mPos.x, this->mPos.z);
+		goal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+
+		waypoints = test.FindPath(start, goal);
+
+		if (waypoints.size() != 0)
+		{
+			this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
+		}
 		break;
 	case FRIGHTENED:
 		if (mLevelNumber == 1)

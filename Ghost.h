@@ -25,6 +25,10 @@ protected:
 
 	Pathfinding test;
 
+	std::list<PathNode*> waypoints;
+	PathNode* start;
+	PathNode* goal;
+
 	void MoveToPuckMan();
 
 	GameTimer mGhostStateTimer;
