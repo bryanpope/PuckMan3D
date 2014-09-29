@@ -26,7 +26,8 @@ public:
 	};
 	struct OffsetsCountsMazeElements
 	{
-		OffsetsCounts walls;
+		OffsetsCounts wallsBent;
+		OffsetsCounts wallsStraight;
 		OffsetsCounts pellets;
 		OffsetsCounts powerUps;
 		OffsetsCounts pacMan;
@@ -93,19 +94,21 @@ public:
 	};
 
 	static bool Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices, 
-		std::vector<Vertex::InstancedData>& instWalls, std::vector<Vertex::InstancedData>& instPellets, std::vector<Vertex::InstancedData>& instPowerUps, 
+		std::vector<Vertex::InstancedData>& instWallsBent, std::vector<Vertex::InstancedData>& instWallsStraight,
+		std::vector<Vertex::InstancedData>& instPellets, std::vector<Vertex::InstancedData>& instPowerUps,
 		std::vector<Vertex::InstancedData>& instPacMans, std::vector<Vertex::InstancedData>& instGhosts);
 
 	static const OffsetsCountsMazeElements& GetOffsetsCounts(){ return mElementOffsetsCounts; }
 	static const InitialPosition& GetInitialPos(){ return mInitialPositions; }
 	static const std::vector<AABox> GetWallCollisionData(){ return mBoxData; }
 	static bool IsBlocked(UINT row, UINT col);
-	static std::vector<MazeElementSpecs> GetWallData(){ return mWalls; }
+	static std::vector<MazeElementSpecs> GetWallBentData(){ return mWallsBent; }
+	static std::vector<MazeElementSpecs> GetWallStraightData(){ return mWallsStraight; }
 	static std::vector<MazeElementSpecs> GetPelletData(){ return mPellets; }
 	static std::vector<MazeElementSpecs> GetPowerUpData(){ return mPowerUps; }
 	static std::vector<MazeElementSpecs> GetPacManData(){ return mPacMans; }
 	static std::vector<MazeElementSpecs> GetGhostData(){ return mGhosts; }
-	static void EraseWall(UINT index){ mWalls.erase(mWalls.begin() + index); }
+	//static void EraseWall(UINT index){ mWalls.erase(mWalls.begin() + index); }
 	static void ErasePellet(UINT index){ mPellets.erase(mPellets.begin() + index); }
 	static void ErasePowerUp(UINT index){ mPowerUps.erase(mPowerUps.begin() + index); }
 	static void ErasePacMan(UINT index){ mPacMans.erase(mPacMans.begin() + index); }
@@ -135,9 +138,18 @@ public:
 	static const float RADIUS_POWERUP;
 
 private:
+	struct MazeElementsWallTypesCounts
+	{
+		UINT cornerTopLeft;
+		UINT cornerTopRight;
+		UINT cornerBottomRight;
+		UINT cornerBottomLeft;
+		UINT vertical;
+		UINT horizontal;
+	};
 	struct MazeElementsCounts
 	{
-		UINT walls;
+		MazeElementsWallTypesCounts walls;
 		UINT pellets;
 		UINT powerUps;
 		UINT emptySpaces;
@@ -149,13 +161,21 @@ private:
 	static std::vector<AABox> mBoxData;
 	static std::vector<MazeElements> mMazeElements;
 	static std::vector<MazeElements> mMazeElementsModify;
-	static std::vector<MazeElementSpecs> mWalls;
+	static std::vector<MazeElementSpecs> mWallsBent;
+	static std::vector<MazeElementSpecs> mWallsStraight;
 	static std::vector<MazeElementSpecs> mPellets;
 	static std::vector<MazeElementSpecs> mPowerUps;
 	static std::vector<MazeElementSpecs> mPacMans;
 	static std::vector<MazeElementSpecs> mGhosts;
 	static UINT mMazeWidth;
 	static UINT mMazeHeight;
+
+	static std::vector<Vertex::NormalTexVertex> mCylVerticesBent;
+	static std::vector<UINT> mCylIndicesBent;
+	static std::vector<MeshGeometry::Subset> mCylSubsetsBent;
+	static std::vector<Vertex::NormalTexVertex> mCylVerticesStraight;
+	static std::vector<UINT> mCylIndicesStraight;
+	static std::vector<MeshGeometry::Subset> mCylSubsetsStraight;
 
 	//static UINT AddVertex(Vertex::NormalTexVertex, std::vector<Vertex::NormalTexVertex>& vertBuf);
 

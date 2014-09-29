@@ -90,6 +90,7 @@
     <ClInclude Include="BasicMeshGeometry.h" />
     <ClInclude Include="BasicModel.h" />
     <ClInclude Include="Blinky.h" />
+    <ClInclude Include="BlurFilter.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Clyde.h" />
     <ClInclude Include="Common\Camera.h" />
@@ -132,6 +133,7 @@
     <ClCompile Include="BasicMeshGeometry.cpp" />
     <ClCompile Include="BasicModel.cpp" />
     <ClCompile Include="Blinky.cpp" />
+    <ClCompile Include="BlurFilter.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Clyde.cpp" />
     <ClCompile Include="Common\Camera.cpp" />
@@ -177,6 +179,12 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for release: %(FullPath)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="FX\Blur.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Tfx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
     </CustomBuild>
     <FxCompile Include="FX\lightingHelper.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

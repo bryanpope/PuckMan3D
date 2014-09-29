@@ -144,6 +144,12 @@
     <ClInclude Include="randgen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Materials.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseCamera.cpp">
@@ -260,6 +266,12 @@
     <ClCompile Include="randgen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Materials.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlurFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FX\lightingHelper.fx">
@@ -280,6 +292,7 @@
       <Filter>FX</Filter>
     </CustomBuild>
     <CustomBuild Include="FX\lightingInstanced.fx" />
+    <CustomBuild Include="FX\Blur.fx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

@@ -29,7 +29,8 @@ public:
 
 	virtual void SetSubsetTable(std::vector<Subset>& subsetTable){}
 
-	virtual void SetInstancesWalls(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+	virtual void SetInstancesWallsBent(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+	virtual void SetInstancesWallsStraight(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
 	virtual void SetInstancesPellets(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
 	virtual void SetInstancesPowerUps(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
 	virtual void SetInstancesPacMans(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);

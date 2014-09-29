@@ -136,7 +136,11 @@ float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) :
 	//float rat = saturate((dist - startFogDist) / maxFogDist);
 	//litColour = lerp(litColour, fogColour, rat);
 
-	return litColour;
+	float4 oC;
+	CRTshader(pin.PosH, litColour, oC);
+
+	//return litColour;
+	return oC;
 }
 
 technique11 TestTech

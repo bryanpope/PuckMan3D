@@ -22,11 +22,12 @@ BasicModel::BasicModel(ID3D11Device* device, LitMatEffect* effect, std::string f
 	mModelMesh = new BasicMeshGeometry(effect);
 
 	std::vector<ID3D11ShaderResourceView*> srvs;
-	if (MazeLoader::Load(device, filename, mVertices, mIndices, mInstancesWalls, mInstancesPellets, mInstancesPowerUps, mInstancesPacMans, mInstancesGhosts))
+	if (MazeLoader::Load(device, filename, mVertices, mIndices, mInstancesWallsBent, mInstancesWallsStraight, mInstancesPellets, mInstancesPowerUps, mInstancesPacMans, mInstancesGhosts))
 	{
 		mModelMesh->SetVertices(device, &mVertices[0], mVertices.size());
 		mModelMesh->SetIndices(device, &mIndices[0], mIndices.size());
-		mModelMesh->SetInstancesWalls(device, &mInstancesWalls[0], mInstancesWalls.size());
+		mModelMesh->SetInstancesWallsBent(device, &mInstancesWallsBent[0], mInstancesWallsBent.size());
+		mModelMesh->SetInstancesWallsStraight(device, &mInstancesWallsStraight[0], mInstancesWallsStraight.size());
 		mModelMesh->SetInstancesPellets(device, &mInstancesPellets[0], mInstancesPellets.size());
 		mModelMesh->SetInstancesPowerUps(device, &mInstancesPowerUps[0], mInstancesPowerUps.size());
 		mModelMesh->SetInstancesPacMans(device, &mInstancesPacMans[0], mInstancesPacMans.size());

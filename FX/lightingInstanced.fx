@@ -87,7 +87,7 @@ VertexOut VS(VertexIn vin, uniform bool gUseInstanced)
 	{
 		// Transform to world space space.
 		vout.PosW = mul(float4(vin.PosL, 1.0f), vin.World).xyz;
-		vout.PosW = mul(float4(vout.PosW, 1.0f), gW).xyz;
+		//vout.PosW = mul(float4(vout.PosW, 1.0f), gW).xyz;
 
 		vout.NormalW = mul(vin.NormalL, (float3x3)vin.World);
 
@@ -161,7 +161,11 @@ float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) :
 	//float rat = saturate((dist - startFogDist) / maxFogDist);
 	//litColour = lerp(litColour, fogColour, rat);
 
-	return litColour;
+	float4 oC;
+	CRTshader(pin.PosH, litColour, oC);
+
+	//return litColour;
+	return oC;
 }
 
 technique11 TestTech
