@@ -61,6 +61,8 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 			currentNode = currentNode->getParent();
 		}
 		tempPath.reverse();
+		mOpenList.clear();
+		mClosedSet.clear();
 		return tempPath;
 	}
 	else
@@ -80,7 +82,6 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 {
 	int col = (MazeLoader::GetMazeWidth()) - (int)round(childNode.xPos + 14.5f);
 	int row = (MazeLoader::GetMazeHeight()) - (int)round(childNode.zPos + 15.5f);
-	std::cout << "Row " << row << ", Col " << col << std::endl;
 
 	//Check surroundings for walkable tiles and if in closed list
 	if ((col >= 0 && row >= 0) && (col <= MazeLoader::GetMazeWidth() && row <= MazeLoader::GetMazeHeight()))

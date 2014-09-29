@@ -31,8 +31,6 @@ void Blinky::Update(float dt)
 		
 		//currWaypoint = waypoints.front();
 		toWaypoint = XMVectorSet(currWaypoint->xPos - mPos.x, mPos.y, currWaypoint->zPos - mPos.z, 0.0f);*/
-		
-		std::cout << "Blinky pos " << mPos.x << ", " << mPos.y << ", " << mPos.z << std::endl;
 	}
 
 	switch (mGhostStates)
