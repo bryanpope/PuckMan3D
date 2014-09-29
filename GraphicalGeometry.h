@@ -7,6 +7,7 @@ class GraphicalGeometry
 protected:
 	ID3D11Buffer* mVB;
 	ID3D11Buffer* mIB;
+	ID3D11Buffer* mInstanceBFloor;
 	ID3D11Buffer* mInstanceBWallsBent;
 	ID3D11Buffer* mInstanceBWallsStraight;
 	ID3D11Buffer* mInstanceBPellets;
@@ -16,7 +17,7 @@ protected:
 	UINT mIndexCount;
 
 public:
-	GraphicalGeometry(void) : mVB(0), mIB(0), mInstanceBWallsBent(0), mInstanceBWallsStraight(0), mInstanceBPellets(0), mInstanceBPowerUps(0), mInstanceBPacMans(0), mInstanceBGhosts(0), mIndexCount(0)
+	GraphicalGeometry(void) : mVB(0), mIB(0), mInstanceBFloor(0), mInstanceBWallsBent(0), mInstanceBWallsStraight(0), mInstanceBPellets(0), mInstanceBPowerUps(0), mInstanceBPacMans(0), mInstanceBGhosts(0), mIndexCount(0)
 	{
 	}
 
@@ -32,6 +33,10 @@ public:
 			mIB->Release();
 		}
 
+		if (mInstanceBFloor)
+		{
+			mInstanceBFloor->Release();
+		}
 		if (mInstanceBWallsBent)
 		{
 			mInstanceBWallsBent->Release();
@@ -68,6 +73,10 @@ public:
 		return mIB;
 	}
 
+	ID3D11Buffer* GetInstanceBFloor()
+	{
+		return mInstanceBFloor;
+	}
 	ID3D11Buffer* GetInstanceBWallsBent()
 	{
 		return mInstanceBWallsBent;
