@@ -26,6 +26,7 @@ public:
 	};
 	struct OffsetsCountsMazeElements
 	{
+		OffsetsCounts floors;
 		OffsetsCounts wallsBent;
 		OffsetsCounts wallsStraight;
 		OffsetsCounts pellets;
@@ -94,6 +95,7 @@ public:
 	};
 
 	static bool Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices, 
+		std::vector<Vertex::InstancedData>& instFloor,
 		std::vector<Vertex::InstancedData>& instWallsBent, std::vector<Vertex::InstancedData>& instWallsStraight,
 		std::vector<Vertex::InstancedData>& instPellets, std::vector<Vertex::InstancedData>& instPowerUps,
 		std::vector<Vertex::InstancedData>& instPacMans, std::vector<Vertex::InstancedData>& instGhosts);
@@ -102,6 +104,7 @@ public:
 	static const InitialPosition& GetInitialPos(){ return mInitialPositions; }
 	static const std::vector<AABox> GetWallCollisionData(){ return mBoxData; }
 	static bool IsBlocked(UINT row, UINT col);
+	static std::vector<MazeElementSpecs> GetFloorData(){ return mFloor; }
 	static std::vector<MazeElementSpecs> GetWallBentData(){ return mWallsBent; }
 	static std::vector<MazeElementSpecs> GetWallStraightData(){ return mWallsStraight; }
 	static std::vector<MazeElementSpecs> GetPelletData(){ return mPellets; }
@@ -149,6 +152,7 @@ private:
 	};
 	struct MazeElementsCounts
 	{
+		UINT floors;
 		MazeElementsWallTypesCounts walls;
 		UINT pellets;
 		UINT powerUps;
@@ -161,6 +165,7 @@ private:
 	static std::vector<AABox> mBoxData;
 	static std::vector<MazeElements> mMazeElements;
 	static std::vector<MazeElements> mMazeElementsModify;
+	static std::vector<MazeElementSpecs> mFloor;
 	static std::vector<MazeElementSpecs> mWallsBent;
 	static std::vector<MazeElementSpecs> mWallsStraight;
 	static std::vector<MazeElementSpecs> mPellets;

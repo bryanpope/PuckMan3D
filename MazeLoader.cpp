@@ -15,6 +15,7 @@ std::vector<MazeLoader::MazeElements> MazeLoader::mMazeElements;
 std::vector<MazeLoader::MazeElements> MazeLoader::mMazeElementsModify;
 UINT MazeLoader::mMazeWidth;
 UINT MazeLoader::mMazeHeight;
+std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mFloor;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mWallsBent;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mWallsStraight;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPellets;
@@ -43,6 +44,7 @@ MazeLoader::~MazeLoader(void)
 }
 
 bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices, 
+	std::vector<Vertex::InstancedData>& instFloor,
 	std::vector<Vertex::InstancedData>& instWallsBent, std::vector<Vertex::InstancedData>& instWallsStraight,
 	std::vector<Vertex::InstancedData>& instPellets, std::vector<Vertex::InstancedData>& instPowerUps,
 	std::vector<Vertex::InstancedData>& instPacMans, std::vector<Vertex::InstancedData>& instGhosts)
@@ -79,6 +81,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		return false;
 	}
 
+	mElementCount.floors = 1;
 	mElementCount.walls.cornerTopLeft = 0;
 	mElementCount.walls.cornerTopRight = 0;
 	mElementCount.walls.cornerBottomRight = 0;
@@ -126,20 +129,25 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	mMazeHeight = lineCount;
 
 	GeometryGenerator geoGen;
-	//GeometryGenerator::MeshData meshBox;;
+	//GeometryGenerator::MeshData meshBox;
+	GeometryGenerator::MeshData meshFloor;
 	GeometryGenerator::MeshData meshPellet;
 	GeometryGenerator::MeshData meshPowerUp;
 	GeometryGenerator::MeshData meshPacMan;
 	GeometryGenerator::MeshData meshGhost;
 
 	//geoGen.CreateBox(0.70f, 0.20f, 0.70f, meshBox);
+	geoGen.CreateGrid(mMazeWidth, mMazeHeight, mMazeHeight, mMazeWidth, meshFloor);
+	//geoGen.CreateBox(mMazeWidth, 1.0f, mMazeHeight, meshFloor);
 	geoGen.CreateSphere(RADIUS_PELLET, 10, 10, meshPellet);
 	geoGen.CreateSphere(RADIUS_POWERUP, 10, 10, meshPowerUp);
 	geoGen.CreateSphere(RADIUS_PAC_MAN, 10, 10, meshPacMan);
 	geoGen.CreateSphere(RADIUS_GHOST, 10, 10, meshGhost);
 
-	UINT startVertexWallStraight = mCylVerticesBent.size() * 1;
-	UINT startIndexWallStraight = mCylIndicesBent.size() * 1;
+	UINT startVertexWallBent = meshFloor.Vertices.size() * 1;
+	UINT startIndexWallBent = meshFloor.Indices.size() * 1;
+	UINT startVertexWallStraight = startVertexWallBent + mCylVerticesBent.size() * 1;
+	UINT startIndexWallStraight = startIndexWallBent + mCylIndicesBent.size() * 1;
 	UINT startVertexPellet = startVertexWallStraight + mCylVerticesStraight.size() * 1;
 	UINT startIndexPellet = startIndexWallStraight + mCylIndicesStraight.size() * 1;
 	UINT startVertexPowerUp = startVertexPellet + (meshPellet.Vertices.size() * 1);
@@ -151,9 +159,9 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	UINT startVertexGhost = startVertexPacMan + (meshPacMan.Vertices.size() * 1);
 	UINT startIndexGhost = startIndexPacMan + (meshPacMan.Indices.size() * 1);
 	
-	UINT countVertex = (mCylVerticesBent.size() * 1) + (mCylVerticesStraight.size() * 1) + (meshPellet.Vertices.size() * 1) + (meshPowerUp.Vertices.size() * 1)
+	UINT countVertex = (meshFloor.Vertices.size() * 1) + (mCylVerticesBent.size() * 1) + (mCylVerticesStraight.size() * 1) + (meshPellet.Vertices.size() * 1) + (meshPowerUp.Vertices.size() * 1)
 		+ (meshPacMan.Vertices.size() * 1) + (meshGhost.Vertices.size() * 1);
-	UINT countIndex = (mCylIndicesBent.size() * 1) + (mCylIndicesStraight.size() * 1) + (meshPellet.Indices.size() * 1) + (meshPowerUp.Indices.size() * 1)
+	UINT countIndex = (meshFloor.Indices.size() * 1) + (mCylIndicesBent.size() * 1) + (mCylIndicesStraight.size() * 1) + (meshPellet.Indices.size() * 1) + (meshPowerUp.Indices.size() * 1)
 		+ (meshPacMan.Indices.size() * 1) + (meshGhost.Indices.size() * 1);
 
 	UINT countWallsBent = mElementCount.walls.cornerTopLeft + mElementCount.walls.cornerTopRight + mElementCount.walls.cornerBottomRight + mElementCount.walls.cornerBottomLeft;
@@ -161,6 +169,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 
 	vertices.resize(countVertex);
 	indices.resize(countIndex);
+	instFloor.resize(mElementCount.floors);
 	instWallsBent.resize(countWallsBent);
 	instWallsStraight.resize(countWallsStraight);
 	instPellets.resize(mElementCount.pellets);
@@ -170,8 +179,10 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 
 	float posX = lineWidth * -0.5f;	// horizontal
 	float posZ = lineCount * -0.5f;	// vertical
-	UINT vCountWallBent = 0;
-	UINT iCountWallBent = 0;
+	UINT vCountFloor = 0;
+	UINT iCountFloor = 0;
+	UINT vCountWallBent = startVertexWallBent;
+	UINT iCountWallBent = startIndexWallBent;
 	UINT vCountWallStraight = startVertexWallStraight;
 	UINT iCountWallStraight = startIndexWallStraight;
 	UINT vCountPellet = startVertexPellet;
@@ -182,13 +193,15 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	UINT iCountPacMan = startIndexPacMan;
 	UINT vCountGhost = startVertexGhost;
 	UINT iCountGhost = startIndexGhost;
-	UINT iBlockWallBent = 0;
+	UINT iBlockFloor = 0;
+	UINT iBlockWallBent = startVertexWallBent;
 	UINT iBlockWallStraight = startVertexWallStraight;
 	UINT iBlockPellet = startVertexPellet;
 	UINT iBlockPowerUp = startVertexPowerUp;
 	UINT iBlockPacMan = startVertexPacMan;
 	UINT iBlockGhost = startVertexGhost;
 
+	UINT instanceCountFloor = 0;
 	UINT instanceCountWallBent = 0;
 	UINT instanceCountWallStraight = 0;
 	UINT instanceCountPellet = 0;
@@ -196,8 +209,15 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	UINT instanceCountPacMan = 0;
 	UINT instanceCountGhost = 0;
 
-	mElementOffsetsCounts.wallsBent.vertexOffset = 0;
-	mElementOffsetsCounts.wallsBent.indexOffset = 0;
+	mElementOffsetsCounts.floors.vertexOffset = 0;
+	mElementOffsetsCounts.floors.indexOffset = 0;
+	mElementOffsetsCounts.floors.vertexCount = meshFloor.Vertices.size() * 1;
+	mElementOffsetsCounts.floors.indexCount = meshFloor.Indices.size() * 1;
+	mElementOffsetsCounts.floors.vertexSize = meshFloor.Vertices.size();
+	mElementOffsetsCounts.floors.indexSize = meshFloor.Indices.size();
+
+	mElementOffsetsCounts.wallsBent.vertexOffset = startVertexWallBent;
+	mElementOffsetsCounts.wallsBent.indexOffset = startIndexWallBent;
 	mElementOffsetsCounts.wallsBent.vertexCount = mCylVerticesBent.size() * 1;
 	mElementOffsetsCounts.wallsBent.indexCount = mCylIndicesBent.size() * 1;
 	mElementOffsetsCounts.wallsBent.vertexSize = mCylVerticesBent.size();
@@ -238,6 +258,19 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	mElementOffsetsCounts.ghosts.vertexSize = meshGhost.Vertices.size();
 	mElementOffsetsCounts.ghosts.indexSize = meshGhost.Indices.size();
 
+	for (size_t k = 0; k < meshFloor.Vertices.size(); ++k, ++vCountFloor)
+	{
+		vertices[vCountFloor].pos.x = meshFloor.Vertices[k].Position.x;
+		vertices[vCountFloor].pos.y = meshFloor.Vertices[k].Position.y;
+		vertices[vCountFloor].pos.z = meshFloor.Vertices[k].Position.z;
+		vertices[vCountFloor].normal = meshFloor.Vertices[k].Normal;
+		vertices[vCountFloor].tex = meshFloor.Vertices[k].TexC;
+	}
+	for (size_t k = 0; k < meshFloor.Indices.size(); ++k, ++iCountFloor)
+	{
+		indices[iCountFloor] = meshFloor.Indices[k] + iBlockFloor;
+	}
+	iBlockFloor += meshFloor.Vertices.size();
 	for (size_t k = 0; k < mCylVerticesBent.size(); ++k, ++vCountWallBent)
 	{
 		vertices[vCountWallBent].pos.x = mCylVerticesBent[k].pos.x;
@@ -326,6 +359,13 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		instGhosts[i].World = worldPos;
 		instGhosts[i].Color = XMFLOAT4(1.0f, 0.50f, 0.25f, 1.0f);
 	}
+
+	worldPos._41 = 0.0f;
+	worldPos._42 = -0.75f;
+	worldPos._43 = 0.0f;
+	mFloor.push_back(MazeElementSpecs(worldPos, Materials::GRID.Diffuse, true, true));
+	instFloor[instanceCountFloor].World = worldPos;
+	instFloor[instanceCountFloor++].Color = Materials::GRID.Diffuse;
 
 	for (int i = 0; i < mazeText.size(); ++i)
 	{

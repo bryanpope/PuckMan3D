@@ -110,19 +110,19 @@ PuckMan3D::~PuckMan3D()
 
 void PuckMan3D::BuildSceneLights()
 {
-	mPointLights[0].pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mPointLights[0].pos = XMFLOAT3(0.0f, 0.0f, 12.0f);
 	mPointLights[0].lightColour = XMFLOAT4(1.00f, 0.001f, 0.001f, 1.0f);
 	mPointLights[0].range = 1000.0f;
 	mPointLights[0].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
 	mPointLights[0].pad = 0.0f;
 
-	mPointLights[1].pos = XMFLOAT3(-10.0f, 0.0f, -15.0f);
+	mPointLights[1].pos = XMFLOAT3(-10.0f, 0.0f, -8.0f);
 	mPointLights[1].lightColour = XMFLOAT4(0.001f, 1.00f, 0.001f, 1.0f);
 	mPointLights[1].range = 1000.0f;
 	mPointLights[1].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
 	mPointLights[1].pad = 0.0f;
 
-	mPointLights[2].pos = XMFLOAT3(10.0f, 0.0f, -15.0f);
+	mPointLights[2].pos = XMFLOAT3(10.0f, 0.0f, -8.0f);
 	mPointLights[2].lightColour = XMFLOAT4(0.001f, 0.001f, 1.00f, 1.0f);
 	mPointLights[2].range = 1000.0f;
 	mPointLights[2].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
@@ -386,7 +386,7 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 
 	mTimeGhostCurrent += dt;
-	if (mTimeGhostCurrent >= mTimeGhostNext)
+	/*if (mTimeGhostCurrent >= mTimeGhostNext)
 	{
 		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 		{
@@ -398,7 +398,7 @@ void PuckMan3D::UpdateScene(float dt)
 		MazeLoader::SetGhostPos(XMVectorSet(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z, 0.0f), 2);
 		MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);
 		mTimeGhostNext += (1.0f / 10.0f);
-	}
+	}*/
 
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR pos = mPuckMan->GetPos();
@@ -533,6 +533,26 @@ void PuckMan3D::UpdateScene(float dt)
 		mIsPaused = true;
 	}
 
+	if (mMuteAll)
+	{
+		MuteAllAudio();
+	}
+	if (mMuteBackGroundSFX)
+	{
+		MuteBackGroundSFX();
+	}
+	if (mMuteDeathSFX)
+	{
+		MuteDeathSFX();
+	}
+	if (mMuteEatingSFX)
+	{
+		MuteEatingSFX();
+	}
+	if (mMuteGhostSFX)
+	{
+		MuteGhostSFX();
+	}
 	if (mIsPaused)
 	{
 		mPauseTime += dt;
@@ -577,6 +597,16 @@ void PuckMan3D::UpdateScene(float dt)
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	Vertex::InstancedData* dataView;
+
+	std::vector<MazeLoader::MazeElementSpecs> floors = MazeLoader::GetFloorData();
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBFloor(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountFloors = 0;
+	for (UINT i = 0; i < floors.size(); ++i)
+	{
+		dataView[mCountFloors++] = { floors[i].world, floors[i].colour };
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBFloor(), 0);
 
 	std::vector<MazeLoader::MazeElementSpecs> wallsBent = MazeLoader::GetWallBentData();
 	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBWallsBent(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
@@ -681,21 +711,22 @@ void PuckMan3D::DrawScene()
 	//md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	//md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// Render to our offscreen texture.  Note that we can use the same depth/stencil buffer
+	/*// Render to our offscreen texture.  Note that we can use the same depth/stencil buffer
 	// we normally use since our offscreen texture matches the dimensions.  
-
 	ID3D11RenderTargetView* renderTargets[1] = { mOffscreenRTV };
 	md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
 
 	md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Black));
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);*/
 
+	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//
 	// Draw the scene to the offscreen texture
 	//
 	DrawWrapper();
 
-	//
+	/*//
 	// Restore the back buffer.  The offscreen render target will serve as an input into
 	// the compute shader for blurring, so we must unbind it from the OM stage before we
 	// can use it as an input into the compute shader.
@@ -712,7 +743,7 @@ void PuckMan3D::DrawScene()
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	DrawScreenQuad();
+	DrawScreenQuad();*/
 
 	HR(mSwapChain->Present(1, 0));
 }
@@ -746,6 +777,12 @@ void PuckMan3D::DrawWrapper()
 
 	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
 	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+
+	Material floorColour = Materials::GRID;
+	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, floorColour);
+	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBFloor(),
+		mCountFloors, oc.floors.indexOffset, oc.floors.indexCount);
+
 	Material boxColour = Materials::BOX;
 	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, boxColour);
 	mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBWallsBent(),
@@ -844,8 +881,55 @@ void PuckMan3D::DrawWrapper()
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, "Fog - (1)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 400.0f, 0.0f, 0.0f), 50, 75, 25, "Bloom - (2)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 300.0f, 0.0f, 0.0f), 50, 75, 25, "Audio - (3)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 150.0f, 0.0f, 0.0f), 40, 75, 25, "Press Backspace");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 100.0f, 0.0f, 0.0f), 40, 75, 25, "to retun");
+	}
+	if (mGameState == GameState::GS_SOUNDOPTIONS)
+	{
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 600.0f, 0.0f, 0.0f), 40, 75, 25, "Mute All - (1)");
+
+		if (mMuteDeathSFX || mMuteAll)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 540.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Death SFX");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 480.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (2) - (on)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 540.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Death SFX");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 480.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (2) - (off)");
+		}
+		if (mMuteBackGroundSFX || mMuteAll)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 420.0f, 0.0f, 0.0f), 40, 75, 25, "Mute BackGround");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (3) - (on)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 420.0f, 0.0f, 0.0f), 40, 75, 25, "Mute BackGround");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (3) - (off)");
+		}
+		if (mMuteEatingSFX || mMuteAll)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Eating");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 240.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (4) - (on)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Eating");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 240.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (4) - (off)");
+		}
+		if (mMuteGhostSFX || mMuteAll)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 180.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Ghosts");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 120.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (5) - (on)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 180.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Ghosts");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 120.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (5) - (off)");
+		}
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 60.0f, 0.0f, 0.0f), 40, 75, 25, "Backspace to return");
 	}
 	if (mGameState == GameState::GS_MAINMENU)
 	{
@@ -961,18 +1045,22 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			mPuckMan->Move(dt, "right");
 		}
 	}
-	if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
 	{
 		std::exit(1);
 	}
-	if (GetAsyncKeyState(VK_BACK) & 0x8000)
+	if (GetAsyncKeyState(VK_BACK) & 0x0001)
 	{
 		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS)
 		{
 			mGameState = GS_MAINMENU;
 		}
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			mGameState = GS_OPTIONS;
+		}
 	}
-	if (GetAsyncKeyState('1') & 0x8000)
+	if (GetAsyncKeyState('1') & 0x0001)
 	{
 		if (mGameState == GS_MAINMENU)
 		{
@@ -982,8 +1070,19 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 
 		}
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteAll)
+			{
+				mMuteAll = false;
+			}
+			else
+			{
+				mMuteAll = true;
+			}
+		}
 	}
-	if (GetAsyncKeyState('2') & 0x8000)
+	if (GetAsyncKeyState('2') & 0x0001)
 	{
 		if (mGameState == GS_MAINMENU)
 		{
@@ -993,12 +1092,66 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 
 		}
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteDeathSFX)
+			{
+				mMuteDeathSFX = false;
+			}
+			else
+			{
+				mMuteDeathSFX = true;
+			}
+		}
 	}
-	if (GetAsyncKeyState('3') & 0x8000)
+	if (GetAsyncKeyState('3') & 0x0001)
 	{
 		if (mGameState == GS_MAINMENU)
 		{
 			mGameState = GS_CREDITS;
+		}
+		if (mGameState == GS_OPTIONS)
+		{
+			mGameState = GS_SOUNDOPTIONS;
+		}
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteBackGroundSFX)
+			{
+				mMuteBackGroundSFX = false;
+			}
+			else
+			{
+				mMuteBackGroundSFX = true;
+			}	
+		}
+	}
+	if (GetAsyncKeyState('4') & 0x0001)
+	{
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteEatingSFX)
+			{
+				mMuteEatingSFX = false;
+			}
+			else
+			{
+				mMuteEatingSFX = true;
+			}
+		}
+	}
+	if (GetAsyncKeyState('5') & 0x0001)
+	{
+		if (mGameState == GS_SOUNDOPTIONS)
+		{
+			if (mMuteGhostSFX)
+			{
+				mMuteGhostSFX = false;
+			}
+			else
+			{
+				mMuteGhostSFX = true;
+			}	
 		}
 	}
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
@@ -1387,7 +1540,7 @@ void PuckMan3D::playGhostDeathSFX()
 		channel[0]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying)
+	if (!isPlaying && !mMuteAll)
 	{
 		result = sys->playSound(sound[0], 0, false, &channel[0]);
 		result = channel[0]->setChannelGroup(soundGroup);
@@ -1411,7 +1564,7 @@ void PuckMan3D::playScaredGhostSFX()
 		channel[1]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying && powerUpActivated)
+	if (!isPlaying && powerUpActivated && !mMuteAll)
 	{
 		result = sys->playSound(sound[1], 0, false, &channel[1]);
 		result = channel[1]->setChannelGroup(soundGroup);
@@ -1434,12 +1587,12 @@ void PuckMan3D::playDeathSFX()
 		channel[2]->isPlaying(&isPlaying);
 	}
 
-	//if (!isPlaying)
-	//{
+	if (!isPlaying && !mMuteAll)
+	{
 		result = sys->playSound(sound[2], 0, false, &channel[2]);
 		result = channel[2]->setChannelGroup(soundGroup);
 		result = channel[2]->setPaused(false);
-	//}
+	}
 
 }
 
@@ -1458,7 +1611,7 @@ void PuckMan3D::playFruitSFX()
 		channel[4]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying)
+	if (!isPlaying && !mMuteAll)
 	{
 		result = sys->playSound(sound[3], 0, false, &channel[4]);
 		result = channel[4]->setChannelGroup(soundGroup);
@@ -1481,7 +1634,7 @@ void PuckMan3D::playExtraLifeSFX()
 		channel[4]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying)
+	if (!isPlaying && !mMuteAll)
 	{
 		result = sys->playSound(sound[4], 0, false, &channel[4]);
 		result = channel[4]->setChannelGroup(soundGroup);
@@ -1504,7 +1657,7 @@ void PuckMan3D::playBeginningSFX()
 		channel[5]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying)
+	if (!isPlaying && !mMuteAll)
 	{
 		result = sys->playSound(sound[5], 0, false, &channel[5]);
 		result = channel[5]->setChannelGroup(soundGroup);
@@ -1527,7 +1680,7 @@ void PuckMan3D::playSirenSFX()
 		channel[6]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying && !mIsPlayerDead)
+	if (!isPlaying && !mIsPlayerDead && !mMuteAll)
 	{
 		result = sys->playSound(sound[6], 0, false, &channel[6]);
 		result = channel[6]->setChannelGroup(soundGroup);
@@ -1550,13 +1703,13 @@ void PuckMan3D::playWaSFX()
 		channel[3]->isPlaying(&isPlaying);
 	}
 
-	//if (!isPlaying)
-	//{
+	if (!mMuteAll)
+	{
 		result = sys->playSound(sound[7], 0, false, &channel[3]);
 		result = channel[3]->setChannelGroup(soundGroup);
 		result = channel[3]->setPaused(false);
 		soundStates = SoundsState::SS_WA;
-	//}
+	}
 }
 
 void PuckMan3D::loadKaSFX()
@@ -1574,13 +1727,13 @@ void PuckMan3D::playKaSFX()
 		channel[3]->isPlaying(&isPlaying);
 	}
 
-	//if (!isPlaying)
-	//{
+	if (!mMuteAll)
+	{
 		result = sys->playSound(sound[8], 0, false, &channel[3]);
 		result = channel[3]->setChannelGroup(soundGroup);
 		result = channel[3]->setPaused(false);
 		soundStates = SoundsState::SS_KA;
-	//}
+	}
 }
 
 void PuckMan3D::loadSystem()
@@ -1609,6 +1762,37 @@ void PuckMan3D::updateStringStream()
 {
 	currScore.str("");
 	currScore << mScore;
+}
+
+void PuckMan3D::MuteAllAudio()
+{
+	MuteDeathSFX();
+	MuteEatingSFX();
+	MuteGhostSFX();
+	MuteBackGroundSFX();
+}
+
+void PuckMan3D::MuteDeathSFX()
+{
+	result = channel[0]->setPaused(true);
+	result = channel[2]->setPaused(true);
+}
+
+void PuckMan3D::MuteEatingSFX()
+{
+	result = channel[3]->setPaused(true);
+	result = channel[4]->setPaused(true);
+}
+
+void PuckMan3D::MuteGhostSFX()
+{
+	result = channel[1]->setPaused(true);
+}
+
+void PuckMan3D::MuteBackGroundSFX()
+{
+	result = channel[5]->setPaused(true);
+	result = channel[6]->setPaused(true);
 }
 
 void PuckMan3D::BuildScreenQuadGeometryBuffers()
