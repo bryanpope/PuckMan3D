@@ -1034,6 +1034,7 @@ void PuckMan3D::DrawScene()
 
 	md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Black));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+<<<<<<< HEAD
 
 	//
 	// Draw the scene to the offscreen texture
@@ -1048,6 +1049,22 @@ void PuckMan3D::DrawScene()
 	renderTargets[0] = mRenderTargetView;
 	md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
 
+=======
+
+	//
+	// Draw the scene to the offscreen texture
+	//
+	DrawWrapper();
+
+	//
+	// Restore the back buffer.  The offscreen render target will serve as an input into
+	// the compute shader for blurring, so we must unbind it from the OM stage before we
+	// can use it as an input into the compute shader.
+	//
+	renderTargets[0] = mRenderTargetView;
+	md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
+
+>>>>>>> origin/master
 	//mBlur.SetGaussianWeights(4.0f);
 	mBlur.BlurInPlace(md3dImmediateContext, mOffscreenSRV, mOffscreenUAV, 4);
 

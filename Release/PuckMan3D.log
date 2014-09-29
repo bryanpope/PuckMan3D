@@ -1,0 +1,79 @@
+﻿Build started 2014-09-29 11:20:05 AM.
+     1>Project "C:\PuckMan3D\PuckMan3D.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt PuckMan3D.cpp
+         PuckMan3D.cpp
+     1>PuckMan3D.cpp(214): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>PuckMan3D.cpp(383): warning C4996: 'freopen': This function or variable may be unsafe. Consider using freopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(226) : see declaration of 'freopen'
+     1>PuckMan3D.cpp(390): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(529): warning C4316: 'Character' : object allocated on the heap may not be aligned 16
+     1>PuckMan3D.cpp(688): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>PuckMan3D.cpp(695): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(746): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(774): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(798): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(982): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(987): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(1001): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(1705): warning C4018: '<' : signed/unsigned mismatch
+     1>PuckMan3D.cpp(1849): warning C4316: 'XNA::OrientedBox' : object allocated on the heap may not be aligned 16
+     1>PuckMan3D.cpp(1873): warning C4316: 'XNA::Sphere' : object allocated on the heap may not be aligned 16
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\PuckMan3D\Release\PuckMan3D.exe" /INCREMENTAL:NO /NOLOGO d3d11.lib d3dx11.lib D3DCompiler.lib Effects11.lib dxerr.lib dxgi.lib dxguid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\PuckMan3D\Release\PuckMan3D.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\PuckMan3D\Release\PuckMan3D.lib" /MACHINE:X86 /SAFESEH Release\BaseCamera.obj
+         Release\BasicMeshGeometry.obj
+         Release\BasicModel.obj
+         Release\Blinky.obj
+         Release\BlurFilter.obj
+         Release\Character.obj
+         Release\Clyde.obj
+         Release\Camera.obj
+         Release\d3dApp.obj
+         Release\d3dUtil.obj
+         Release\GameTimer.obj
+         Release\GeometryGenerator.obj
+         Release\MathHelper.obj
+         Release\TextureMgr.obj
+         Release\Waves.obj
+         Release\Cube.obj
+         Release\Effect.obj
+         Release\FontRasterizer.obj
+         Release\FPSCamera.obj
+         Release\Ghost.obj
+         Release\GraphicalGeometry.obj
+         Release\GraphicalObject.obj
+         Release\Inky.obj
+         Release\Materials.obj
+         Release\MazeLoader.obj
+         Release\Pathfinding.obj
+         Release\PathNode.obj
+         Release\Pinky.obj
+         Release\PuckMan3D.obj
+         Release\MeshGeometry.obj
+         Release\OBJLoader.obj
+         Release\Player.obj
+         Release\Projectile.obj
+         Release\Quad.obj
+         Release\randgen.obj
+         Release\Vertex.obj
+         Release\xnacollision.obj
+         Release\SkyBox.obj
+         Release\Terrain.obj
+         Release\ThirdPersonCam.obj
+         lib\fmodL_vc.lib
+         lib\fmod_vc.lib
+         Generating code
+     1>c:\puckman3d\puckman3d.cpp(1810): warning C4715: 'PuckMan3D::UpdateGroundCollision' : not all control paths return a value
+         Finished generating code
+     1>Effects11.lib(EffectAPI.obj) : warning LNK4099: PDB 'effects11.pdb' was not found with 'Effects11.lib(EffectAPI.obj)' or at 'C:\PuckMan3D\Release\effects11.pdb'; linking object as if no debug info
+     1>Effects11.lib(d3dxGlobal.obj) : warning LNK4099: PDB 'effects11.pdb' was not found with 'Effects11.lib(d3dxGlobal.obj)' or at 'C:\PuckMan3D\Release\effects11.pdb'; linking object as if no debug info
+     1>Effects11.lib(EffectNonRuntime.obj) : warning LNK4099: PDB 'effects11.pdb' was not found with 'Effects11.lib(EffectNonRuntime.obj)' or at 'C:\PuckMan3D\Release\effects11.pdb'; linking object as if no debug info
+     1>Effects11.lib(EffectLoad.obj) : warning LNK4099: PDB 'effects11.pdb' was not found with 'Effects11.lib(EffectLoad.obj)' or at 'C:\PuckMan3D\Release\effects11.pdb'; linking object as if no debug info
+     1>Effects11.lib(EffectReflection.obj) : warning LNK4099: PDB 'effects11.pdb' was not found with 'Effects11.lib(EffectReflection.obj)' or at 'C:\PuckMan3D\Release\effects11.pdb'; linking object as if no debug info
+     1>Effects11.lib(EffectRuntime.obj) : warning LNK4099: PDB 'effects11.pdb' was not found with 'Effects11.lib(EffectRuntime.obj)' or at 'C:\PuckMan3D\Release\effects11.pdb'; linking object as if no debug info
+         PuckMan3D.vcxproj -> C:\PuckMan3D\Release\PuckMan3D.exe
+     1>Done Building Project "C:\PuckMan3D\PuckMan3D.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:05.49

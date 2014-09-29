@@ -6,25 +6,35 @@
 
 cbuffer cbSettings
 {
+<<<<<<< HEAD
 	// Original gBlurRadius = 5
+=======
+	// Original
+>>>>>>> origin/master
 	/*float gWeights[11] = 
 	{
 		0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f,
 	};*/
 	
+<<<<<<< HEAD
 	// Test use  gBlurRadius = 5
 	/*loat gWeights[11] =
 	{
 		0.00f, 0.00f, 0.00f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.00f, 0.00f,
 	};*/
 
+=======
+>>>>>>> origin/master
 	// After tweaking to get bloom, gBlurRadius = 5
 	/*float gWeights[11] =
 	{
 		0.01f, 0.01f, 0.02f, 0.07f, 0.25f, 0.50f, 0.25f, 0.07f, 0.02f, 0.01f, 0.01f
 	};*/
 
+<<<<<<< HEAD
 	// To maybe use  gBlurRadius = 7
+=======
+>>>>>>> origin/master
 	float gWeights[15] =
 	{
 		0.005f, 0.01f, 0.015f, 0.02f, 0.025f, 0.05f, 0.25f,
