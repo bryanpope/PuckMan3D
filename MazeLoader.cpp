@@ -70,7 +70,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		return false;
 	}
 
-	if (!OBJLoader::Load(device, "Models/cylinder90degreebend2.obj", mCylVerticesBent, mCylIndicesBent, mCylSubsetsBent, false, false))
+	if (!OBJLoader::Load(device, "Models/bentCylinder2.obj", mCylVerticesBent, mCylIndicesBent, mCylSubsetsBent, false, false))
 	{
 		OutputDebugString(L"Error loading cylinderBent.obj");
 		return false;
@@ -377,7 +377,6 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				switch (mazeText[i][j])
 				{
 				case L'0':		// Top Left Corner
-					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PIDIV2), XMLoadFloat4x4(&worldPos)));
 					worldPos._41 = posX;
 					worldPos._42 = 0.0f;
 					worldPos._43 = -posZ;
@@ -386,7 +385,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					mWallsBent.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
 					break;
 				case L'1':		// Top Right Corner
-					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PI), XMLoadFloat4x4(&worldPos)));
+					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PIDIV2), XMLoadFloat4x4(&worldPos)));
 					worldPos._41 = posX;
 					worldPos._42 = 0.0f;
 					worldPos._43 = -posZ;
@@ -395,7 +394,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					mWallsBent.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
 					break;
 				case L'2':		// Bottom Right Corner
-					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY((XM_PI + XM_PIDIV2)), XMLoadFloat4x4(&worldPos)));
+					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PI), XMLoadFloat4x4(&worldPos)));
 					worldPos._41 = posX;
 					worldPos._42 = 0.0f;
 					worldPos._43 = -posZ;
@@ -404,6 +403,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					mWallsBent.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
 					break;
 				case L'3':		// Bottom Left Corner
+					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY((XM_PI + XM_PIDIV2)), XMLoadFloat4x4(&worldPos)));
 					//XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PIDIV2), XMLoadFloat4x4(&worldPos)));
 					worldPos._41 = posX;
 					worldPos._42 = 0.0f;
