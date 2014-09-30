@@ -5,5 +5,5 @@ class Blinky : public Ghost
 public:
 	Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius);
 	~Blinky();
-	void Update(float dt);
+	void Update(float dt, bool powerUpActivated);
 };

@@ -9,11 +9,20 @@ Inky::~Inky()
 {
 }
 
-void Inky::Update(float dt, PuckMan::Facing facingState, XMFLOAT3 blinkyPos)
+void Inky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, XMFLOAT3 blinkyPos)
 {
+	if (powerUpActivated)
+	{
+		this->mGhostStates = GHOST_STATES::FRIGHTENED;
+	}
+
 	switch (mGhostStates)
 	{
 	case SCATTER:
+		//Head to 28, 30 (row, col)
+		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+		waypoints = test.FindPath(mStart, mGoal);
 		if (mLevelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);

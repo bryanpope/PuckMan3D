@@ -19,6 +19,7 @@ protected:
 
 	XMFLOAT3 mPos;
 	XMFLOAT3 mVel; //Originally set as XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)
+	XMFLOAT3 mScatterTile;
 	float mSpeed;
 	float mRadius; //Originally set as 0.75f
 	const float Z_OFFSET = 0.5f;

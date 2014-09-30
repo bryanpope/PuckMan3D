@@ -9,11 +9,20 @@ Blinky::~Blinky()
 {
 }
 
-void Blinky::Update(float dt)
+void Blinky::Update(float dt, bool powerUpActivated)
 {
+	if (powerUpActivated)
+	{
+		this->mGhostStates = GHOST_STATES::FRIGHTENED;
+	}
+
 	switch (mGhostStates)
 	{
 	case SCATTER:
+		//Head to 2, 28 (row, col)
+		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+		waypoints = test.FindPath(mStart, mGoal);
 		if(mLevelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);

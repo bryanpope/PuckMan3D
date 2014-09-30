@@ -6,5 +6,5 @@ class Pinky : public Ghost
 public:
 	Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius);
 	~Pinky();
-	virtual void Update(float dt, PuckMan::Facing facingState);
+	virtual void Update(float dt, bool powerUpActivated, PuckMan::Facing facingState);
 };

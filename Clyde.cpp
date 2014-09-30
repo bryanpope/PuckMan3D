@@ -9,8 +9,13 @@ Clyde::~Clyde()
 {
 }
 
-void Clyde::Update()
+void Clyde::Update(float dt, bool powerUpActivated)
 {
+	if (powerUpActivated)
+	{
+		this->mGhostStates = GHOST_STATES::FRIGHTENED;
+	}
+
 	/*//Get clyde's position in row/col space
 	int clydePos = ((MazeLoader::GetMazeHeight()) - (int)round(this->getPos().z + 15.5f)) + 
 					((MazeLoader::GetMazeWidth()) - (int)round(this->getPos().x + 15.5f));
@@ -33,6 +38,10 @@ void Clyde::Update()
 	switch (mGhostStates)
 	{
 	case SCATTER:
+		//Head to 30, 2 (row, col)
+		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+		waypoints = test.FindPath(mStart, mGoal);
 		if (mLevelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
