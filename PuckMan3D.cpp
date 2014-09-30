@@ -103,6 +103,18 @@ PuckMan3D::~PuckMan3D()
 	if (mGeometryQuadFullScreen)
 		delete(mGeometryQuadFullScreen);
 
+	if (mBlinky)
+		delete(mBlinky);
+
+	if (mInky)
+		delete(mInky);
+	
+	if (mPinky)
+		delete(mPinky);
+
+	if (mClyde)
+		delete(mClyde);
+
 	ReleaseCOM(mOffscreenSRV);
 	ReleaseCOM(mOffscreenUAV);
 	ReleaseCOM(mOffscreenRTV);
@@ -1267,6 +1279,7 @@ bool PuckMan3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
 
 bool PuckMan3D::UpdateGroundCollision()
 {
+	return false;
 	XMVECTOR playerPos = mPuckMan->GetPos();
 	float terrainHeight = mTestTerrain->GetHeight(playerPos.m128_f32[0],
 							playerPos.m128_f32[2]);

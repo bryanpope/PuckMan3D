@@ -112,92 +112,80 @@ float PuckMan::CalculateSpeed(int levelNumber, bool powerUpActivated)
 			if (MazeLoader::IsPellet(row - 1, col))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.71f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row - 1, col)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.8f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber > 1 && levelNumber < 5) // levels 2 through 4
 		{
 			if (MazeLoader::IsPellet(row - 1, col))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row - 1, col)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.83f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.95f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber > 4 && levelNumber < 21) // levels 5 through 20
 		{
 			if (MazeLoader::IsPellet(row - 1, col))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row - 1, col)))
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber >= 21) // Level 21 and up
 		{
 			if (MazeLoader::IsPellet(row - 1, col))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row - 1, col)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row - 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 
 		break;
@@ -208,92 +196,80 @@ float PuckMan::CalculateSpeed(int levelNumber, bool powerUpActivated)
 			if (MazeLoader::IsPellet(row + 1, col))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.71f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row + 1, col)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.8f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber > 1 && levelNumber < 5) // levels 2 through 4
 		{
 			if (MazeLoader::IsPellet(row + 1, col))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row + 1, col)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.83f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.95f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber > 4 && levelNumber < 21) // levels 5 through 20
 		{
 			if (MazeLoader::IsPellet(row + 1, col))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row + 1, col)))
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber >= 21) // Level 21 and up
 		{
 			if (MazeLoader::IsPellet(row + 1, col))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row + 1, col)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row + 1, col) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 
 		break;
@@ -304,92 +280,80 @@ float PuckMan::CalculateSpeed(int levelNumber, bool powerUpActivated)
 			if (MazeLoader::IsPellet(row, col + 1))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.71f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row, col + 1)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.8f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber > 1 && levelNumber < 5) // levels 2 through 4
 		{
 			if (MazeLoader::IsPellet(row, col + 1))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row, col + 1)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.83f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.95f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber > 4 && levelNumber < 21) // levels 5 through 20
 		{
 			if (MazeLoader::IsPellet(row, col + 1))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row, col + 1)))
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber >= 21) // Level 21 and up
 		{
 			if (MazeLoader::IsPellet(row, col + 1))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row, col + 1)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row, col + 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 
 		break;
@@ -400,94 +364,83 @@ float PuckMan::CalculateSpeed(int levelNumber, bool powerUpActivated)
 			if (MazeLoader::IsPellet(row, col - 1))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.71f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row, col - 1)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.8f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber > 1 && levelNumber < 5) // levels 2 through 4
 		{
 			if (MazeLoader::IsPellet(row, col - 1))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row, col - 1)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.83f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.95f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber > 4 && levelNumber < 21) // levels 5 through 20
 		{
 			if (MazeLoader::IsPellet(row, col - 1))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row, col - 1)))
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
 		if (levelNumber >= 21) // Level 21 and up
 		{
 			if (MazeLoader::IsPellet(row, col - 1))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.79f; //eating pellet speed
-				return mSpeed;
 			}
 			if (!(MazeLoader::IsPellet(row, col - 1)))
 			{
 				mSpeed = PUCKMAN_SPEED * 0.9f; // no pellet to eat speed
-				return mSpeed;
 			}
 			if (MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 0.87f; // eating pellet and ghost frightened speed
-				return mSpeed;
 			}
 			if (!MazeLoader::IsPellet(row, col - 1) && powerUpActivated)
 			{
 				mSpeed = PUCKMAN_SPEED * 1.0f; // no pellet to eat and ghost frightened speed
-				return mSpeed;
 			}
+			return mSpeed;
 		}
-
+		return mSpeed;
 		break;
 	}
+	return mSpeed;
 }

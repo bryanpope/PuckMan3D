@@ -20,7 +20,7 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	currentNode->combineNode(currentNode, start);
 	int goalRow = (MazeLoader::GetMazeHeight()) - (int)round(goal->zPos + 15.5f);
 	int goalCol = (MazeLoader::GetMazeWidth()) - (int)round(goal->xPos + 15.5f);
-	if ((goalCol >= 0 && goalRow >= 0) && (goalCol <= MazeLoader::GetMazeWidth() && goalRow <= MazeLoader::GetMazeHeight()))
+	if ((goalCol >= 0 && goalRow >= 0) && ((UINT)goalCol <= MazeLoader::GetMazeWidth() && (UINT)goalRow <= MazeLoader::GetMazeHeight()))
 	{
 		if (!MazeLoader::IsBlocked(goalRow, goalCol))
 		{
@@ -93,7 +93,7 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 	int row = (MazeLoader::GetMazeHeight()) - (int)round(childNode.zPos + 15.5f);
 
 	//Check surroundings for walkable tiles and if in closed list
-	if ((col >= 0 && row >= 0) && (col <= MazeLoader::GetMazeWidth() && row <= MazeLoader::GetMazeHeight()))
+	if ((col >= 0 && row >= 0) && ((UINT)col <= MazeLoader::GetMazeWidth() && (UINT)row <= MazeLoader::GetMazeHeight()))
 	{
 		if (!MazeLoader::IsBlocked(row, col))
 		{

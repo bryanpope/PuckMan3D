@@ -224,7 +224,7 @@ private:
 	bool mMuteBackGroundSFX = false;
 	bool mMuteGhostSFX = false;
 	bool mMuteDeathSFX = false;
-	float fruitR = 0.60;
+	float fruitR = 0.60f;
 	float mNextTime = 0.0f;
 	float mCurrentTime = 0.0f;
 	float mTotalTime = 0.0f;

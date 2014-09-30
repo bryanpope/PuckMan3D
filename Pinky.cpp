@@ -39,13 +39,13 @@ void Pinky::Update(float dt, PuckMan::Facing facingState)
 		//Target 4 tiles in front of PuckMan's facing
 		if (facingState == PuckMan::Facing::F_FORWARD)
 		{
-			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
 			{
-				this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
+				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
 			}
 
 			break;
@@ -53,13 +53,13 @@ void Pinky::Update(float dt, PuckMan::Facing facingState)
 
 		if (facingState == PuckMan::Facing::F_BACKWARD)
 		{
-			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
 			{
-				this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
+				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
 			}
 
 			break;
@@ -67,13 +67,13 @@ void Pinky::Update(float dt, PuckMan::Facing facingState)
 
 		if (facingState == PuckMan::Facing::F_LEFT)
 		{
-			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), round(MazeLoader::GetPacManData().at(0).pos.z));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
 			{
-				this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
+				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
 			}
 
 			break;
@@ -81,13 +81,13 @@ void Pinky::Update(float dt, PuckMan::Facing facingState)
 
 		if (facingState == PuckMan::Facing::F_RIGHT)
 		{
-			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), round(MazeLoader::GetPacManData().at(0).pos.z));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
 			{
-				this->setPos(XMVectorSet(waypoints.front()->xPos, mPos.y, waypoints.front()->zPos, 0.0f));
+				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
 			}
 
 			break;
