@@ -1417,10 +1417,10 @@ void PuckMan3D::ResetGhosts()
 	mPinky->setPos(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f));
 	mClyde->setPos(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f));
 
-	MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z, 0.0f), 0);
+	/*MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z, 0.0f), 0);
 	MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);
 	MazeLoader::SetGhostPos(XMVectorSet(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z, 0.0f), 2);
-	MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);
+	MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);*/
 }
 
 void PuckMan3D::SetMaterials()

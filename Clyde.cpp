@@ -11,12 +11,24 @@ Clyde::~Clyde()
 
 void Clyde::Update()
 {
-	if (mGhostStates != GHOST_STATES::DEAD)
+	/*//Get clyde's position in row/col space
+	int clydePos = ((MazeLoader::GetMazeHeight()) - (int)round(this->getPos().z + 15.5f)) + 
+					((MazeLoader::GetMazeWidth()) - (int)round(this->getPos().x + 15.5f));
+	//Get puckman's position in row/col space
+	int puckmanPos = ((MazeLoader::GetMazeHeight()) - (int)round(MazeLoader::GetPacManData().at(0).pos.x + 15.5f)) + 
+					((MazeLoader::GetMazeWidth()) - (int)round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f));
+	//Determine the euclidean distance between clyde and puckman
+	int euclidDistance = abs(clydePos - puckmanPos);
+	//If the distance between Clyde and PuckMan is 8 tiles or more in Euclidean space, target PuckMan and chase like Blinky does
+	if (euclidDistance >= 8)
 	{
-		mStart = new PathNode(this->mPos.x, this->mPos.z);
-		mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
-		waypoints = test.FindPath(mStart, mGoal);
+		mGhostStates = GHOST_STATES::CHASE;
 	}
+	//If the distance between Clyde and Puckman is less than 8 tiles, go back to Scatter mode
+	else
+	{
+		mGhostStates = GHOST_STATES::DEAD;
+	}*/
 
 	switch (mGhostStates)
 	{
@@ -42,18 +54,14 @@ void Clyde::Update()
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-	case CHASE:		
-		//If the distance between Clyde and PuckMan is 8 tiles or more in Euclidean space, target PuckMan and chase like Blinky does
-			//If the distance between Clyde and Puckman is less than 8 tiles, go back to Scatter mode
-		if (waypoints.size() >= 8)
+	case CHASE:					
+		mStart = new PathNode(this->mPos.x, this->mPos.z);
+		mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+		waypoints = test.FindPath(mStart, mGoal);
+		if (waypoints.size() != 0)
 		{
 			this->setPos(XMVectorSet(waypoints.front()->xPos, 0.0f, waypoints.front()->zPos, 0.0f));
-			this->mGhostStates = GHOST_STATES::CHASE;
-		}
-		else
-		{
-			this->mGhostStates = GHOST_STATES::SCATTER;
-		}
+		}		
 		break;
 	case FRIGHTENED:
 		if (mLevelNumber == 1)

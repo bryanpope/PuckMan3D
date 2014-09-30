@@ -40,7 +40,7 @@ void Pinky::Update(float dt, PuckMan::Facing facingState)
 		if (facingState == PuckMan::Facing::F_FORWARD)
 		{
 			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z + 4));
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -54,7 +54,7 @@ void Pinky::Update(float dt, PuckMan::Facing facingState)
 		if (facingState == PuckMan::Facing::F_BACKWARD)
 		{
 			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z - 4));
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -68,7 +68,7 @@ void Pinky::Update(float dt, PuckMan::Facing facingState)
 		if (facingState == PuckMan::Facing::F_LEFT)
 		{
 			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x - 4), round(MazeLoader::GetPacManData().at(0).pos.z));
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), round(MazeLoader::GetPacManData().at(0).pos.z));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -82,7 +82,7 @@ void Pinky::Update(float dt, PuckMan::Facing facingState)
 		if (facingState == PuckMan::Facing::F_RIGHT)
 		{
 			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x + 4), round(MazeLoader::GetPacManData().at(0).pos.z));
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), round(MazeLoader::GetPacManData().at(0).pos.z));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
