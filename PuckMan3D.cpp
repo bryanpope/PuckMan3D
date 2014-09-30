@@ -404,10 +404,11 @@ void PuckMan3D::UpdateScene(float dt)
 	XMVECTOR pos = mPuckMan->GetPos();
 
 	mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated);
+	std::cout << "velocity " << mPuckMan->GetVelocity().m128_f32[0] << ", " << mPuckMan->GetVelocity().m128_f32[2] << std::endl;
 
 	//// Checking PacMan collision with maze
+	mPuckMan->SetPos(PacManAABoxOverLap(mPuckMan->GetPos()));
 	MazeLoader::SetPacManPos(PacManAABoxOverLap(mPuckMan->GetPos()), 0);
-	std::cout << "PuckMan pos " << mPuckMan->GetPos().m128_f32[0] << ", " << mPuckMan->GetPos().m128_f32[2] << std::endl;
 
 	std::vector<MazeLoader::MazeElementSpecs> ghosts = MazeLoader::GetGhostData();
 	////Checking PacMan Collision with Ghost
@@ -1018,7 +1019,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mIsMoving = true;
 			mIsKeyPressed = true;
-			mPuckMan->Move(dt, "forward");
+			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), "forward");
 		}
 
 		// Move Backwards 
@@ -1026,7 +1027,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mIsKeyPressed = true;
 			mIsMoving = true;
-			mPuckMan->Move(dt, "backward");
+			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), "backward");
 		}
 
 		// Move Left
@@ -1034,7 +1035,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mIsKeyPressed = true;
 			mIsMoving = true;
-			mPuckMan->Move(dt, "left");
+			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), "left");
 		}
 
 		// Move Right
@@ -1042,7 +1043,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mIsKeyPressed = true;
 			mIsMoving = true;
-			mPuckMan->Move(dt, "right");
+			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), "right");
 		}
 	}
 	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)

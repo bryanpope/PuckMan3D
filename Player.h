@@ -37,8 +37,8 @@ public:
 		F_RIGHT
 	};
 
-	void Move(float dt, std::string direction);
-	void CalculateSpeed(int levelNumber, bool powerUpActivated);
+	void Move(float dt, float mSpeed, std::string direction);
+	float CalculateSpeed(int levelNumber, bool powerUpActivated);
 
 	FXMVECTOR GetPos() const
 	{
@@ -53,6 +53,11 @@ public:
 	Facing GetFacing() const
 	{
 		return mFacing;
+	}
+
+	FXMVECTOR GetVelocity() const
+	{
+		return XMLoadFloat3(&mVel);
 	}
 
 protected:
