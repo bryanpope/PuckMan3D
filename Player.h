@@ -1,8 +1,7 @@
 #pragma once
-//#include "Character.h"
 #include "MazeLoader.h"
 
-class PuckMan// :	public Character
+class PuckMan
 {
 protected:
 
@@ -10,21 +9,17 @@ protected:
 	XMFLOAT3 mVel;
 	XMFLOAT3 mPos;
 	float mSpeed;
+	float mRadius;
 
 public:
 	PuckMan(void)
 	{}
 
-	/*PuckMan(FXMVECTOR pos, FXMVECTOR look, FXMVECTOR up, BasicModel& model,
-		float speed = 0.0f, float sprintSpeed = 0.0f, float health = 0.0f)
-		: Character(pos, look, up, model, speed, sprintSpeed, health)
-	{
-		//mFacing = Facing::F_DEFAULT;
-	}*/
-
-	PuckMan(FXMVECTOR pos)
+	PuckMan(FXMVECTOR pos, FXMVECTOR vel, float radius)
 	{
 		XMStoreFloat3(&mPos, pos);
+		XMStoreFloat3(&mVel, vel);
+		mRadius = radius;
 	}
 
 	~PuckMan(void);

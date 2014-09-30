@@ -21,6 +21,7 @@ protected:
 	XMFLOAT3 mVel; //Originally set as XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)
 	float mSpeed;
 	float mRadius; //Originally set as 0.75f
+	const float Z_OFFSET = 0.5f;
 	int mLevelNumber;
 	std::string mFacing;
 
@@ -30,12 +31,11 @@ protected:
 	PathNode* mStart;
 	PathNode* mGoal;
 
-	void MoveToPuckMan();
-
 	GameTimer mGhostStateTimer;
 	GHOST_STATES mGhostStates;
 
 	void MoveGhost(PathNode* target, float dt);
+	void MoveToPuckMan();
 
 public:
 	Ghost();
@@ -51,5 +51,6 @@ public:
 	void setPos(FXMVECTOR pos)
 	{
 		XMStoreFloat3(&mPos, pos);
+		MazeLoader::SetGhostPos(pos, 0);
 	}
 };
