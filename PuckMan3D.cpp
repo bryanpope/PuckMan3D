@@ -386,25 +386,27 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 
 	mTimeGhostCurrent += dt;
-	/*if (mTimeGhostCurrent >= mTimeGhostNext)
+	if (mTimeGhostCurrent >= mTimeGhostNext)
 	{
 		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 		{
 			mBlinky->Update(dt);
 			mPinky->Update(dt, mPuckMan->GetFacing());
+			mInky->Update(dt, mPuckMan->GetFacing(), mBlinky->getPos());
+			mClyde->Update();
 		}
 		MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z + 0.5f, 0.0f), 0);
 		MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z, 0.0f), 1);
 		MazeLoader::SetGhostPos(XMVectorSet(mPinky->getPos().x, mPinky->getPos().y, mPinky->getPos().z, 0.0f), 2);
 		MazeLoader::SetGhostPos(XMVectorSet(mClyde->getPos().x, mClyde->getPos().y, mClyde->getPos().z, 0.0f), 3);
 		mTimeGhostNext += (1.0f / 10.0f);
-	}*/
+	}
 
 	std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 	XMVECTOR pos = mPuckMan->GetPos();
 
 	mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated);
-	std::cout << "velocity " << mPuckMan->GetVelocity().m128_f32[0] << ", " << mPuckMan->GetVelocity().m128_f32[2] << std::endl;
+	//std::cout << "velocity " << mPuckMan->GetVelocity().m128_f32[0] << ", " << mPuckMan->GetVelocity().m128_f32[2] << std::endl;
 
 	//// Checking PacMan collision with maze
 	mPuckMan->SetPos(PacManAABoxOverLap(mPuckMan->GetPos()));
@@ -1398,7 +1400,7 @@ void PuckMan3D::BuildGhosts()
 	MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
 	mBlinky = new Blinky(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(3.75f, 0.0f, 3.75f, 0.0f), 0.75f);
 	mInky = new Inky(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
-	mPinky = new Pinky(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
+	mPinky = new Pinky(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(3.75f, 0.0f, 3.75f, 0.0f), 0.75f);
 	mClyde = new Clyde(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.75f);
 
 	ResetGhosts();

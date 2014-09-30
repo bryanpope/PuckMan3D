@@ -53,6 +53,10 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 				currentNode = mOpenList.back();
 				mOpenList.remove(currentNode);
 			}
+			else
+			{
+				break;
+			}
 		}
 		//Populate and create the path vector
 		while (currentNode->parent != NULL && currentNode != start)

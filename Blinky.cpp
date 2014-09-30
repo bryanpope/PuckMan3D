@@ -11,7 +11,6 @@ Blinky::~Blinky()
 
 void Blinky::Update(float dt)
 {
-	
 	switch (mGhostStates)
 	{
 	case SCATTER:

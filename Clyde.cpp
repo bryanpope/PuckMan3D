@@ -1,7 +1,9 @@
 #include "Clyde.h"
 
 Clyde::Clyde(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
-{}
+{
+	this->mGhostStates = GHOST_STATES::DEAD;
+}
 
 Clyde::~Clyde()
 {
@@ -9,6 +11,13 @@ Clyde::~Clyde()
 
 void Clyde::Update()
 {
+	if (mGhostStates != GHOST_STATES::DEAD)
+	{
+		mStart = new PathNode(this->mPos.x, this->mPos.z);
+		mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+		waypoints = test.FindPath(mStart, mGoal);
+	}
+
 	switch (mGhostStates)
 	{
 	case SCATTER:
@@ -33,20 +42,18 @@ void Clyde::Update()
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-	case CHASE:
+	case CHASE:		
 		//If the distance between Clyde and PuckMan is 8 tiles or more in Euclidean space, target PuckMan and chase like Blinky does
 			//If the distance between Clyde and Puckman is less than 8 tiles, go back to Scatter mode
-		//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
-		//mGoal = new PathNode(mPuckMan->getRow(), mPuckMan->getCol(), 0, 0, NULL, mPuckMan->getFacing());
-		//mPath = FindPath(mStart, mGoal);
-		/*if (mPath.size() >= 8)
+		if (waypoints.size() >= 8)
 		{
-			//Chase
+			this->setPos(XMVectorSet(waypoints.front()->xPos, 0.0f, waypoints.front()->zPos, 0.0f));
+			this->mGhostStates = GHOST_STATES::CHASE;
 		}
 		else
 		{
-			//Scatter
-		}*/
+			this->mGhostStates = GHOST_STATES::SCATTER;
+		}
 		break;
 	case FRIGHTENED:
 		if (mLevelNumber == 1)

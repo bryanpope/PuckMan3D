@@ -3,6 +3,7 @@
 #include "PathNode.h"
 #include "Pathfinding.h"
 #include "GameTimer.h"
+#include "Player.h"
 
 class Ghost
 {
