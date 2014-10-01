@@ -248,6 +248,7 @@ private:
 	float mPauseTime = 0.0f;
 	float mTotalDeathTime = 0.0f;
 	float mBeginningTime = 0.0f;
+	float mFruitTime = 0.f;
 	int mLevelCounter;
 	int mPelletCounter = 0;
 

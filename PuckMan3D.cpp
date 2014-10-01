@@ -484,6 +484,10 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		mBeginningTime += dt;
 	}
+	if (!mCanDrawFruit)
+	{
+		mFruitTime += dt;
+	}
 
 	mTimeGhostCurrent += dt;
 	if (mTimeGhostCurrent >= mTimeGhostNext)
@@ -549,9 +553,16 @@ void PuckMan3D::UpdateScene(float dt)
 			mFruit.erase(mFruit.begin() + i);
 			mScore += 50;
 			mCanDrawFruit = true;
+			mFruitTime = 0.0f;
 			break;
 		}
-
+		if (mFruitTime >= 10.0f)
+		{//if the fruit has been spawned for 10 seconds remove it
+			mFruit.erase(mFruit.begin() + i);
+			mCanDrawFruit = true;
+			mFruitTime = 0.0f;
+			break;
+		}
 	}
 
 	std::vector<MazeLoader::MazeElementSpecs> pellets = MazeLoader::GetPelletData();
@@ -643,9 +654,9 @@ void PuckMan3D::UpdateScene(float dt)
 		mGameState = GameState::GS_GAMEOVER;
 	}
 
-	if (mPelletCounter == 70 || mPelletCounter == 170)
+	if (mCanDrawFruit)
 	{
-		if (mCanDrawFruit)
+		if (mPelletCounter == 1 || mPelletCounter == 20)
 		{
 			//pick a number between 1 and 4
 			randNumber = rg(4) + 1;
