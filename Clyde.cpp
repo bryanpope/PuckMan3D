@@ -2,9 +2,9 @@
 
 Clyde::Clyde(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
-	this->mGhostStates = GHOST_STATES::DEAD;
+	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = -13.0f;
-	this->mScatterTile.z = 13.5f;
+	this->mScatterTile.z = 14.5f;
 }
 
 Clyde::~Clyde()
@@ -30,7 +30,6 @@ void Clyde::Update(float dt, bool powerUpActivated)
 					((MazeLoader::GetMazeWidth()) - (int)round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f));
 	//Determine the euclidean distance between clyde and puckman
 	int euclidDistance = abs(clydePos - puckmanPos);
-	std::cout << "euclid distance " << euclidDistance << std::endl;
 	//If the distance between Clyde and PuckMan is 8 tiles or more in Euclidean space, target PuckMan and chase like Blinky does
 	if (euclidDistance >= 8)
 	{
