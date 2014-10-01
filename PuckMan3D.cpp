@@ -10,20 +10,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	PuckMan3D theApp(hInstance);
 	
-
-
 	if( !theApp.Init() )
 		return 0;
 
-	
 	return theApp.Run();
 }
-
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
-	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mFireBallEffect(NULL), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0)
+	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mFireBallEffect(NULL), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), 
+	mHUDFruitGeometry2(0)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -45,6 +42,8 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	XMStoreFloat4x4(&mProj, I);
 	XMStoreFloat4x4(&m2DProj, I);
 	XMStoreFloat4x4(&mGridWorld, I);
+	XMStoreFloat4x4(&mHUDFruitWorld, I);
+	XMStoreFloat4x4(&mHUDFruitWorld2, I);
 
 	srand((UINT)time(NULL));
 
@@ -132,6 +131,12 @@ PuckMan3D::~PuckMan3D()
 
 	if (mPeachGeometry)
 		delete(mPeachGeometry);
+
+	if (mHUDFruitGeometry)
+		delete(mHUDFruitGeometry);
+
+	if (mHUDFruitGeometry2)
+		delete(mHUDFruitGeometry2);
 
 	ReleaseCOM(mOffscreenSRV);
 	ReleaseCOM(mOffscreenUAV);
@@ -221,6 +226,12 @@ bool PuckMan3D::Init()
 	mCherry = new LitMatEffect();
 	mCherry->LoadEffect(L"FX/lighting.fx", md3dDevice);
 
+	mHUDFruit = new LitMatEffect();
+	mHUDFruit->LoadEffect(L"FX/lighting.fx", md3dDevice);
+
+	mHUDFruit2 = new LitMatEffect();
+	mHUDFruit2->LoadEffect(L"FX/lighting.fx", md3dDevice);
+
 	//mBlurEffect = new BlurEffect();
 	//mBlurEffect->LoadEffect(L"FX/Blur.fx", md3dDevice);
 	mGeometryQuadFullScreen = new BasicMeshGeometry(mLitTexEffect);
@@ -228,12 +239,11 @@ bool PuckMan3D::Init()
 	mAppleGeometry = new BasicMeshGeometry(mApple);
 	mGrapesGeometry = new BasicMeshGeometry(mGrapes);
 	mPeachGeometry = new BasicMeshGeometry(mPeach);
+	mHUDFruitGeometry = new BasicMeshGeometry(mHUDFruit);
+	mHUDFruitGeometry2 = new BasicMeshGeometry(mHUDFruit2);
 
 	BuildScreenQuadGeometryBuffers();
-	BuildCherry();
-	BuildGrapes();
-	BuildApple();
-	BuildPeach();
+	BuildFruit();
 	BuildOffscreenViews();
 
 	mParticleEffect = new ParticleEffect();
@@ -553,6 +563,8 @@ void PuckMan3D::UpdateScene(float dt)
 			mFruit.erase(mFruit.begin() + i);
 			mScore += 50;
 			mCanDrawFruit = true;
+			mCanDrawHUDFruit = true;
+			mFruitCounter += 1;
 			mFruitTime = 0.0f;
 			break;
 		}
@@ -973,6 +985,18 @@ void PuckMan3D::DrawWrapper()
 	XMMATRIX worldViewProj = world*view*proj;
 	XMMATRIX viewProj = view*proj;
 
+	//set up first fruit for hud
+	XMMATRIX fruitWorld = XMLoadFloat4x4(&mHUDFruitWorld);
+	XMMATRIX fruitWorldInvTranspose = MathHelper::InverseTranspose(fruitWorld);
+	XMMATRIX fruitWorldViewProj = fruitWorld*view*proj;
+	XMMATRIX fruitViewProj = view*proj;
+
+	//set up second fruit for hud
+	XMMATRIX fruitWorld2 = XMLoadFloat4x4(&mHUDFruitWorld2);
+	XMMATRIX fruitWorldInvTranspose2 = MathHelper::InverseTranspose(fruitWorld2);
+	XMMATRIX fruitWorldViewProj2 = fruitWorld2*view*proj;
+	XMMATRIX fruitViewProj2 = view*proj;
+
 	world = XMLoadFloat4x4(&mGridWorld);
 	worldInvTranspose = MathHelper::InverseTranspose(world);
 	worldViewProj = world*view*proj;
@@ -1063,6 +1087,23 @@ void PuckMan3D::DrawWrapper()
 		world._43 = -2.2f;
 		worldInvTranspose = MathHelper::InverseTranspose(world);
 		worldViewProj = world*view*proj;
+
+		fruitWorld = XMLoadFloat4x4(&mHUDFruitWorld);
+		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
+		fruitWorld._41 = 12.0f;
+		fruitWorld._42 = 0.75f;
+		fruitWorld._43 = -17.0f;
+		fruitWorldInvTranspose = MathHelper::InverseTranspose(fruitWorld);
+		fruitWorldViewProj = fruitWorld*view*proj;
+
+		fruitWorld2 = XMLoadFloat4x4(&mHUDFruitWorld2);
+		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
+		fruitWorld2._41 = 9.5f;
+		fruitWorld2._42 = 0.75f;
+		fruitWorld2._43 = -17.0f;
+		fruitWorldInvTranspose2 = MathHelper::InverseTranspose(fruitWorld2);
+		fruitWorldViewProj2 = fruitWorld2*view*proj;
+
 		Material cherryColour = Materials::CHERRY;
 		Material grapeColour = Materials::GRAPES;
 		Material appleColour = Materials::APPLE;
@@ -1080,7 +1121,10 @@ void PuckMan3D::DrawWrapper()
 		mPeach->SetPerFrameParams(ambient, eyePos, mPointLights);
 		mPeach->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, peachColour);
 
-		if (mFruit.size() != 0)
+		mHUDFruit->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mHUDFruit2->SetPerFrameParams(ambient, eyePos, mPointLights);
+
+		if (mFruit.size() != 0 )
 		{
 			if (randNumber == 1)
 			{//cherry
@@ -1088,17 +1132,65 @@ void PuckMan3D::DrawWrapper()
 			}
 			else if (randNumber == 2)
 			{//grape
-				mGrapes->Draw(md3dImmediateContext, mGrapesGeometry->GetVB(), mGrapesGeometry->GetIB(), mGrapesGeometry->GetIndexCount());
+				mGrapes->Draw(md3dImmediateContext, mGrapesGeometry->GetVB(), mGrapesGeometry->GetIB(), mGrapesGeometry->GetIndexCount());	
 			}
 			else if (randNumber == 3)
 			{//apple
-				mApple->Draw(md3dImmediateContext, mAppleGeometry->GetVB(), mAppleGeometry->GetIB(), mAppleGeometry->GetIndexCount());
+				mApple->Draw(md3dImmediateContext, mAppleGeometry->GetVB(), mAppleGeometry->GetIB(), mAppleGeometry->GetIndexCount());	
 			}
 			else if (randNumber == 4)
 			{//peach
-				mPeach->Draw(md3dImmediateContext, mPeachGeometry->GetVB(), mPeachGeometry->GetIB(), mPeachGeometry->GetIndexCount());
+				mPeach->Draw(md3dImmediateContext, mPeachGeometry->GetVB(), mPeachGeometry->GetIB(), mPeachGeometry->GetIndexCount());	
 			}
-
+		}
+		if (mCanDrawHUDFruit)
+		{//if player has eaten a fruit
+			if (mFruitCounter >= 1)
+			{
+				if (randNumber == 1)
+				{//cherry
+					mHUDFruit->SetPerObjectParams(fruitWorld, fruitWorldInvTranspose, fruitWorldViewProj, fruitViewProj, cherryColour);
+					mHUDFruit->Draw(md3dImmediateContext, mHUDFruitGeometry->GetVB(), mHUDFruitGeometry->GetIB(), mHUDFruitGeometry->GetIndexCount());
+				}
+				else if (randNumber == 2)
+				{//grape
+					mHUDFruit->SetPerObjectParams(fruitWorld, fruitWorldInvTranspose, fruitWorldViewProj, fruitViewProj, grapeColour);
+					mHUDFruit->Draw(md3dImmediateContext, mHUDFruitGeometry->GetVB(), mHUDFruitGeometry->GetIB(), mHUDFruitGeometry->GetIndexCount());
+				}
+				else if (randNumber == 3)
+				{//apple
+					mHUDFruit->SetPerObjectParams(fruitWorld, fruitWorldInvTranspose, fruitWorldViewProj, fruitViewProj, appleColour);
+					mHUDFruit->Draw(md3dImmediateContext, mHUDFruitGeometry->GetVB(), mHUDFruitGeometry->GetIB(), mHUDFruitGeometry->GetIndexCount());
+				}
+				else if (randNumber == 4)
+				{//peach
+					mHUDFruit->SetPerObjectParams(fruitWorld, fruitWorldInvTranspose, fruitWorldViewProj, fruitViewProj, peachColour);
+					mHUDFruit->Draw(md3dImmediateContext, mHUDFruitGeometry->GetVB(), mHUDFruitGeometry->GetIB(), mHUDFruitGeometry->GetIndexCount());
+				}
+			}
+			if (mFruitCounter >= 2)
+			{
+				if (randNumber == 1)
+				{//cherry
+					mHUDFruit2->SetPerObjectParams(fruitWorld2, fruitWorldInvTranspose2, fruitWorldViewProj2, fruitViewProj2, cherryColour);
+					mHUDFruit2->Draw(md3dImmediateContext, mHUDFruitGeometry2->GetVB(), mHUDFruitGeometry2->GetIB(), mHUDFruitGeometry2->GetIndexCount());
+				}
+				else if (randNumber == 2)
+				{//grape
+					mHUDFruit2->SetPerObjectParams(fruitWorld2, fruitWorldInvTranspose2, fruitWorldViewProj2, fruitViewProj2, grapeColour);
+					mHUDFruit2->Draw(md3dImmediateContext, mHUDFruitGeometry2->GetVB(), mHUDFruitGeometry2->GetIB(), mHUDFruitGeometry2->GetIndexCount());
+				}
+				else if (randNumber == 3)
+				{//apple
+					mHUDFruit2->SetPerObjectParams(fruitWorld2, fruitWorldInvTranspose2, fruitWorldViewProj2, fruitViewProj2, appleColour);
+					mHUDFruit2->Draw(md3dImmediateContext, mHUDFruitGeometry2->GetVB(), mHUDFruitGeometry2->GetIB(), mHUDFruitGeometry2->GetIndexCount());
+				}
+				else if (randNumber == 4)
+				{//peach
+					mHUDFruit2->SetPerObjectParams(fruitWorld2, fruitWorldInvTranspose2, fruitWorldViewProj2, fruitViewProj2, peachColour);
+					mHUDFruit2->Draw(md3dImmediateContext, mHUDFruitGeometry2->GetVB(), mHUDFruitGeometry2->GetIB(), mHUDFruitGeometry2->GetIndexCount());
+				}
+			}
 		}
 		//fruit
 
@@ -2160,7 +2252,7 @@ void PuckMan3D::BuildOffscreenViews()
 	ReleaseCOM(offscreenTex);
 }
 
-void PuckMan3D::BuildCherry()
+void PuckMan3D::BuildFruit()
 {
 	GeometryGenerator::MeshData sphere;
 
@@ -2178,64 +2270,19 @@ void PuckMan3D::BuildCherry()
 
 	mCherryGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
 	mCherryGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
-}
-
-void PuckMan3D::BuildGrapes()
-{
-	GeometryGenerator::MeshData sphere;
-
-	GeometryGenerator geoGen;
-	geoGen.CreateSphere(MazeLoader::RADIUS_PAC_MAN, 10.0f, 10.0f, sphere);
-
-	std::vector<Vertex::NormalTexVertex> vertices(sphere.Vertices.size());
-
-	for (UINT i = 0; i < sphere.Vertices.size(); ++i)
-	{
-		vertices[i].pos = sphere.Vertices[i].Position;
-		vertices[i].normal = sphere.Vertices[i].Normal;
-		vertices[i].tex = sphere.Vertices[i].TexC;
-	}
 
 	mGrapesGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
 	mGrapesGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
-}
-
-void PuckMan3D::BuildApple()
-{
-	GeometryGenerator::MeshData sphere;
-
-	GeometryGenerator geoGen;
-	geoGen.CreateSphere(MazeLoader::RADIUS_PAC_MAN, 10.0f, 10.0f, sphere);
-
-	std::vector<Vertex::NormalTexVertex> vertices(sphere.Vertices.size());
-
-	for (UINT i = 0; i < sphere.Vertices.size(); ++i)
-	{
-		vertices[i].pos = sphere.Vertices[i].Position;
-		vertices[i].normal = sphere.Vertices[i].Normal;
-		vertices[i].tex = sphere.Vertices[i].TexC;
-	}
 
 	mAppleGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
 	mAppleGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
-}
-
-void PuckMan3D::BuildPeach()
-{
-	GeometryGenerator::MeshData sphere;
-
-	GeometryGenerator geoGen;
-	geoGen.CreateSphere(MazeLoader::RADIUS_PAC_MAN, 10.0f, 10.0f, sphere);
-
-	std::vector<Vertex::NormalTexVertex> vertices(sphere.Vertices.size());
-
-	for (UINT i = 0; i < sphere.Vertices.size(); ++i)
-	{
-		vertices[i].pos = sphere.Vertices[i].Position;
-		vertices[i].normal = sphere.Vertices[i].Normal;
-		vertices[i].tex = sphere.Vertices[i].TexC;
-	}
 
 	mPeachGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
 	mPeachGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
+
+	mHUDFruitGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
+	mHUDFruitGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
+
+	mHUDFruitGeometry2->SetVertices(md3dDevice, &vertices[0], vertices.size());
+	mHUDFruitGeometry2->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
 }

@@ -144,10 +144,7 @@ private:
 	void MuteBackGroundSFX();
 	void DrawWrapper();
 	void DrawScreenQuad();
-	void BuildCherry();
-	void BuildGrapes();
-	void BuildApple();
-	void BuildPeach();
+	void BuildFruit();
 private:
 	struct Fruit
 	{
@@ -169,6 +166,8 @@ private:
 	LitMatEffect* mGrapes;
 	LitMatEffect* mApple;
 	LitMatEffect* mPeach;
+	LitMatEffect* mHUDFruit;
+	LitMatEffect* mHUDFruit2;
 	LitMatEffect* mLitMatInstanceEffect;
 	LitTexEffect* mLitTexEffect;
 	ParticleEffect* mParticleEffect;
@@ -241,6 +240,7 @@ private:
 	bool mMuteGhostSFX = false;
 	bool mMuteDeathSFX = false;
 	bool mCanDrawFruit = true;
+	bool mCanDrawHUDFruit = false;
 	float fruitR = 0.60f;
 	float mNextTime = 0.0f;
 	float mCurrentTime = 0.0f;
@@ -251,6 +251,7 @@ private:
 	float mFruitTime = 0.f;
 	int mLevelCounter;
 	int mPelletCounter = 0;
+	int mFruitCounter = 0;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
@@ -283,6 +284,8 @@ private:
 	XMFLOAT4X4 mGhostWorld[4];
 	XMFLOAT4X4 mBoxWorld[55];
 	XMFLOAT4X4 mGridWorld;
+	XMFLOAT4X4 mHUDFruitWorld;
+	XMFLOAT4X4 mHUDFruitWorld2;
 	XMFLOAT4X4 mFruitWorld[2];
 
 	Blinky* mBlinky;
@@ -363,5 +366,7 @@ private:
 	BasicMeshGeometry *mAppleGeometry;
 	BasicMeshGeometry *mGrapesGeometry;
 	BasicMeshGeometry *mPeachGeometry;
+	BasicMeshGeometry *mHUDFruitGeometry;
+	BasicMeshGeometry *mHUDFruitGeometry2;
 	//BlurEffect* mBlurEffect;
 };
