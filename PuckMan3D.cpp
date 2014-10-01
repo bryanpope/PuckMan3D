@@ -145,12 +145,14 @@ PuckMan3D::~PuckMan3D()
 
 void PuckMan3D::BuildSceneLights()
 {
-	mPointLights[0].pos = XMFLOAT3(0.0f, 0.0f, 12.0f);
-	mPointLights[0].lightColour = XMFLOAT4(1.00f, 0.001f, 0.001f, 1.0f);
-	mPointLights[0].range = 1000.0f;
-	mPointLights[0].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
+	//mPointLight[0] is Puckmans light
+	// The x and z position of PuckMans pointlight change in the update scene
+	mPointLights[0].pos.y = 0.9f;
+	mPointLights[0].lightColour = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
+	mPointLights[0].range = 1.7f;
+	mPointLights[0].att = XMFLOAT3(0.1f, 0.03f, 0.1f);
 	mPointLights[0].pad = 0.0f;
-
+	
 	mPointLights[1].pos = XMFLOAT3(-10.0f, 0.0f, -8.0f);
 	mPointLights[1].lightColour = XMFLOAT4(0.001f, 1.00f, 0.001f, 1.0f);
 	mPointLights[1].range = 1000.0f;
@@ -521,6 +523,10 @@ void PuckMan3D::UpdateScene(float dt)
 
 	mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated);
 	//std::cout << "velocity " << mPuckMan->GetVelocity().m128_f32[0] << ", " << mPuckMan->GetVelocity().m128_f32[2] << std::endl;
+
+	//PuckMans Light position
+	mPointLights[0].pos.x = pacMans[0].pos.x;
+	mPointLights[0].pos.z = pacMans[0].pos.z;
 
 	//// Checking PacMan collision with maze
 	mPuckMan->SetPos(PacManAABoxOverLap(mPuckMan->GetPos()));

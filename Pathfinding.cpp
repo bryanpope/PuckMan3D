@@ -19,7 +19,7 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	PathNode* currentNode = new PathNode(*start);
 	currentNode->combineNode(currentNode, start);
 	int goalRow = (MazeLoader::GetMazeHeight()) - (int)round(goal->zPos + 15.5f);
-	int goalCol = (MazeLoader::GetMazeWidth()) - (int)round(goal->xPos + 15.5f);
+	int goalCol = ((int)round(goal->xPos + 14.5f) - 1);
 	if ((goalCol >= 0 && goalRow >= 0) && ((UINT)goalCol <= MazeLoader::GetMazeWidth() && (UINT)goalRow <= MazeLoader::GetMazeHeight()))
 	{
 		if (!MazeLoader::IsBlocked(goalRow, goalCol))
@@ -89,7 +89,7 @@ bool Pathfinding::ArrivedAtEnd(PathNode* currNode, PathNode* goal)
 
 void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goal)
 {
-	int col = (MazeLoader::GetMazeWidth()) - (int)round(childNode.xPos + 14.5f);
+	int col = (int)round(childNode.xPos + 14.5f) - 1;
 	int row = (MazeLoader::GetMazeHeight()) - (int)round(childNode.zPos + 15.5f);
 
 	//Check surroundings for walkable tiles and if in closed list
@@ -99,7 +99,6 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 		{
 			if (!InClosedList(&childNode))
 			{
-				childNode.facing = currNode->facing;
 				int g = currNode->gCost + childNode.getDistanceFromParent(childNode, currNode);
 				int f = g + childNode.getDistance(goal, childNode.xPos, childNode.zPos);
 
@@ -116,7 +115,7 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 				else
 				{
 					//Add it to the openList with the current node as the parent
-					PathNode* newChildNode = new PathNode(childNode.xPos, childNode.zPos, g, f, currNode, "");
+					PathNode* newChildNode = new PathNode(childNode.xPos, childNode.zPos, g, f, currNode);
 					mOpenList.push_back(newChildNode);
 				}
 			}
