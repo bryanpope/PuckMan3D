@@ -41,6 +41,8 @@ struct TestParticle
 	XMFLOAT3 pos;
 	XMFLOAT3 vel;
 	XMFLOAT2 size;
+	float age;
+	float lifetime;
 };
 
 const int MAX_PARTICLES = 100000;
@@ -122,6 +124,10 @@ private:
 
 	void DrawParticles();
 
+	void BuildFireBallParticleVB();
+	void UpdateFireBallParticleVB();
+	void DrawFireBall();
+
 	XNA::OrientedBox* GetOrientedBox(FXMVECTOR extents, const GraphicalObject* obj);
 	XNA::Sphere* GetBoundingSphere(const GraphicalObject* obj, float radius);
 
@@ -160,6 +166,10 @@ private:
 	LitMatEffect* mLitMatInstanceEffect;
 	LitTexEffect* mLitTexEffect;
 	ParticleEffect* mParticleEffect;
+	
+	ParticleEffect* mFireBallEffect;
+	std::vector<TestParticle> mFireBallParticles;
+	ID3D11Buffer* mFireBallParticleVB;
 
 	ThirdPersonCam* mCam;
 	BaseCamera* m2DCam;
