@@ -288,7 +288,7 @@ bool PuckMan3D::Init()
 	{
 		TestParticle newParticle;
 		XMStoreFloat3(&newParticle.pos, mPuckMan->GetPos());
-		vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(0.0f, 0.5f), 0.5 + MathHelper::RandF(0.0f, 0.2f), MathHelper::RandF(0.0f, 0.5f), 0.0f));
+		vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-0.5f, 0.5f), 0.5 + MathHelper::RandF(0.0f, 0.2f), MathHelper::RandF(-0.5f, 0.5f), 0.0f));
 		XMStoreFloat3(&newParticle.vel, vel * MathHelper::RandF(0.05f, 0.2f));
 		newParticle.size.x = 0.1f;
 		newParticle.size.y = 0.1f;
@@ -810,16 +810,39 @@ void PuckMan3D::UpdateScene(float dt)
 		mFireBallParticles[i].age += dt;
 		if (mFireBallParticles[i].age >= mFireBallParticles[i].lifetime)
 		{
-			XMStoreFloat3(&mFireBallParticles[i].pos, mPuckMan->GetPos());
-			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(0.0f, 0.5f), 0.5 + MathHelper::RandF(0.0f, 0.2f), MathHelper::RandF(0.0f, 0.5f), 0.0f));
-			XMStoreFloat3(&mFireBallParticles[i].vel, vel * MathHelper::RandF(0.05f, 0.2f));
-			mFireBallParticles[i].size.x = 0.1f;
-			mFireBallParticles[i].size.y = 0.1f;
+			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), 0.0f)) * MazeLoader::RADIUS_PAC_MAN;
+			XMStoreFloat3(&mFireBallParticles[i].pos, mPuckMan->GetPos() + vel);
+			//mFireBallParticles[i].pos.y -= 1.25f;
+			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-0.03f, 0.03f), 0.5 + MathHelper::RandF(0.0f, 0.2f), MathHelper::RandF(-0.03f, 0.03f), 0.0f));
+			float speedMult = MathHelper::RandF(0.01f, 0.06f);
+			if (MathHelper::RandF() > 0.50f)
+			{
+				if (MathHelper::RandF() > 0.50f)
+				{
+					vel.m128_f32[0] += MathHelper::RandF(-0.4f, 0.4f);
+					//vel.m128_f32[0] *= MathHelper::RandF(-0.06f, 0.06f);
+					//vel.m128_f32[2] *= MathHelper::RandF(-0.06f, 0.06f);
+				}
+				else
+				{
+					vel.m128_f32[2] += MathHelper::RandF(-0.4f, 0.4f);
+					//vel.m128_f32[0] *= MathHelper::RandF(-0.06f, 0.06f);
+					//vel.m128_f32[2] *= MathHelper::RandF(-0.06f, 0.06f);
+				}
+			}
+			XMStoreFloat3(&mFireBallParticles[i].vel, vel * speedMult);
+			mFireBallParticles[i].size.x = MathHelper::RandF(0.05f, 0.1f);
+			mFireBallParticles[i].size.y = MathHelper::RandF(0.05f, 0.1f);
 			mFireBallParticles[i].age = 0.0f;
-			mFireBallParticles[i].lifetime = MathHelper::RandF(0.5f, 1.0f);
+			mFireBallParticles[i].lifetime = MathHelper::RandF(0.25f, 1.25f);
 			pos = XMLoadFloat3(&mFireBallParticles[i].pos);
 			vel = XMLoadFloat3(&mFireBallParticles[i].vel);
 		}
+		/*if (pos.m128_f32[1] < (mPuckMan->GetPos().m128_f32[1] + (MazeLoader::RADIUS_PAC_MAN * 0.75f)))
+		{
+			pos.m128_f32[0] = mPuckMan->GetPos().m128_f32[0] + MazeLoader::RADIUS_PAC_MAN;
+			pos.m128_f32[2] = mPuckMan->GetPos().m128_f32[2] + MazeLoader::RADIUS_PAC_MAN;
+		}*/
 		pos = pos + vel;
 		XMStoreFloat3(&mFireBallParticles[i].pos, pos);
 	}
