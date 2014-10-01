@@ -29,6 +29,7 @@
 #include "Materials.h"
 #include "BlurFilter.h"
 #include "Character.h"
+#include "FireBallParticles.h"
 
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
@@ -124,9 +125,9 @@ private:
 
 	void DrawParticles();
 
-	void BuildFireBallParticleVB();
-	void UpdateFireBallParticleVB();
-	void DrawFireBall();
+	//void BuildFireBallParticleVB();
+	//void UpdateFireBallParticleVB();
+	//void DrawFireBall();
 
 	XNA::OrientedBox* GetOrientedBox(FXMVECTOR extents, const GraphicalObject* obj);
 	XNA::Sphere* GetBoundingSphere(const GraphicalObject* obj, float radius);
@@ -173,9 +174,11 @@ private:
 	LitTexEffect* mLitTexEffect;
 	ParticleEffect* mParticleEffect;
 	
-	ParticleEffect* mFireBallEffect;
-	std::vector<TestParticle> mFireBallParticles;
-	ID3D11Buffer* mFireBallParticleVB;
+	FireBallParticles *mFireBallPac;
+	
+	//ParticleEffect* mFireBallEffect;
+	//std::vector<TestParticle> mFireBallParticles;
+	//ID3D11Buffer* mFireBallParticleVB;
 
 	ThirdPersonCam* mCam;
 	BaseCamera* m2DCam;

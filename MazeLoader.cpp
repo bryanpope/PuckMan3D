@@ -119,6 +119,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		mElementCount.walls.cornerBottomLeft += std::count(wLine.begin(), wLine.end(), L'3');
 		mElementCount.walls.vertical += std::count(wLine.begin(), wLine.end(), L'4');
 		mElementCount.walls.horizontal += std::count(wLine.begin(), wLine.end(), L'5');
+		mElementCount.walls.horizontal += std::count(wLine.begin(), wLine.end(), L'6');
 		mElementCount.pellets += std::count(wLine.begin(), wLine.end(), L' ');
 		mElementCount.powerUps += std::count(wLine.begin(), wLine.end(), L'O');
 		mElementCount.emptySpaces += std::count(wLine.begin(), wLine.end(), L'-');
@@ -371,7 +372,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	{
 		for (int j = 0; j < mazeText[i].length(); ++j)
 		{
-			if (mazeText[i][j] >= L'0' && mazeText[i][j] <= L'5')	// wall
+			if (mazeText[i][j] >= L'0' && mazeText[i][j] <= L'6')	// wall
 			{
 				XMStoreFloat4x4(&worldPos, XMMatrixIdentity());
 				switch (mazeText[i][j])
@@ -383,6 +384,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					instWallsBent[instanceCountWallBent].World = worldPos;
 					instWallsBent[instanceCountWallBent++].Color = Materials::BOX.Diffuse;
 					mWallsBent.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
+					mMazeElements.push_back(ME_WALL);
 					break;
 				case L'1':		// Top Right Corner
 					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PIDIV2), XMLoadFloat4x4(&worldPos)));
@@ -392,6 +394,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					instWallsBent[instanceCountWallBent].World = worldPos;
 					instWallsBent[instanceCountWallBent++].Color = Materials::BOX.Diffuse;
 					mWallsBent.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
+					mMazeElements.push_back(ME_WALL);
 					break;
 				case L'2':		// Bottom Right Corner
 					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PI), XMLoadFloat4x4(&worldPos)));
@@ -401,6 +404,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					instWallsBent[instanceCountWallBent].World = worldPos;
 					instWallsBent[instanceCountWallBent++].Color = Materials::BOX.Diffuse;
 					mWallsBent.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
+					mMazeElements.push_back(ME_WALL);
 					break;
 				case L'3':		// Bottom Left Corner
 					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY((XM_PI + XM_PIDIV2)), XMLoadFloat4x4(&worldPos)));
@@ -411,6 +415,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					instWallsBent[instanceCountWallBent].World = worldPos;
 					instWallsBent[instanceCountWallBent++].Color = Materials::BOX.Diffuse;
 					mWallsBent.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
+					mMazeElements.push_back(ME_WALL);
 					break;
 				case L'4':		// Vertical
 					//XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PI), XMLoadFloat4x4(&worldPos)));
@@ -420,6 +425,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					instWallsStraight[instanceCountWallStraight].World = worldPos;
 					instWallsStraight[instanceCountWallStraight++].Color = Materials::BOX.Diffuse;
 					mWallsStraight.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
+					mMazeElements.push_back(ME_WALL);
 					break;
 				case L'5':		// Horizontal
 					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PIDIV2), XMLoadFloat4x4(&worldPos)));
@@ -429,10 +435,20 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 					instWallsStraight[instanceCountWallStraight].World = worldPos;
 					instWallsStraight[instanceCountWallStraight++].Color = Materials::BOX.Diffuse;
 					mWallsStraight.push_back(MazeElementSpecs(worldPos, Materials::BOX.Diffuse, true, true));
+					mMazeElements.push_back(ME_WALL);
+					break;
+				case L'6':		// Horizontal, Ghost Gate
+					XMStoreFloat4x4(&worldPos, XMMatrixMultiply(XMMatrixRotationY(XM_PIDIV2), XMLoadFloat4x4(&worldPos)));
+					worldPos._41 = posX;
+					worldPos._42 = 0.0f;
+					worldPos._43 = -posZ;
+					instWallsStraight[instanceCountWallStraight].World = worldPos;
+					instWallsStraight[instanceCountWallStraight++].Color = Materials::PINKY.Diffuse;
+					mWallsStraight.push_back(MazeElementSpecs(worldPos, Materials::PINKY.Diffuse, true, true));
+					mMazeElements.push_back(ME_NOTHING);
 					break;
 				}
 				mBoxData.push_back(AABox(XMVectorSet(posX, 0.0f, -posZ, 0.0f), 0.5f, 0.5f));
-				mMazeElements.push_back(ME_WALL);
 			}
 			if (mazeText[i][j] == L' ')	// pellets
 			{

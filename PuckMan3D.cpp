@@ -23,7 +23,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
-	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mFireBallEffect(NULL), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0)
+	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0),
+	mFireBallPac(NULL)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -91,11 +92,8 @@ PuckMan3D::~PuckMan3D()
 	if (mParticleTexture)
 		ReleaseCOM(mParticleTexture);
 
-	if (mFireBallEffect)
-		delete mFireBallEffect;
-
-	if (mFireBallParticleVB)
-		ReleaseCOM(mParticleVB);
+	if (mFireBallPac)
+		delete mFireBallPac;
 
 	if (mAdditiveBS)
 		ReleaseCOM(mAdditiveBS);
@@ -238,8 +236,12 @@ bool PuckMan3D::Init()
 
 	mParticleEffect = new ParticleEffect();
 	mParticleEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
-	mFireBallEffect = new ParticleEffect();
-	mFireBallEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
+	
+	mFireBallPac = new FireBallParticles();
+	mFireBallPac->Init(mPuckMan->GetPos(), L"Textures/TestAdditive.png", md3dDevice);
+	//mFireBallPac->SetFireBallTexture(mParticleTexture);
+	//mFireBallEffect = new ParticleEffect();
+	//mFireBallEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
 
 	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
 
@@ -276,13 +278,13 @@ bool PuckMan3D::Init()
 
 	Vertex::InitTerrainVertLayout(md3dDevice, mTestTerrain->GetEffect()->GetTech());
 	Vertex::InitParticleVertLayout(md3dDevice, mParticleEffect->GetTech());
-	Vertex::InitParticleVertLayout(md3dDevice, mFireBallEffect->GetTech());
+	//Vertex::InitParticleVertLayout(md3dDevice, mFireBallEffect->GetTech());
 
 	BuildParticleVB();
 
 	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"Textures/TestAdditive.png", 0, 0, &mParticleTexture, 0);
 
-	BuildFireBallParticleVB();
+	/*BuildFireBallParticleVB();
 	XMVECTOR vel;
 	for (int i = 0; i < 10000; ++i)
 	{
@@ -295,7 +297,7 @@ bool PuckMan3D::Init()
 		newParticle.age = 0.0f;
 		newParticle.lifetime = MathHelper::RandF(0.5f, 1.0f);
 		mFireBallParticles.push_back(newParticle);
-	}
+	}*/
 
 	BuildBlendStates();
 	BuildDSStates();
@@ -410,7 +412,7 @@ void PuckMan3D::UpdateParticleVB()
 	md3dImmediateContext->Unmap(mParticleVB, 0);
 }
 
-void PuckMan3D::BuildFireBallParticleVB()
+/*void PuckMan3D::BuildFireBallParticleVB()
 {
 	std::vector<Vertex::ParticleVertex> vertices(MAX_PARTICLES);
 
@@ -439,7 +441,7 @@ void PuckMan3D::UpdateFireBallParticleVB()
 	}
 
 	md3dImmediateContext->Unmap(mFireBallParticleVB, 0);
-}
+}*/
 
 void PuckMan3D::OnResize()
 {
@@ -813,7 +815,9 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
 
-	for (int i = 0; i < mFireBallParticles.size(); ++i)
+	mFireBallPac->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
+	
+	/*for (int i = 0; i < mFireBallParticles.size(); ++i)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mFireBallParticles[i].pos);
 		XMVECTOR vel = XMLoadFloat3(&mFireBallParticles[i].vel);
@@ -858,7 +862,7 @@ void PuckMan3D::UpdateScene(float dt)
 
 			XMVECTOR d = s1Center - pos;
 
-			float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) /*+ (d.m128_f32[1] * d.m128_f32[1])*/ + (d.m128_f32[2] * d.m128_f32[2])); //Magnitude of the difference
+			float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) + (d.m128_f32[2] * d.m128_f32[2])); //Magnitude of the difference
 
 			float overLap = s1Radius - distance;
 
@@ -874,7 +878,7 @@ void PuckMan3D::UpdateScene(float dt)
 		XMStoreFloat3(&mFireBallParticles[i].pos, pos);
 	}
 
-	UpdateFireBallParticleVB();
+	UpdateFireBallParticleVB();*/
 
 	return;
 
@@ -906,7 +910,6 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 	
 	UpdateParticleVB();
-	UpdateFireBallParticleVB();
 	UpdateCollision();
 }
 
@@ -1115,7 +1118,7 @@ void PuckMan3D::DrawWrapper()
 		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 	}
 
-	DrawFireBall();
+	mFireBallPac->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
 
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
@@ -1576,7 +1579,7 @@ void PuckMan3D::DrawParticles()
 	md3dImmediateContext->OMSetDepthStencilState(NULL, 0);
 }
 
-void PuckMan3D::DrawFireBall()
+/*void PuckMan3D::DrawFireBall()
 {
 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
 	XMMATRIX view = XMLoadFloat4x4(&mView);
@@ -1607,7 +1610,7 @@ void PuckMan3D::DrawFireBall()
 
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(NULL, 0);
-}
+}*/
 
 XNA::OrientedBox* PuckMan3D::GetOrientedBox(FXMVECTOR extents, const GraphicalObject* obj)
 {
