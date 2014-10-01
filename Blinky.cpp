@@ -3,6 +3,8 @@
 Blinky::Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
 	this->mGhostStates = GHOST_STATES::DEAD;
+	this->mScatterTile.x = 12.0f;
+	this->mScatterTile.z = 14.5f;
 }
 
 Blinky::~Blinky()
@@ -11,18 +13,26 @@ Blinky::~Blinky()
 
 void Blinky::Update(float dt, bool powerUpActivated)
 {
-	if (powerUpActivated)
+	/*if (powerUpActivated)
 	{
 		this->mGhostStates = GHOST_STATES::FRIGHTENED;
 	}
+	else
+	{
+		this->mGhostStates = GHOST_STATES::CHASE;
+	}*/
 
 	switch (mGhostStates)
 	{
 	case SCATTER:
-		//Head to 2, 28 (row, col)
 		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
 		waypoints = test.FindPath(mStart, mGoal);
+		if (waypoints.size() != 0)
+		{
+			this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
+		}
+		
 		if(mLevelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);

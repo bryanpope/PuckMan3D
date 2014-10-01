@@ -17,6 +17,14 @@ protected:
 		//IN_TUNNEL = 5 //Maybe make this a state?
 	};
 
+	enum GHOST_FACING
+	{
+		NORTH = 1,
+		EAST = 2,
+		SOUTH = 3,
+		WEST = 4
+	};
+
 	XMFLOAT3 mPos;
 	XMFLOAT3 mVel; //Originally set as XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)
 	XMFLOAT3 mScatterTile;
