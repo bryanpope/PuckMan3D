@@ -3,6 +3,8 @@
 Pinky::Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
 	this->mGhostStates = GHOST_STATES::DEAD;
+	this->mScatterTile.x = -13.0f;
+	this->mScatterTile.z = -14.5f;
 }
 
 Pinky::~Pinky()
@@ -11,18 +13,27 @@ Pinky::~Pinky()
 
 void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 {
-	if (powerUpActivated)
+	/*if (powerUpActivated)
 	{
 		this->mGhostStates = GHOST_STATES::FRIGHTENED;
 	}
+	else
+	{
+		this->mGhostStates = GHOST_STATES::CHASE;
+	}*/
 
 	switch (mGhostStates)
 	{
 	case SCATTER:
-		//Head to 2, 2 (row, col)
 		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
 		waypoints = test.FindPath(mStart, mGoal);
+
+		if (waypoints.size() != 0)
+		{
+			this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
+		}
+
 		if (mLevelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);

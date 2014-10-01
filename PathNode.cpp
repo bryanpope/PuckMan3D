@@ -1,13 +1,12 @@
 #include "PathNode.h"
 
-PathNode::PathNode(int x, int z, int g, int fC, PathNode* p, std::string f)
+PathNode::PathNode(int x, int z, int g, int fC, PathNode* p)
 {
 	xPos = x;
 	zPos = z;
 	gCost = g;
 	fCost = fC;
 	parent = p;
-	facing = f;
 }
 
 PathNode::PathNode(int x, int z)
@@ -17,7 +16,6 @@ PathNode::PathNode(int x, int z)
 	gCost = 0;
 	fCost = 0;
 	parent = NULL;
-	facing = "";
 }
 
 
@@ -29,7 +27,6 @@ PathNode* PathNode::combineNode(PathNode* initial, PathNode* target)
 	initial->zPos = target->zPos;
 	initial->gCost = target->gCost;
 	initial->fCost = target->fCost;
-	initial->facing = target->facing;
 
 	return initial;
 }

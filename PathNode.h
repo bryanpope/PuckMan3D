@@ -19,10 +19,10 @@ public:
 	int fCost;
 	bool isWalkable;
 
-	std::string facing;
+	//std::string facing;
 	PathNode* parent;
 
-	PathNode(int x, int z, int g, int f, PathNode* parent, std::string facing);
+	PathNode(int x, int z, int g, int f, PathNode* parent);
 	PathNode(int x, int z);
 	~PathNode(){}
 
