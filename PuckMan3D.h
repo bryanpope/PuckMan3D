@@ -144,7 +144,10 @@ private:
 	void MuteBackGroundSFX();
 	void DrawWrapper();
 	void DrawScreenQuad();
-
+	void BuildCherry();
+	void BuildGrapes();
+	void BuildApple();
+	void BuildPeach();
 private:
 	struct Fruit
 	{
@@ -162,7 +165,10 @@ private:
 	ID3D11Buffer* mShapesVB;
 	ID3D11Buffer* mShapesIB;
 
-	//LitMatEffect* mLitMatEffect;
+	LitMatEffect* mCherry;
+	LitMatEffect* mGrapes;
+	LitMatEffect* mApple;
+	LitMatEffect* mPeach;
 	LitMatEffect* mLitMatInstanceEffect;
 	LitTexEffect* mLitTexEffect;
 	ParticleEffect* mParticleEffect;
@@ -234,6 +240,7 @@ private:
 	bool mMuteBackGroundSFX = false;
 	bool mMuteGhostSFX = false;
 	bool mMuteDeathSFX = false;
+	bool mCanDrawFruit = true;
 	float fruitR = 0.60f;
 	float mNextTime = 0.0f;
 	float mCurrentTime = 0.0f;
@@ -326,6 +333,9 @@ private:
 	SoundsState soundStates = SoundsState::SS_DEFAULT;
 	FruitState fruitState = FruitState::FS_DEFAULT;
 
+	std::vector<XMFLOAT3> mFruit;
+	XMFLOAT3 mFruitPos = XMFLOAT3(-0.5f, 1.0f, -2.2f);
+
 	FMOD::System     *sys;
 	FMOD::Sound      *sound[9];
 	FMOD::Channel    *channel[8];
@@ -348,5 +358,9 @@ private:
 
 	BlurFilter mBlur;
 	BasicMeshGeometry *mGeometryQuadFullScreen;
+	BasicMeshGeometry *mCherryGeometry;
+	BasicMeshGeometry *mAppleGeometry;
+	BasicMeshGeometry *mGrapesGeometry;
+	BasicMeshGeometry *mPeachGeometry;
 	//BlurEffect* mBlurEffect;
 };

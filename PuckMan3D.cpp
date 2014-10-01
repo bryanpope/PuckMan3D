@@ -23,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
-	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mFireBallEffect(NULL)
+	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mFireBallEffect(NULL), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -121,6 +121,18 @@ PuckMan3D::~PuckMan3D()
 	if (mClyde)
 		delete(mClyde);
 
+	if (mCherryGeometry)
+		delete(mCherryGeometry);
+
+	if (mAppleGeometry)
+		delete(mAppleGeometry);
+
+	if (mGrapesGeometry)
+		delete(mGrapesGeometry);
+
+	if (mPeachGeometry)
+		delete(mPeachGeometry);
+
 	ReleaseCOM(mOffscreenSRV);
 	ReleaseCOM(mOffscreenUAV);
 	ReleaseCOM(mOffscreenRTV);
@@ -184,7 +196,7 @@ bool PuckMan3D::Init()
 	mLitMatInstanceEffect->LoadEffect(L"FX/lightingInstanced.fx", md3dDevice);
 	Vertex::InitLitMatInstanceLayout(md3dDevice, mLitMatInstanceEffect->GetTech());
 
-	//mMazeModel = new BasicModel(md3dDevice, mLitMatEffect, "Mazes/mainLevel.txt");
+	//mMazeModel = new BasicModel(md3dDevice, mCherry, "Mazes/mainLevel.txt");
 	mMazeModelInstanced = new BasicModel(md3dDevice, mLitMatInstanceEffect, "Mazes/mainLevelNew.txt");
 
 	BuildPuckMan();
@@ -197,10 +209,31 @@ bool PuckMan3D::Init()
 	mLitTexEffect = new LitTexEffect();
 	mLitTexEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
 
+	mApple = new LitMatEffect();
+	mApple->LoadEffect(L"FX/lighting.fx", md3dDevice);
+
+	mGrapes = new LitMatEffect();
+	mGrapes->LoadEffect(L"FX/lighting.fx", md3dDevice);
+
+	mPeach = new LitMatEffect();
+	mPeach->LoadEffect(L"FX/lighting.fx", md3dDevice);
+
+	mCherry = new LitMatEffect();
+	mCherry->LoadEffect(L"FX/lighting.fx", md3dDevice);
+
 	//mBlurEffect = new BlurEffect();
 	//mBlurEffect->LoadEffect(L"FX/Blur.fx", md3dDevice);
 	mGeometryQuadFullScreen = new BasicMeshGeometry(mLitTexEffect);
+	mCherryGeometry = new BasicMeshGeometry(mCherry);
+	mAppleGeometry = new BasicMeshGeometry(mApple);
+	mGrapesGeometry = new BasicMeshGeometry(mGrapes);
+	mPeachGeometry = new BasicMeshGeometry(mPeach);
+
 	BuildScreenQuadGeometryBuffers();
+	BuildCherry();
+	BuildGrapes();
+	BuildApple();
+	BuildPeach();
 	BuildOffscreenViews();
 
 	mParticleEffect = new ParticleEffect();
@@ -506,6 +539,21 @@ void PuckMan3D::UpdateScene(float dt)
 
 	}
 
+	////Checking PacMan Collision with fruit
+	for (int i = 0; i < mFruit.size(); ++i)
+	{
+		XMVECTOR fruitPos = XMLoadFloat3(&mFruitPos);
+		if (PacManGhostOverlapTest(pos, fruitPos) == true)
+		{
+			playFruitSFX();
+			mFruit.erase(mFruit.begin() + i);
+			mScore += 50;
+			mCanDrawFruit = true;
+			break;
+		}
+
+	}
+
 	std::vector<MazeLoader::MazeElementSpecs> pellets = MazeLoader::GetPelletData();
 	////checking PacMan collision with Pellets
 	//// If collision is true remove the pellet.
@@ -593,6 +641,17 @@ void PuckMan3D::UpdateScene(float dt)
 	if (!pacMans[0].isShown)
 	{
 		mGameState = GameState::GS_GAMEOVER;
+	}
+
+	if (mPelletCounter == 70 || mPelletCounter == 170)
+	{
+		if (mCanDrawFruit)
+		{
+			//pick a number between 1 and 4
+			randNumber = rg(4) + 1;
+			mFruit.push_back(mFruitPos);
+			mCanDrawFruit = false;
+		}
 	}
 
 	//reset board if all pellets are gone
@@ -945,6 +1004,53 @@ void PuckMan3D::DrawWrapper()
 		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, clydeColour);
 		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(),
 			1, oc.ghosts.indexOffset, oc.ghosts.indexCount);
+
+		//fruit
+		world = XMLoadFloat4x4(&mGridWorld);
+		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
+		world._41 = -0.5f;
+		world._42 = 1.0f;
+		world._43 = -2.2f;
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+		Material cherryColour = Materials::CHERRY;
+		Material grapeColour = Materials::GRAPES;
+		Material appleColour = Materials::APPLE;
+		Material peachColour = Materials::PEACH;
+
+		mCherry->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mCherry->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, cherryColour);
+
+		mGrapes->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mGrapes->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, grapeColour);
+
+		mApple->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mApple->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, appleColour);
+
+		mPeach->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mPeach->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, peachColour);
+
+		if (mFruit.size() != 0)
+		{
+			if (randNumber == 1)
+			{//cherry
+				mCherry->Draw(md3dImmediateContext, mCherryGeometry->GetVB(), mCherryGeometry->GetIB(), mCherryGeometry->GetIndexCount());
+			}
+			else if (randNumber == 2)
+			{//grape
+				mGrapes->Draw(md3dImmediateContext, mGrapesGeometry->GetVB(), mGrapesGeometry->GetIB(), mGrapesGeometry->GetIndexCount());
+			}
+			else if (randNumber == 3)
+			{//apple
+				mApple->Draw(md3dImmediateContext, mAppleGeometry->GetVB(), mAppleGeometry->GetIB(), mAppleGeometry->GetIndexCount());
+			}
+			else if (randNumber == 4)
+			{//peach
+				mPeach->Draw(md3dImmediateContext, mPeachGeometry->GetVB(), mPeachGeometry->GetIB(), mPeachGeometry->GetIndexCount());
+			}
+
+		}
+		//fruit
 
 		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
@@ -2002,4 +2108,84 @@ void PuckMan3D::BuildOffscreenViews()
 
 	// View saves a reference to the texture so we can release our reference.
 	ReleaseCOM(offscreenTex);
+}
+
+void PuckMan3D::BuildCherry()
+{
+	GeometryGenerator::MeshData sphere;
+
+	GeometryGenerator geoGen;
+	geoGen.CreateSphere(MazeLoader::RADIUS_PAC_MAN, 10.0f, 10.0f, sphere);
+
+	std::vector<Vertex::NormalTexVertex> vertices(sphere.Vertices.size());
+
+	for (UINT i = 0; i < sphere.Vertices.size(); ++i)
+	{
+		vertices[i].pos = sphere.Vertices[i].Position;
+		vertices[i].normal = sphere.Vertices[i].Normal;
+		vertices[i].tex = sphere.Vertices[i].TexC;
+	}
+
+	mCherryGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
+	mCherryGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
+}
+
+void PuckMan3D::BuildGrapes()
+{
+	GeometryGenerator::MeshData sphere;
+
+	GeometryGenerator geoGen;
+	geoGen.CreateSphere(MazeLoader::RADIUS_PAC_MAN, 10.0f, 10.0f, sphere);
+
+	std::vector<Vertex::NormalTexVertex> vertices(sphere.Vertices.size());
+
+	for (UINT i = 0; i < sphere.Vertices.size(); ++i)
+	{
+		vertices[i].pos = sphere.Vertices[i].Position;
+		vertices[i].normal = sphere.Vertices[i].Normal;
+		vertices[i].tex = sphere.Vertices[i].TexC;
+	}
+
+	mGrapesGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
+	mGrapesGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
+}
+
+void PuckMan3D::BuildApple()
+{
+	GeometryGenerator::MeshData sphere;
+
+	GeometryGenerator geoGen;
+	geoGen.CreateSphere(MazeLoader::RADIUS_PAC_MAN, 10.0f, 10.0f, sphere);
+
+	std::vector<Vertex::NormalTexVertex> vertices(sphere.Vertices.size());
+
+	for (UINT i = 0; i < sphere.Vertices.size(); ++i)
+	{
+		vertices[i].pos = sphere.Vertices[i].Position;
+		vertices[i].normal = sphere.Vertices[i].Normal;
+		vertices[i].tex = sphere.Vertices[i].TexC;
+	}
+
+	mAppleGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
+	mAppleGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
+}
+
+void PuckMan3D::BuildPeach()
+{
+	GeometryGenerator::MeshData sphere;
+
+	GeometryGenerator geoGen;
+	geoGen.CreateSphere(MazeLoader::RADIUS_PAC_MAN, 10.0f, 10.0f, sphere);
+
+	std::vector<Vertex::NormalTexVertex> vertices(sphere.Vertices.size());
+
+	for (UINT i = 0; i < sphere.Vertices.size(); ++i)
+	{
+		vertices[i].pos = sphere.Vertices[i].Position;
+		vertices[i].normal = sphere.Vertices[i].Normal;
+		vertices[i].tex = sphere.Vertices[i].TexC;
+	}
+
+	mPeachGeometry->SetVertices(md3dDevice, &vertices[0], vertices.size());
+	mPeachGeometry->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
 }
