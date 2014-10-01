@@ -845,15 +845,31 @@ void PuckMan3D::UpdateScene(float dt)
 			mFireBallParticles[i].size.x = MathHelper::RandF(0.05f, 0.1f);
 			mFireBallParticles[i].size.y = MathHelper::RandF(0.05f, 0.1f);
 			mFireBallParticles[i].age = 0.0f;
-			mFireBallParticles[i].lifetime = MathHelper::RandF(0.25f, 1.25f);
+			mFireBallParticles[i].lifetime = MathHelper::RandF(0.25f, 2.25f);
 			pos = XMLoadFloat3(&mFireBallParticles[i].pos);
 			vel = XMLoadFloat3(&mFireBallParticles[i].vel);
 		}
-		/*if (pos.m128_f32[1] < (mPuckMan->GetPos().m128_f32[1] + (MazeLoader::RADIUS_PAC_MAN * 0.75f)))
+		if (pos.m128_f32[1] < (mPuckMan->GetPos().m128_f32[1] + (MazeLoader::RADIUS_PAC_MAN * 0.60f)))
 		{
-			pos.m128_f32[0] = mPuckMan->GetPos().m128_f32[0] + MazeLoader::RADIUS_PAC_MAN;
-			pos.m128_f32[2] = mPuckMan->GetPos().m128_f32[2] + MazeLoader::RADIUS_PAC_MAN;
-		}*/
+			XMVECTOR s1Center = mPuckMan->GetPos();
+			float s1Radius = MazeLoader::RADIUS_PAC_MAN;
+			float currOverLap = 0.0f;
+			XMVECTOR correction = XMVectorZero();
+
+			XMVECTOR d = s1Center - pos;
+
+			float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) /*+ (d.m128_f32[1] * d.m128_f32[1])*/ + (d.m128_f32[2] * d.m128_f32[2])); //Magnitude of the difference
+
+			float overLap = s1Radius - distance;
+
+			if (overLap > currOverLap) // Have Collision
+			{
+				currOverLap = overLap;
+
+				correction = XMVector3Normalize(d) * currOverLap; //correct collision by moving sphere out of box
+			}
+			pos += correction;
+		}
 		pos = pos + vel;
 		XMStoreFloat3(&mFireBallParticles[i].pos, pos);
 	}
