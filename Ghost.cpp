@@ -16,7 +16,7 @@ Ghost::~Ghost()
 {
 }
 
-std::string GhosFacingToString(PuckMan::Facing facing)
+std::string GhosFacingToString(PuckMan::Facing facing) const
 {
 	if (facing == PuckMan::Facing::F_FORWARD)
 	{
