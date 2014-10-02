@@ -177,6 +177,9 @@ private:
 	FireBallParticles *mFireBallPac;
 	FireBallParticles *mFBBlueGhost;
 	FireBallParticles *mFBBlinky;
+	FireBallParticles *mFBInky;
+	FireBallParticles *mFBPinky;
+	FireBallParticles *mFBClyde;
 
 	//ParticleEffect* mFireBallEffect;
 	//std::vector<TestParticle> mFireBallParticles;

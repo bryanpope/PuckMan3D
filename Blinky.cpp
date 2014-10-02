@@ -2,7 +2,7 @@
 
 Blinky::Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
-	this->mGhostStates = GHOST_STATES::DEAD;
+	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = 12.0f;
 	this->mScatterTile.z = 14.5f;
 }

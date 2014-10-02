@@ -99,6 +99,15 @@ PuckMan3D::~PuckMan3D()
 	if (mFBBlinky)
 		delete mFBBlinky;
 
+	if (mFBInky)
+		delete mFBInky;
+
+	if (mFBPinky)
+		delete mFBPinky;
+
+	if (mFBClyde)
+		delete mFBClyde;
+
 	if (mAdditiveBS)
 		ReleaseCOM(mAdditiveBS);
 
@@ -300,7 +309,7 @@ bool PuckMan3D::Init()
 
 	mFBBlinky = new FireBallParticles();
 	FireBallParticles::FireBallParticlesProperties BlP;
-	BlP.numParticles = 2500;
+	BlP.numParticles = 4000;
 	BlP.velX.isRandomRange = true;
 	BlP.velX.range = XMFLOAT2(-0.5f, 0.5f);
 	BlP.velY.isRandomRange = true;
@@ -311,12 +320,21 @@ bool PuckMan3D::Init()
 	BlP.speedMult.isRandomRange = true;
 	BlP.speedMult.range = XMFLOAT2(0.1f, 0.2f);
 	BlP.size.isRandomRange = false;
-	BlP.size.range = XMFLOAT2(0.05f, 0.05f);
+	BlP.size.range = XMFLOAT2(0.1f, 0.1f);
 	BlP.lifetime.isRandomRange = true;
 	BlP.lifetime.range = XMFLOAT2(0.5f, 0.75f);
 	BlP.isOneShot = false;
 	BlP.isFire = true;
-	mFBBlueGhost->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowRed.png", md3dDevice, BlP);
+	mFBBlinky->Init(XMLoadFloat3(&(mBlinky->getPos())), MazeLoader::RADIUS_GHOST, L"Textures/GlowRed.png", md3dDevice, BlP);
+
+	mFBInky = new FireBallParticles();
+	mFBInky->Init(XMLoadFloat3(&(mInky->getPos())), MazeLoader::RADIUS_GHOST, L"Textures/GlowCyan.png", md3dDevice, BlP);
+
+	mFBPinky = new FireBallParticles();
+	mFBPinky->Init(XMLoadFloat3(&(mPinky->getPos())), MazeLoader::RADIUS_GHOST, L"Textures/GlowPink.png", md3dDevice, BlP);
+
+	mFBClyde = new FireBallParticles();
+	mFBClyde->Init(XMLoadFloat3(&(mClyde->getPos())), MazeLoader::RADIUS_GHOST, L"Textures/GlowOrange.png", md3dDevice, BlP);
 
 	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
 
@@ -903,7 +921,11 @@ void PuckMan3D::UpdateScene(float dt)
 
 	mFireBallPac->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
 	mFBBlueGhost->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
-	
+	//mFBBlinky->Update(XMLoadFloat3(&(mBlinky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
+	//mFBInky->Update(XMLoadFloat3(&(mInky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
+	//mFBPinky->Update(XMLoadFloat3(&(mPinky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
+	//mFBClyde->Update(XMLoadFloat3(&(mClyde->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
+
 	/*for (int i = 0; i < mFireBallParticles.size(); ++i)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mFireBallParticles[i].pos);
@@ -1287,6 +1309,10 @@ void PuckMan3D::DrawWrapper()
 
 	mFireBallPac->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
 	mFBBlueGhost->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
+	//mFBBlinky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
+	//mFBInky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
+	//mFBPinky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
+	//mFBClyde->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
 
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
