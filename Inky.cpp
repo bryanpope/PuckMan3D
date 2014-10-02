@@ -4,7 +4,7 @@ Inky::Inky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
 	XMStoreFloat3(&mPos, pos);
 	XMStoreFloat3(&mVel, vel);
-	this->mGhostStates = GHOST_STATES::SCATTER;
+	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = 12;
 	this->mScatterTile.z = -14.5f;
 	waypointIterator = 0;
@@ -58,7 +58,7 @@ const XMFLOAT3 Inky::mScatterWaypoints[34] =
 	{ XMFLOAT3(12.0f, 0.0f, -12.5f) },
 };
 
-void Inky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, XMFLOAT3 blinkyPos, int levelNumber)
+void Inky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, XMFLOAT3 blinkyPos, int levelNumber, int pelletCounter)
 {
 	/*if (powerUpActivated)
 	{
@@ -68,6 +68,10 @@ void Inky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, 
 	{
 		this->mGhostStates = GHOST_STATES::CHASE;
 	}*/
+	if (pelletCounter == 30)
+	{
+		this->mGhostStates = GHOST_STATES::SCATTER;
+	}
 
 	switch (mGhostStates)
 	{
@@ -268,7 +272,7 @@ void Inky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, 
 
 void Inky::Reset()
 {
-	this->mGhostStates = GHOST_STATES::SCATTER;
+	this->mGhostStates = GHOST_STATES::IDLE;
 	waypointIterator = 0;
 	mCurrWaypointIndex = 0;
 }

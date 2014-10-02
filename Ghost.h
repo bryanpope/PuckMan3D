@@ -14,8 +14,9 @@ protected:
 		SCATTER = 1,
 		CHASE = 2,
 		FRIGHTENED = 3,
-		DEAD = 4
-		//IN_TUNNEL = 5 //Maybe make this a state?
+		DEAD = 4,
+		IDLE = 5
+		//IN_TUNNEL = 6 //Maybe make this a state?
 	};
 
 	enum GHOST_FACING

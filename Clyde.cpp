@@ -4,7 +4,7 @@ Clyde::Clyde(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radiu
 {
 	XMStoreFloat3(&mPos, pos);
 	XMStoreFloat3(&mVel, vel);
-	this->mGhostStates = GHOST_STATES::SCATTER;
+	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = -13.0f;
 	this->mScatterTile.z = -14.5f;
 	waypointIterator = 0;
@@ -58,7 +58,7 @@ const XMFLOAT3 Clyde::mScatterWaypoints[34] =
 	{ XMFLOAT3(-13.0f, 0.0f, -12.5f) }
 };
 
-void Clyde::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, int levelNumber)
+void Clyde::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, int levelNumber, int pelletCounter)
 {
 	/*if (powerUpActivated)
 	{
@@ -87,6 +87,11 @@ void Clyde::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState,
 	{
 		mGhostStates = GHOST_STATES::SCATTER;
 	}*/
+
+	if (pelletCounter == 90)
+	{
+		this->mGhostStates = GHOST_STATES::SCATTER;
+	}
 
 	switch (mGhostStates)
 	{
@@ -205,7 +210,7 @@ void Clyde::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState,
 
 void Clyde::Reset()
 {
-	this->mGhostStates = GHOST_STATES::SCATTER;
+	this->mGhostStates = GHOST_STATES::IDLE;
 	waypointIterator = 0;
 	mCurrWaypointIndex = 0;
 }
