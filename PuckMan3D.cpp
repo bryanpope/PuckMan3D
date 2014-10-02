@@ -634,6 +634,10 @@ void PuckMan3D::UpdateScene(float dt)
 				MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
 				mPuckMan->SetPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f));
 				std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+				mBlinky->Reset();
+				mPinky->Reset();
+				mInky->Reset();
+				mClyde->Reset();
 				playDeathSFX();
 				mIsPlayerDead = true;
 				mIsMoving = false;

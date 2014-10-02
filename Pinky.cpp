@@ -2,10 +2,14 @@
 
 Pinky::Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
+	XMStoreFloat3(&mPos, pos);
+	XMStoreFloat3(&mVel, vel);
 	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = -13.0f;
 	this->mScatterTile.z = 14.5f;
 	waypointIterator = 0;
+
+	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
 	waypoints = test.FindPath(mStart, mGoal);
@@ -234,4 +238,11 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState,
 		break;
 		}*/
 	}
+}
+
+void Pinky::Reset()
+{
+	this->mGhostStates = GHOST_STATES::SCATTER;
+	waypointIterator = 0;
+	mCurrWaypointIndex = 0;
 }
