@@ -589,10 +589,10 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 		{
-			mBlinky->Update(dt, powerUpActivated, mPuckMan->GetFacing());
-			mPinky->Update(dt, powerUpActivated, mPuckMan->GetFacing());
-			mInky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mBlinky->getPos());
-			mClyde->Update(dt, powerUpActivated, mPuckMan->GetFacing());
+			mBlinky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mLevelCounter);
+			mPinky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mLevelCounter);
+			mInky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mBlinky->getPos(), mLevelCounter);
+			mClyde->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mLevelCounter);
 		}
 		MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z + 0.5f, 0.0f), 0);
 		MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z + 0.5f, 0.0f), 1);
