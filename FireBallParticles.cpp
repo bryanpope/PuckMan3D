@@ -3,6 +3,7 @@
 #include "Vertex.h"
 
 FireBallParticles::FireBallParticles()
+	: mIsAllParticlesDead(false), mParticlesShown(0)
 {
 }
 
@@ -45,6 +46,8 @@ void FireBallParticles::Init(FXMVECTOR initialPos, float fireballRadius, LPCWSTR
 		mFireBallParticles.push_back(newParticle);
 	}
 
+	mParticlesShown = mProperties.numParticles;
+
 	D3DX11CreateShaderResourceViewFromFile(device, texFilename, 0, 0, &mFBTexture, 0);
 
 	BuildBlendState(device);
@@ -57,25 +60,50 @@ void FireBallParticles::SetPos(XMFLOAT3 newPos)
 	{
 		mFireBallParticles[i].pos = newPos;
 	}
+	mParticlesShown = mProperties.numParticles;
+}
+
+void FireBallParticles::ResetParticles()
+{
+	for (int i = 0; i < mFireBallParticles.size(); ++i)
+	{
+		mFireBallParticles[i].age = 0.0f;
+	}
+}
+
+void FireBallParticles::FireEffect()
+{ 
+	mProperties.isFire = true;
+	mIsAllParticlesDead = false;
 }
 
 void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context)
 {
-	if (!mProperties.isFire)
+	if (!mProperties.isFire || mIsAllParticlesDead)
 	{
 		return;
 	}
 
 	XMFLOAT3 fVel3;
 	float pSize;
+	bool isParticleStillAlive = false;
 	for (int i = 0; i < mFireBallParticles.size(); ++i)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mFireBallParticles[i].pos);
 		XMVECTOR vel = XMLoadFloat3(&mFireBallParticles[i].vel);
 
 		mFireBallParticles[i].age += dt;
-		if (!mProperties.isOneShot && (mFireBallParticles[i].age >= mFireBallParticles[i].lifetime))
+		if (mProperties.isOneShot && (mFireBallParticles[i].age >= mFireBallParticles[i].lifetime))
 		{
+			continue;
+		}
+		else if (mFireBallParticles[i].age <= mFireBallParticles[i].lifetime)
+		{
+			isParticleStillAlive = true;
+		}
+		else if (!mProperties.isOneShot && (mFireBallParticles[i].age >= mFireBallParticles[i].lifetime))
+		{
+			isParticleStillAlive = true;
 			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), 0.0f)) * fireballRadius;
 			XMStoreFloat3(&mFireBallParticles[i].pos, newPos + vel);
 			fVel3 = GetVelocity();
@@ -130,7 +158,18 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 		XMStoreFloat3(&mFireBallParticles[i].pos, pos);
 	}
 
-	UpdateFireBallParticleVB(context);
+	if (isParticleStillAlive)
+	{
+		UpdateFireBallParticleVB(context);
+	}
+	else
+	{
+		mIsAllParticlesDead = true;
+		if (mProperties.isOneShot)
+		{
+			ResetParticles();
+		}
+	}
 }
 
 XMFLOAT3 FireBallParticles::GetVelocity()
@@ -177,10 +216,14 @@ void FireBallParticles::UpdateFireBallParticleVB(ID3D11DeviceContext* context)
 	HR(context->Map(mFireBallParticleVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
 	Vertex::ParticleVertex* v = reinterpret_cast<Vertex::ParticleVertex*> (mappedData.pData);
 
+	mParticlesShown = 0;
 	for (UINT i = 0; i < mFireBallParticles.size(); ++i)
 	{
-		v[i].pos = mFireBallParticles[i].pos;
-		v[i].size = mFireBallParticles[i].size;
+		if (mFireBallParticles[i].age <= mFireBallParticles[i].lifetime)
+		{
+			v[mParticlesShown].pos = mFireBallParticles[i].pos;
+			v[mParticlesShown++].size = mFireBallParticles[i].size;
+		}
 	}
 
 	context->Unmap(mFireBallParticleVB, 0);
@@ -188,6 +231,11 @@ void FireBallParticles::UpdateFireBallParticleVB(ID3D11DeviceContext* context)
 
 void FireBallParticles::DrawFireBall(FXMVECTOR eyePos, CXMMATRIX viewProj, ID3D11DeviceContext* context)
 {
+	if (mIsAllParticlesDead)
+	{
+		return;
+	}
+
 	mFireBallEffect->SetPerFrameParams(eyePos);
 	mFireBallEffect->SetPerObjectParams(viewProj, mFBTexture);
 
@@ -208,7 +256,7 @@ void FireBallParticles::DrawFireBall(FXMVECTOR eyePos, CXMMATRIX viewProj, ID3D1
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
 		mFireBallEffect->GetTech()->GetPassByIndex(p)->Apply(0, context);
-		context->Draw(mFireBallParticles.size(), 0);
+		context->Draw(mParticlesShown, 0);
 	}
 
 	context->OMSetBlendState(0, blendFactor, 0xffffffff);

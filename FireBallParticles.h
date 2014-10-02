@@ -44,7 +44,7 @@ public:
 	void Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context);
 	void DrawFireBall(FXMVECTOR eyePos, CXMMATRIX viewProj, ID3D11DeviceContext* context);
 	void SetPos(XMFLOAT3 newPos);
-	void FireEffect(){ mProperties.isFire = true; }
+	void FireEffect();
 
 	void SetFireBallTexture(ID3D11ShaderResourceView* fbTex){ mFBTexture = fbTex; }
 	void SetProperties(FireBallParticlesProperties p){ mProperties = p; }
@@ -54,6 +54,7 @@ private:
 	void BuildDSState(ID3D11Device* device);
 	void BuildFireBallParticleVB(ID3D11Device* device);
 	void UpdateFireBallParticleVB(ID3D11DeviceContext* context);
+	void ResetParticles();
 	XMFLOAT3 GetVelocity();
 	float GetSpeedMultiplier();
 	float GetSize();
@@ -67,5 +68,7 @@ private:
 	ID3D11DepthStencilState* mNoDepthDS;
 
 	FireBallParticlesProperties mProperties;
+	bool mIsAllParticlesDead;
+	UINT mParticlesShown;
 };
 

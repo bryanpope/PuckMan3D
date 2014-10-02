@@ -277,7 +277,7 @@ bool PuckMan3D::Init()
 
 	mFBBlueGhost = new FireBallParticles();
 	FireBallParticles::FireBallParticlesProperties bgP;
-	bgP.numParticles = 10000;
+	bgP.numParticles = 5000;
 	bgP.velX.isRandomRange = true;
 	bgP.velX.range = XMFLOAT2(-0.5f, 0.5f);
 	bgP.velY.isRandomRange = true;
@@ -286,11 +286,11 @@ bool PuckMan3D::Init()
 	bgP.velZ.range = XMFLOAT2(-0.5f, 0.5f);
 	bgP.velocityAddition = XMFLOAT3(0.0f, 0.5f, 0.0f);
 	bgP.speedMult.isRandomRange = true;
-	bgP.speedMult.range = XMFLOAT2(0.05f, 0.2f);
+	bgP.speedMult.range = XMFLOAT2(0.1f, 0.2f);
 	bgP.size.isRandomRange = false;
-	bgP.size.range = XMFLOAT2(0.1f, 0.1f);
+	bgP.size.range = XMFLOAT2(0.25f, 0.25f);
 	bgP.lifetime.isRandomRange = true;
-	bgP.lifetime.range = XMFLOAT2(0.5f, 1.0f);
+	bgP.lifetime.range = XMFLOAT2(0.5f, 2.0f);
 	bgP.isOneShot = true;
 	bgP.isFire = false;
 	mFBBlueGhost->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowBlue.png", md3dDevice, bgP);
