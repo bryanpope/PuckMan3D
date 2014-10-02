@@ -16,8 +16,10 @@ FireBallParticles::~FireBallParticles()
 		ReleaseCOM(mFireBallParticleVB);
 }
 
-void FireBallParticles::Init(FXMVECTOR initialPos, LPCWSTR texFilename, ID3D11Device* device)
+void FireBallParticles::Init(FXMVECTOR initialPos, float fireballRadius, LPCWSTR texFilename, ID3D11Device* device, FireBallParticlesProperties p)
 {
+	SetProperties(p);
+
 	mFireBallEffect = new ParticleEffect();
 	mFireBallEffect->LoadEffect(L"FX/ParticleEffect.fx", device);
 
@@ -26,16 +28,20 @@ void FireBallParticles::Init(FXMVECTOR initialPos, LPCWSTR texFilename, ID3D11De
 	BuildFireBallParticleVB(device);
 
 	XMVECTOR vel;
-	for (int i = 0; i < 10000; ++i)
+	XMFLOAT3 fVel3;
+	for (int i = 0; i < mProperties.numParticles; ++i)
 	{
 		FireBallParticle newParticle;
-		XMStoreFloat3(&newParticle.pos, initialPos);
-		vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-0.5f, 0.5f), 0.5 + MathHelper::RandF(0.0f, 0.2f), MathHelper::RandF(-0.5f, 0.5f), 0.0f));
-		XMStoreFloat3(&newParticle.vel, vel * MathHelper::RandF(0.05f, 0.2f));
-		newParticle.size.x = 0.1f;
-		newParticle.size.y = 0.1f;
+		vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), 0.0f)) * fireballRadius;
+		XMStoreFloat3(&newParticle.pos, initialPos + vel);
+		fVel3 = GetVelocity();
+		vel = XMVector3Normalize(XMVectorSet(fVel3.x, fVel3.y, fVel3.z, 0.0f)) * fireballRadius;
+		XMStoreFloat3(&newParticle.vel, vel * GetSpeedMultiplier());
+		float pSize = GetSize();
+		newParticle.size.x = pSize;
+		newParticle.size.y = pSize;
 		newParticle.age = 0.0f;
-		newParticle.lifetime = MathHelper::RandF(0.5f, 1.0f);
+		newParticle.lifetime = GetLifetime();
 		mFireBallParticles.push_back(newParticle);
 	}
 
@@ -45,21 +51,36 @@ void FireBallParticles::Init(FXMVECTOR initialPos, LPCWSTR texFilename, ID3D11De
 	BuildDSState(device);
 }
 
+void FireBallParticles::SetPos(XMFLOAT3 newPos)
+{
+	for (int i = 0; i < mFireBallParticles.size(); ++i)
+	{
+		mFireBallParticles[i].pos = newPos;
+	}
+}
+
 void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context)
 {
+	if (!mProperties.isFire)
+	{
+		return;
+	}
+
+	XMFLOAT3 fVel3;
+	float pSize;
 	for (int i = 0; i < mFireBallParticles.size(); ++i)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mFireBallParticles[i].pos);
 		XMVECTOR vel = XMLoadFloat3(&mFireBallParticles[i].vel);
 
 		mFireBallParticles[i].age += dt;
-		if (mFireBallParticles[i].age >= mFireBallParticles[i].lifetime)
+		if (!mProperties.isOneShot && (mFireBallParticles[i].age >= mFireBallParticles[i].lifetime))
 		{
 			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), 0.0f)) * fireballRadius;
 			XMStoreFloat3(&mFireBallParticles[i].pos, newPos + vel);
-			//mFireBallParticles[i].pos.y -= 1.25f;
-			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-0.03f, 0.03f), 0.5 + MathHelper::RandF(0.0f, 0.2f), MathHelper::RandF(-0.03f, 0.03f), 0.0f));
-			float speedMult = MathHelper::RandF(0.01f, 0.06f);
+			fVel3 = GetVelocity();
+			vel = XMVector3Normalize(XMVectorSet(fVel3.x, fVel3.y, fVel3.z, 0.0f));
+			float speedMult = GetSpeedMultiplier();
 			if (MathHelper::RandF() > 0.50f)
 			{
 				if (MathHelper::RandF() > 0.50f)
@@ -76,10 +97,11 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 				}
 			}
 			XMStoreFloat3(&mFireBallParticles[i].vel, vel * speedMult);
-			mFireBallParticles[i].size.x = MathHelper::RandF(0.05f, 0.1f);
-			mFireBallParticles[i].size.y = MathHelper::RandF(0.05f, 0.1f);
+			pSize = GetSize();
+			mFireBallParticles[i].size.x = pSize;
+			mFireBallParticles[i].size.y = pSize;
 			mFireBallParticles[i].age = 0.0f;
-			mFireBallParticles[i].lifetime = MathHelper::RandF(0.25f, 2.25f);
+			mFireBallParticles[i].lifetime = GetLifetime();
 			pos = XMLoadFloat3(&mFireBallParticles[i].pos);
 			vel = XMLoadFloat3(&mFireBallParticles[i].vel);
 		}
@@ -109,6 +131,28 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 	}
 
 	UpdateFireBallParticleVB(context);
+}
+
+XMFLOAT3 FireBallParticles::GetVelocity()
+{
+	return XMFLOAT3(mProperties.velocityAddition.x + (mProperties.velX.isRandomRange ? MathHelper::RandF(mProperties.velX.range.x, mProperties.velX.range.y) : mProperties.velX.range.x),
+		mProperties.velocityAddition.y + (mProperties.velY.isRandomRange ? MathHelper::RandF(mProperties.velY.range.x, mProperties.velY.range.y) : mProperties.velY.range.x),
+		mProperties.velocityAddition.z + (mProperties.velZ.isRandomRange ? MathHelper::RandF(mProperties.velZ.range.x, mProperties.velZ.range.y) : mProperties.velZ.range.x));
+}
+
+float FireBallParticles::GetSpeedMultiplier()
+{
+	return (mProperties.speedMult.isRandomRange ? MathHelper::RandF(mProperties.speedMult.range.x, mProperties.speedMult.range.y) : mProperties.speedMult.range.x);
+}
+
+float FireBallParticles::GetSize()
+{
+	return (mProperties.size.isRandomRange ? MathHelper::RandF(mProperties.size.range.x, mProperties.size.range.y) : mProperties.size.range.x);
+}
+
+float FireBallParticles::GetLifetime()
+{
+	return (mProperties.lifetime.isRandomRange ? MathHelper::RandF(mProperties.lifetime.range.x, mProperties.lifetime.range.y) : mProperties.lifetime.range.x);
 }
 
 void FireBallParticles::BuildFireBallParticleVB(ID3D11Device* device)

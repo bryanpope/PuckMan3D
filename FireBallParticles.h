@@ -15,22 +15,49 @@ public:
 		float age;
 		float lifetime;
 	};
+	struct FireBallRangeElement
+	{
+		bool isRandomRange;
+		XMFLOAT2 range;
+	};
+	struct FireBallParticlesProperties
+	{
+		UINT numParticles;
+		FireBallRangeElement velX;
+		FireBallRangeElement velY;
+		FireBallRangeElement velZ;
+		XMFLOAT3 velocityAddition;
+		FireBallRangeElement speedMult;
+		FireBallRangeElement size;
+		FireBallRangeElement lifetime;
+		bool isOneShot;
+		bool isFire;
+	};
+
 
 	const int MAX_PARTICLES = 100000;
 
 	FireBallParticles();
 	~FireBallParticles();
 
-	void Init(FXMVECTOR initialPos, LPCWSTR texFilename, ID3D11Device* device);
+	void Init(FXMVECTOR initialPos, float fireballRadius, LPCWSTR texFilename, ID3D11Device* device, FireBallParticlesProperties p);
 	void Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context);
-	void SetFireBallTexture(ID3D11ShaderResourceView* fbTex){ mFBTexture = fbTex; }
 	void DrawFireBall(FXMVECTOR eyePos, CXMMATRIX viewProj, ID3D11DeviceContext* context);
+	void SetPos(XMFLOAT3 newPos);
+	void FireEffect(){ mProperties.isFire = true; }
+
+	void SetFireBallTexture(ID3D11ShaderResourceView* fbTex){ mFBTexture = fbTex; }
+	void SetProperties(FireBallParticlesProperties p){ mProperties = p; }
 
 private:
 	void BuildBlendState(ID3D11Device* device);
 	void BuildDSState(ID3D11Device* device);
 	void BuildFireBallParticleVB(ID3D11Device* device);
 	void UpdateFireBallParticleVB(ID3D11DeviceContext* context);
+	XMFLOAT3 GetVelocity();
+	float GetSpeedMultiplier();
+	float GetSize();
+	float GetLifetime();
 
 	ParticleEffect* mFireBallEffect;
 	std::vector<FireBallParticle> mFireBallParticles;
@@ -38,5 +65,7 @@ private:
 	ID3D11ShaderResourceView* mFBTexture;
 	ID3D11BlendState* mAdditiveBS;
 	ID3D11DepthStencilState* mNoDepthDS;
+
+	FireBallParticlesProperties mProperties;
 };
 

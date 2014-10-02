@@ -175,7 +175,8 @@ private:
 	ParticleEffect* mParticleEffect;
 	
 	FireBallParticles *mFireBallPac;
-	
+	FireBallParticles *mFBBlueGhost;
+
 	//ParticleEffect* mFireBallEffect;
 	//std::vector<TestParticle> mFireBallParticles;
 	//ID3D11Buffer* mFireBallParticleVB;

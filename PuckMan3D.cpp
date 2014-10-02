@@ -93,6 +93,9 @@ PuckMan3D::~PuckMan3D()
 	if (mFireBallPac)
 		delete mFireBallPac;
 
+	if (mFBBlueGhost)
+		delete mFBBlueGhost;
+
 	if (mAdditiveBS)
 		ReleaseCOM(mAdditiveBS);
 
@@ -249,10 +252,48 @@ bool PuckMan3D::Init()
 	mParticleEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
 	
 	mFireBallPac = new FireBallParticles();
-	mFireBallPac->Init(mPuckMan->GetPos(), L"Textures/TestAdditive.png", md3dDevice);
+	FireBallParticles::FireBallParticlesProperties fbProperties;
+	fbProperties.numParticles = 10000;
+	fbProperties.velX.isRandomRange = true;
+	fbProperties.velX.range = XMFLOAT2(-0.03f, 0.03f);
+	fbProperties.velY.isRandomRange = true;
+	fbProperties.velY.range = XMFLOAT2(0.0f, 0.2f);
+	fbProperties.velZ.isRandomRange = true;
+	fbProperties.velZ.range = XMFLOAT2(-0.03f, 0.03f);
+	fbProperties.velocityAddition = XMFLOAT3(0.0f, 0.5f, 0.0f);
+	fbProperties.speedMult.isRandomRange = true;
+	fbProperties.speedMult.range = XMFLOAT2(0.01f, 0.06f);
+	fbProperties.size.isRandomRange = true;
+	fbProperties.size.range = XMFLOAT2(0.05f, 0.1f);
+	fbProperties.lifetime.isRandomRange = true;
+	fbProperties.lifetime.range = XMFLOAT2(0.25f, 2.25f);
+	fbProperties.isOneShot = false;
+	fbProperties.isFire = true;
+
+	mFireBallPac->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, L"Textures/TestAdditive.png", md3dDevice, fbProperties);
 	//mFireBallPac->SetFireBallTexture(mParticleTexture);
 	//mFireBallEffect = new ParticleEffect();
 	//mFireBallEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
+
+	mFBBlueGhost = new FireBallParticles();
+	FireBallParticles::FireBallParticlesProperties bgP;
+	bgP.numParticles = 10000;
+	bgP.velX.isRandomRange = true;
+	bgP.velX.range = XMFLOAT2(-0.5f, 0.5f);
+	bgP.velY.isRandomRange = true;
+	bgP.velY.range = XMFLOAT2(0.0f, 0.2f);
+	bgP.velZ.isRandomRange = true;
+	bgP.velZ.range = XMFLOAT2(-0.5f, 0.5f);
+	bgP.velocityAddition = XMFLOAT3(0.0f, 0.5f, 0.0f);
+	bgP.speedMult.isRandomRange = true;
+	bgP.speedMult.range = XMFLOAT2(0.05f, 0.2f);
+	bgP.size.isRandomRange = false;
+	bgP.size.range = XMFLOAT2(0.1f, 0.1f);
+	bgP.lifetime.isRandomRange = true;
+	bgP.lifetime.range = XMFLOAT2(0.5f, 1.0f);
+	bgP.isOneShot = true;
+	bgP.isFire = false;
+	mFBBlueGhost->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowBlue.png", md3dDevice, bgP);
 
 	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
 
@@ -556,6 +597,11 @@ void PuckMan3D::UpdateScene(float dt)
 				ResetGhosts();
 				break;
 			}
+			else
+			{
+				mFBBlueGhost->SetPos(ghosts[i].pos);
+				mFBBlueGhost->FireEffect();
+			}
 		}
 
 	}
@@ -833,6 +879,7 @@ void PuckMan3D::UpdateScene(float dt)
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
 
 	mFireBallPac->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
+	mFBBlueGhost->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
 	
 	/*for (int i = 0; i < mFireBallParticles.size(); ++i)
 	{
@@ -1216,6 +1263,7 @@ void PuckMan3D::DrawWrapper()
 	}
 
 	mFireBallPac->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
+	mFBBlueGhost->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
 
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
