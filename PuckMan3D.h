@@ -362,7 +362,8 @@ private:
 	float mTimeGhostCurrent;
 	float mTimeGhostNext;
 
-	std::ifstream mHighScores;
+	std::stringstream mHighScores;
+	std::ifstream txtFile;
 
 	ID3D11ShaderResourceView* mOffscreenSRV;
 	ID3D11UnorderedAccessView* mOffscreenUAV;
