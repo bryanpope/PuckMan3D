@@ -16,6 +16,30 @@ Ghost::~Ghost()
 {
 }
 
+std::string GhosFacingToString(PuckMan::Facing facing)
+{
+	if (facing == PuckMan::Facing::F_FORWARD)
+	{
+		return "forward";
+	}
+	else if (facing == PuckMan::Facing::F_BACKWARD)
+	{
+		return "backward";
+	}
+	else if (facing == PuckMan::Facing::F_LEFT)
+	{
+		return "left";
+	}
+	else if (facing == PuckMan::Facing::F_RIGHT)
+	{
+		return "right";
+	}
+	else
+	{
+		return "";
+	}
+}
+
 void Ghost::MoveGhost(PathNode* target, float dt)
 {
 	XMVECTOR pos = XMLoadFloat3(&mPos);

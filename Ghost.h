@@ -45,29 +45,7 @@ protected:
 	void MoveGhost(PathNode* target, float dt);
 	void MoveToPuckMan();
 
-	std::string FacingToString(PuckMan::Facing facing) const
-	{
-		if (facing == PuckMan::Facing::F_FORWARD)
-		{
-			return "forward";
-		}
-		else if (facing == PuckMan::Facing::F_BACKWARD)
-		{
-			return "backward";
-		}
-		else if (facing == PuckMan::Facing::F_LEFT)
-		{
-			return "left";
-		}
-		else if (facing == PuckMan::Facing::F_RIGHT)
-		{
-			return "right";
-		}
-		else
-		{
-			return "";
-		}
-	}
+	std::string FacingToString(PuckMan::Facing facing) const;
 
 public:
 	Ghost();

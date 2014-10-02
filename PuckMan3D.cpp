@@ -551,7 +551,7 @@ void PuckMan3D::UpdateScene(float dt)
 			mBlinky->Update(dt, powerUpActivated, mPuckMan->GetFacing());
 			mPinky->Update(dt, powerUpActivated, mPuckMan->GetFacing());
 			mInky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mBlinky->getPos());
-			mClyde->Update(dt, powerUpActivated, mPuckman->GetFacing());
+			mClyde->Update(dt, powerUpActivated, mPuckMan->GetFacing());
 		}
 		MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z + 0.5f, 0.0f), 0);
 		MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z + 0.5f, 0.0f), 1);
