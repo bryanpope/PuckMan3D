@@ -37,7 +37,7 @@ void Ghost::MoveGhost(PathNode* target, float dt)
 
 void Ghost::Update()
 {
-	switch (mGhostStates)
+	/*switch (mGhostStates)
 	{
 	case SCATTER:
 		if (mLevelNumber == 1)
@@ -64,17 +64,17 @@ void Ghost::Update()
 	case CHASE:
 		//Target 4 tiles in front of PuckMan's facing
 		//std::string goalFacing = mPuckMan->getFacing();
-		/*if (goalFacing == "forward" || goalFacing == "backward")
+		if (goalFacing == "forward" || goalFacing == "backward")
 		{
 			//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
 			//mGoal = new PathNode(mPuckMan->getRow() + (4 * goalFacing), mPuckMan->getCol(), 0, 0, NULL, mPuckMan->getFacing());
-		}*/
+		}
 
-		/*if (goalFacing == "left" || goalFacing == "right")
+		if (goalFacing == "left" || goalFacing == "right")
 		{
 			//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
 			//mGoal = new PathNode(mPuckMan->getRow(), mPuckMan->getCol() + (4 * goalFacing), 0, 0, NULL, mPuckMan->getFacing());
-		}*/
+		}
 
 		//mPath = FindPath(mStart, mGoal);
 		break;
@@ -104,7 +104,7 @@ void Ghost::Update()
 		//Spawn in box
 		//XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f)
 		break;
-		/*case IN_TUNNEL:
+		case IN_TUNNEL:
 			if (mLevelNumber == 1)
 			{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
@@ -125,6 +125,6 @@ void Ghost::Update()
 			vel = vel * 0.50f;
 			XMStoreFloat3(&mVel, vel);
 			break;
-		}*/
-	}
+		}
+	}*/
 }

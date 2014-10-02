@@ -2,16 +2,65 @@
 
 Pinky::Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
-	this->mGhostStates = GHOST_STATES::DEAD;
+	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = -13.0f;
-	this->mScatterTile.z = -14.5f;
+	this->mScatterTile.z = 14.5f;
+	waypointIterator = 0;
+	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+	waypoints = test.FindPath(mStart, mGoal);
+	scatterPathDrawn = true;
 }
 
 Pinky::~Pinky()
 {
 }
 
-void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
+const XMFLOAT3 Pinky::mScatterWaypoints[18] =
+{
+	{ XMFLOAT3(-13.0f, 0.0f, 13.5f) },
+	{ XMFLOAT3(-13.0f, 0.0f, 12.5f) },
+	{ XMFLOAT3(-13.0f, 0.0f, 11.5f) },
+	{ XMFLOAT3(-13.0f, 0.0f, 10.5f) },
+	{ XMFLOAT3(-12.0f, 0.0f, 10.5f) },
+	{ XMFLOAT3(-11.0f, 0.0f, 10.5f) },
+	{ XMFLOAT3(-10.0f, 0.0f, 10.5f) },
+	{ XMFLOAT3(-9.0f, 0.0f, 10.5f) },
+	{ XMFLOAT3(-8.0f, 0.0f, 10.5f) },
+	{ XMFLOAT3(-8.0f, 0.0f, 11.5f) },
+	{ XMFLOAT3(-8.0f, 0.0f, 12.5f) },
+	{ XMFLOAT3(-8.0f, 0.0f, 13.5f) },
+	{ XMFLOAT3(-8.0f, 0.0f, 14.5f) },
+	{ XMFLOAT3(-9.0f, 0.0f, 14.5f) },
+	{ XMFLOAT3(-10.0f, 0.0f, 14.5f) },
+	{ XMFLOAT3(-11.0f, 0.0f, 14.5f) },
+	{ XMFLOAT3(-12.0f, 0.0f, 14.5f) },
+	{ XMFLOAT3(-13.0f, 0.0f, 14.5f) },
+};
+
+const std::string Pinky::mScatterFacing[18] =
+{
+	{ "backward" },
+	{ "backward" },
+	{ "backward" },
+	{ "backward" },
+	{ "right" },
+	{ "right" },
+	{ "right" },
+	{ "right" },
+	{ "right" },
+	{ "up" },
+	{ "up" },
+	{ "up" },
+	{ "up" },
+	{ "left" },
+	{ "left" },
+	{ "left" },
+	{ "left" },
+	{ "left" }
+};
+
+void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, int levelNumber)
 {
 	/*if (powerUpActivated)
 	{
@@ -25,30 +74,53 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 	switch (mGhostStates)
 	{
 	case SCATTER:
-		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z, "");
-		waypoints = test.FindPath(mStart, mGoal);
+		if (!scatterPathDrawn)
+		{
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z, "");
+			waypoints = test.FindPath(mStart, mGoal);
+			scatterPathDrawn = true;
+			waypointIterator = 0;
+		}
 
 		if (waypoints.size() != 0)
 		{
-			this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
+			if (waypointIterator < waypoints.size())
+			{
+				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
+				waypointIterator++;
+				std::cout << waypointIterator << std::endl;
+			}
+			else if (waypointIterator == waypoints.size())
+			{
+				this->isLooping = true;
+				if (isLooping == true)
+				{
+					this->setPos(XMVectorSet(mScatterWaypoints[this->mCurrWaypointIndex].x, mScatterWaypoints[this->mCurrWaypointIndex].y, mScatterWaypoints[this->mCurrWaypointIndex].z, 0.0f));
+					this->mCurrWaypointIndex++;
+					if (this->mCurrWaypointIndex == 18)
+					{
+						this->mCurrWaypointIndex = 0;
+					}
+				}
+			}
 		}
 
-		if (mLevelNumber == 1)
+		if (levelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.75f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if (mLevelNumber >= 2 || mLevelNumber <= 4)
+		else if (levelNumber >= 2 || levelNumber <= 4)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.85f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if (mLevelNumber >= 5)
+		else if (levelNumber >= 5)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.95f;
@@ -60,7 +132,7 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 		if (facingState == PuckMan::Facing::F_FORWARD)
 		{
 			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f), FacingToString(facingState));
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f), PuckManFacingToString(facingState));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -74,7 +146,7 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 		if (facingState == PuckMan::Facing::F_BACKWARD)
 		{
 			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f), FacingToString(facingState));
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f), PuckManFacingToString(facingState));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -88,7 +160,7 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 		if (facingState == PuckMan::Facing::F_LEFT)
 		{
 			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), FacingToString(facingState));
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), PuckManFacingToString(facingState));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -102,7 +174,7 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 		if (facingState == PuckMan::Facing::F_RIGHT)
 		{
 			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), FacingToString(facingState));
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), PuckManFacingToString(facingState));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -114,21 +186,21 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 		}
 		break;
 	case FRIGHTENED:
-		if (mLevelNumber == 1)
+		if (levelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.50f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if (mLevelNumber >= 2 || mLevelNumber <= 4)
+		else if (levelNumber >= 2 || levelNumber <= 4)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.55f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if (mLevelNumber >= 5)
+		else if (levelNumber >= 5)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.60f;
@@ -140,21 +212,21 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 		//XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f)
 		break;
 	/*case IN_TUNNEL:
-		if (mLevelNumber == 1)
+		if (levelNumber == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.40f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if(mLevelNumber >= 2 || mLevelNumber <= 4)
+		else if(levelNumber >= 2 || levelNumber <= 4)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.45f;
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-		else if(mLevelNumber >= 5)
+		else if(levelNumber >= 5)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.50f;

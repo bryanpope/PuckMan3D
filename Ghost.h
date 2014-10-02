@@ -4,6 +4,7 @@
 #include "Pathfinding.h"
 #include "GameTimer.h"
 #include "Player.h"
+#include <array>
 
 class Ghost
 {
@@ -30,12 +31,17 @@ protected:
 	XMFLOAT3 mScatterTile;
 	float mSpeed;
 	float mRadius; //Originally set as 0.75f
-	int mLevelNumber;
-	std::string mFacing;
+	float mScatterTimer;
+	float mChaseTimer;
+	int mCurrWaypointIndex = 0;
+	bool isLooping = false; //This is to determine whether or not the ghost is in their scatter loop, false = not looping
+	bool scatterPathDrawn = false; //This is to determine whether or not the path has been drawn for the scatter path to prevent multiple calculations
+	GHOST_FACING mFacing = GHOST_FACING::NORTH;
 
 	Pathfinding test;
 
-	std::list<PathNode*> waypoints;
+	std::vector<PathNode*> waypoints;
+	int waypointIterator;
 	PathNode* mStart;
 	PathNode* mGoal;
 
@@ -45,7 +51,32 @@ protected:
 	void MoveGhost(PathNode* target, float dt);
 	void MoveToPuckMan();
 
-	std::string FacingToString(PuckMan::Facing facing) const
+	GHOST_FACING GetFacing() const
+	{
+		return mFacing;
+	}
+	
+	void SetFacing(std::string facing)
+	{
+		if (facing == "forward")
+		{
+			mFacing = GHOST_FACING::NORTH;
+		}
+		else if (facing == "backward")
+		{
+			mFacing = GHOST_FACING::SOUTH;
+		}
+		else if (facing == "left")
+		{
+			mFacing = GHOST_FACING::WEST;
+		}
+		else if (facing == "right")
+		{
+			mFacing = GHOST_FACING::EAST;
+		}
+	}
+
+	std::string PuckManFacingToString(PuckMan::Facing facing) const
 	{
 			if (facing == PuckMan::Facing::F_FORWARD)
 			{
@@ -67,6 +98,30 @@ protected:
 			{
 				return "";
 			}
+	}
+
+	std::string GhostFacingToString(GHOST_FACING facing) const
+	{
+		if (facing == GHOST_FACING::NORTH)
+		{
+			return "forward";
+		}
+		else if (facing == GHOST_FACING::SOUTH)
+		{
+			return "backward";
+		}
+		else if (facing == GHOST_FACING::WEST)
+		{
+			return "left";
+		}
+		else if (facing == GHOST_FACING::EAST)
+		{
+			return "right";
+		}
+		else
+		{
+			return "";
+		}
 	}
 
 public:

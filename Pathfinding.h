@@ -30,7 +30,7 @@ public:
 	Pathfinding();
 	~Pathfinding();
 
-	std::list<PathNode*> FindPath(PathNode* start, PathNode* goal);
+	std::vector<PathNode*> FindPath(PathNode* start, PathNode* goal);
 	void AddChild(PathNode childNode, PathNode* currNode, PathNode* goal, std::string facing);
 	void InitializePathFinding();
 	float GetDistance(PathNode* currNode, PathNode* parent);

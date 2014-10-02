@@ -20,6 +20,16 @@ PathNode::PathNode(int x, int z, std::string f)
 	facing = f;
 }
 
+PathNode::PathNode(int x, int z)
+{
+	xPos = x;
+	zPos = z;
+	gCost = 0;
+	fCost = 0;
+	parent = NULL;
+	facing = "";
+}
+
 
 //initial is the node you are feeding the data INTO
 //target is the node you are taking the data FROM
@@ -42,13 +52,14 @@ int PathNode::getDistance(PathNode* goal, int x, int z)
 
 int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 {
-	if (child.facing != parent->facing)
+	return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+	/*if (child.facing != parent->facing)
 	{
 		if (parent->facing == "left")
 		{
 			if (child.facing == "forward" || child.facing == "backward")
 			{
-				return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+				
 			}
 			else if (child.facing == "right")
 			{
@@ -92,5 +103,5 @@ int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 		}
 		
 	}
-	//return sqrt((child.zPos - parent->zPos) * (child.zPos - parent->zPos) + (child.xPos - parent->xPos) * (child.xPos - parent->xPos));
+	//return sqrt((child.zPos - parent->zPos) * (child.zPos - parent->zPos) + (child.xPos - parent->xPos) * (child.xPos - parent->xPos));*/
 }

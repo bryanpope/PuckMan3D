@@ -9,12 +9,12 @@ Pathfinding::~Pathfinding()
 {
 }
 
-std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
+std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 {
 	mOpenList.clear();
 	mClosedSet.clear();
 
-	std::list<PathNode*> tempPath;
+	std::vector<PathNode*> retPath;
 
 	PathNode* currentNode = new PathNode(*start);
 	currentNode->combineNode(currentNode, start);
@@ -63,22 +63,23 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 			//Populate and create the path vector
 			while (currentNode->parent != NULL && currentNode != start)
 			{
-				tempPath.push_back(currentNode);
+				retPath.push_back(currentNode);
 				currentNode = currentNode->getParent();
 			}
-			tempPath.reverse();
+			//retPath.reverse();
+			std::reverse(retPath.begin(), retPath.end());
 			mOpenList.clear();
 			mClosedSet.clear();
-			return tempPath;
+			return retPath;
 		}
 		else
 		{
-			return tempPath;
+			return retPath;
 		}
 	}
 	else
 	{
-		return tempPath;
+		return retPath;
 	}
 }
 

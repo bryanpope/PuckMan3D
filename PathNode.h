@@ -24,6 +24,7 @@ public:
 
 	PathNode(int x, int z, int g, int f, PathNode* parent, std::string facing);
 	PathNode(int x, int z, std::string facing);
+	PathNode(int x, int z);
 	~PathNode(){}
 
 	PathNode* getParent()
