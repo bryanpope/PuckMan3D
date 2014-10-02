@@ -216,7 +216,7 @@ bool PuckMan3D::Init()
 	Vertex::InitLitMatInstanceLayout(md3dDevice, mLitMatInstanceEffect->GetTech());
 
 	//mMazeModel = new BasicModel(md3dDevice, mCherry, "Mazes/mainLevel.txt");
-	mMazeModelInstanced = new BasicModel(md3dDevice, mLitMatInstanceEffect, "Mazes/mainLevelNew.txt");
+	mMazeModelInstanced = new BasicModel(md3dDevice, mLitMatInstanceEffect, "Mazes/mainLevelNewD.txt");
 
 	BuildPuckMan();
 	BuildGhosts();

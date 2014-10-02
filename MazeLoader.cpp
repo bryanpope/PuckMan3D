@@ -121,6 +121,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		mElementCount.walls.horizontal += std::count(wLine.begin(), wLine.end(), L'5');
 		mElementCount.walls.horizontal += std::count(wLine.begin(), wLine.end(), L'6');
 		mElementCount.pellets += std::count(wLine.begin(), wLine.end(), L' ');
+		mElementCount.pellets += std::count(wLine.begin(), wLine.end(), L'D');
 		mElementCount.powerUps += std::count(wLine.begin(), wLine.end(), L'O');
 		mElementCount.emptySpaces += std::count(wLine.begin(), wLine.end(), L'-');
 
@@ -450,9 +451,9 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				}
 				mBoxData.push_back(AABox(XMVectorSet(posX, 0.0f, -posZ, 0.0f), 0.5f, 0.5f));
 			}
-			if (mazeText[i][j] == L' ')	// pellets
+			if (mazeText[i][j] == L' ' || mazeText[i][j] == L'D')	// pellets or divergent pellets
 			{
-				mMazeElements.push_back(ME_PELLET);
+				mMazeElements.push_back(mazeText[i][j] == L' ' ? ME_PELLET : ME_PELLET_DIVERGENT);
 				worldPos._41 = posX;
 				worldPos._42 = 0.0f;
 				worldPos._43 = -posZ;
@@ -511,9 +512,9 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				instGhosts[instanceCountGhost].World = worldPos;
 				instGhosts[instanceCountGhost++].Color = colour;
 			}
-			if (mazeText[i][j] == L'=')	// Really blank, but okay to travel to
+			if (mazeText[i][j] == L'=' || mazeText[i][j] == L'd')	// Really blank, but okay to travel to, maybe divergent
 			{
-				mMazeElements.push_back(ME_NOTHING);
+				mMazeElements.push_back(mazeText[i][j] == L'=' ? ME_NOTHING : ME_NOTHING_DIVERGENT);
 			}
 			if (mazeText[i][j] == L'-')	// Really blank, don't go here
 			{
@@ -538,6 +539,13 @@ bool MazeLoader::IsBlocked(UINT row, UINT col)
 	UINT index = (row * mMazeWidth) + col;
 
 	return ((mMazeElements[index] == ME_WALL) || (mMazeElements[index] == ME_BLANK));
+}
+
+bool MazeLoader::IsDivergent(UINT row, UINT col)
+{
+	UINT index = (row * mMazeWidth) + col;
+
+	return ((mMazeElements[index] == ME_PELLET_DIVERGENT) || (mMazeElements[index] == ME_NOTHING_DIVERGENT));
 }
 
 void MazeLoader::SetPacManPos(FXMVECTOR pos, UINT index)

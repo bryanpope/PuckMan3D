@@ -89,9 +89,11 @@ public:
 	{
 		ME_WALL,
 		ME_PELLET,
+		ME_PELLET_DIVERGENT,
 		ME_POWERUP,
 		ME_BLANK, 
-		ME_NOTHING
+		ME_NOTHING,
+		ME_NOTHING_DIVERGENT
 	};
 
 	static bool Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices, 
@@ -104,6 +106,7 @@ public:
 	static const InitialPosition& GetInitialPos(){ return mInitialPositions; }
 	static const std::vector<AABox> GetWallCollisionData(){ return mBoxData; }
 	static bool IsBlocked(UINT row, UINT col);
+	static bool IsDivergent(UINT row, UINT col);
 	static std::vector<MazeElementSpecs> GetFloorData(){ return mFloor; }
 	static std::vector<MazeElementSpecs> GetWallBentData(){ return mWallsBent; }
 	static std::vector<MazeElementSpecs> GetWallStraightData(){ return mWallsStraight; }
