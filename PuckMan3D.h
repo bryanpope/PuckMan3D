@@ -30,6 +30,7 @@
 #include "BlurFilter.h"
 #include "Character.h"
 #include "FireBallParticles.h"
+#include<fstream>
 
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
@@ -332,7 +333,8 @@ private:
 		GS_GAMEOVER,
 		GS_OPTIONS,
 		GS_CREDITS,
-		GS_SOUNDOPTIONS
+		GS_SOUNDOPTIONS,
+		GS_HIGHSCORE
 	};
 	GameState mGameState = GameState::GS_MAINMENU;
 	FacingState mFacingState = FCS_DEFAULT;
@@ -358,6 +360,8 @@ private:
 
 	float mTimeGhostCurrent;
 	float mTimeGhostNext;
+
+	std::ifstream mHighScores;
 
 	ID3D11ShaderResourceView* mOffscreenSRV;
 	ID3D11UnorderedAccessView* mOffscreenUAV;

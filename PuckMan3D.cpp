@@ -1287,9 +1287,10 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_MAINMENU)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, "Play Game - (1)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 400.0f, 0.0f, 0.0f), 50, 75, 25, "Options - (2)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 300.0f, 0.0f, 0.0f), 50, 75, 25, "Credits - (3)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, "Play Game - (1)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 50, 75, 25, "Options - (2)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 50, 75, 25, "Credits - (3)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 50, 75, 25, "Highscores - (4)");
 	}
 	if (mGameState == GameState::GS_CREDITS)
 	{
@@ -1297,6 +1298,10 @@ void PuckMan3D::DrawWrapper()
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 400.0f, 0.0f, 0.0f), 40, 75, 25, "Andrew Best");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Shane Boorse");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 200.0f, 0.0f, 0.0f), 40, 75, 25, "Brandon Coulthard");
+	}
+	if (mGameState == GameState::GS_HIGHSCORE)
+	{
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscores");
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
@@ -1405,7 +1410,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 	if (GetAsyncKeyState(VK_BACK) & 0x0001)
 	{
-		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS)
+		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_HIGHSCORE)
 		{
 			mGameState = GS_MAINMENU;
 		}
@@ -1492,6 +1497,10 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			{
 				mMuteEatingSFX = true;
 			}
+		}
+		if (mGameState == GS_MAINMENU)
+		{
+			mGameState = GS_HIGHSCORE;
 		}
 	}
 	if (GetAsyncKeyState('5') & 0x0001)
