@@ -180,6 +180,8 @@ private:
 	FireBallParticles *mFBInky;
 	FireBallParticles *mFBPinky;
 	FireBallParticles *mFBClyde;
+	float mCurrRatio;
+	XMVECTOR mOrigPos;
 
 	//ParticleEffect* mFireBallEffect;
 	//std::vector<TestParticle> mFireBallParticles;

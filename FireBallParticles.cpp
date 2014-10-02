@@ -172,6 +172,38 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 	}
 }
 
+void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt, float ratio, ID3D11DeviceContext* context)
+{
+	if (!mProperties.isFire || mIsAllParticlesDead)
+	{
+		return;
+	}
+
+	XMFLOAT3 fVel3;
+	float pSize;
+	bool isParticleStillAlive = false;
+
+	XMFLOAT3 nPos;
+	XMVECTOR oPos = XMLoadFloat3(&mOriginalPos);
+	XMVECTOR dPos = newPos - oPos;
+	float distance = sqrt((dPos.m128_f32[0] * dPos.m128_f32[0]) + (dPos.m128_f32[2] * dPos.m128_f32[2]));
+	float radius = distance * 0.5f;
+	XMVECTOR ndPos = XMVector3Normalize(dPos);
+	XMVECTOR centrePoint = ndPos * radius;
+
+	for (int i = 0; i < mFireBallParticles.size(); ++i)
+	{
+		//XMVECTOR pos = XMLoadFloat3(&mFireBallParticles[i].pos);
+		//XMVECTOR vel = XMLoadFloat3(&mFireBallParticles[i].vel);
+		//pos = pos + vel;
+		//XMStoreFloat3(&mFireBallParticles[i].pos, pos);
+		mFireBallParticles[i].pos.x = centrePoint.m128_f32[0] + (radius * cos(ratio * XM_PI));
+		mFireBallParticles[i].pos.y = centrePoint.m128_f32[1] + (radius * sin(ratio * XM_PI)) + 4.0f;
+
+	}
+
+}
+
 XMFLOAT3 FireBallParticles::GetVelocity()
 {
 	return XMFLOAT3(mProperties.velocityAddition.x + (mProperties.velX.isRandomRange ? MathHelper::RandF(mProperties.velX.range.x, mProperties.velX.range.y) : mProperties.velX.range.x),

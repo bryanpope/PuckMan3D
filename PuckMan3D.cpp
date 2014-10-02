@@ -306,6 +306,9 @@ bool PuckMan3D::Init()
 	bgP.isOneShot = true;
 	bgP.isFire = false;
 	mFBBlueGhost->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowBlue.png", md3dDevice, bgP);
+	mFBBlueGhost->SetOriginalPos(mPuckMan->GetPos());
+	mCurrRatio = 0.0f;
+	mOrigPos = mPuckMan->GetPos();
 
 	mFBBlinky = new FireBallParticles();
 	FireBallParticles::FireBallParticlesProperties BlP;
@@ -920,7 +923,15 @@ void PuckMan3D::UpdateScene(float dt)
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
 
 	mFireBallPac->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
-	mFBBlueGhost->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
+	//mFBBlueGhost->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
+
+	mOrigPos.m128_f32[0] = -12.5f;
+	mFBBlueGhost->Update(mOrigPos, MazeLoader::RADIUS_PAC_MAN, dt, mCurrRatio, md3dImmediateContext);
+	mCurrRatio += dt;
+	if (mCurrRatio >= 2.0f)
+	{
+		mCurrRatio = 0.0f;
+	}
 	//mFBBlinky->Update(XMLoadFloat3(&(mBlinky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
 	//mFBInky->Update(XMLoadFloat3(&(mInky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
 	//mFBPinky->Update(XMLoadFloat3(&(mPinky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);

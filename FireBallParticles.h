@@ -42,12 +42,15 @@ public:
 
 	void Init(FXMVECTOR initialPos, float fireballRadius, LPCWSTR texFilename, ID3D11Device* device, FireBallParticlesProperties p);
 	void Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context);
+	void Update(FXMVECTOR newPos, float fireballRadius, float dt, float ratio, ID3D11DeviceContext* context);
 	void DrawFireBall(FXMVECTOR eyePos, CXMMATRIX viewProj, ID3D11DeviceContext* context);
 	void SetPos(XMFLOAT3 newPos);
 	void FireEffect();
 
 	void SetFireBallTexture(ID3D11ShaderResourceView* fbTex){ mFBTexture = fbTex; }
 	void SetProperties(FireBallParticlesProperties p){ mProperties = p; }
+
+	void SetOriginalPos(FXMVECTOR oPos){ XMStoreFloat3(&mOriginalPos, oPos); }
 
 private:
 	void BuildBlendState(ID3D11Device* device);
@@ -70,5 +73,7 @@ private:
 	FireBallParticlesProperties mProperties;
 	bool mIsAllParticlesDead;
 	UINT mParticlesShown;
+
+	XMFLOAT3 mOriginalPos;
 };
 
