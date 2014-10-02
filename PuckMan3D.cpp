@@ -96,6 +96,9 @@ PuckMan3D::~PuckMan3D()
 	if (mFBBlueGhost)
 		delete mFBBlueGhost;
 
+	if (mFBBlinky)
+		delete mFBBlinky;
+
 	if (mAdditiveBS)
 		ReleaseCOM(mAdditiveBS);
 
@@ -294,6 +297,26 @@ bool PuckMan3D::Init()
 	bgP.isOneShot = true;
 	bgP.isFire = false;
 	mFBBlueGhost->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowBlue.png", md3dDevice, bgP);
+
+	mFBBlinky = new FireBallParticles();
+	FireBallParticles::FireBallParticlesProperties BlP;
+	BlP.numParticles = 2500;
+	BlP.velX.isRandomRange = true;
+	BlP.velX.range = XMFLOAT2(-0.5f, 0.5f);
+	BlP.velY.isRandomRange = true;
+	BlP.velY.range = XMFLOAT2(-0.5f, 0.5f);
+	BlP.velZ.isRandomRange = true;
+	BlP.velZ.range = XMFLOAT2(-0.5f, 0.5f);
+	BlP.velocityAddition = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	BlP.speedMult.isRandomRange = true;
+	BlP.speedMult.range = XMFLOAT2(0.1f, 0.2f);
+	BlP.size.isRandomRange = false;
+	BlP.size.range = XMFLOAT2(0.05f, 0.05f);
+	BlP.lifetime.isRandomRange = true;
+	BlP.lifetime.range = XMFLOAT2(0.5f, 0.75f);
+	BlP.isOneShot = false;
+	BlP.isFire = true;
+	mFBBlueGhost->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowRed.png", md3dDevice, BlP);
 
 	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
 
