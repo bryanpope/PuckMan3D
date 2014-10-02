@@ -31,20 +31,20 @@ std::list<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 				//Get adjacent walkable tiles
 				//Move the child node one node to the right to get the node to the right of currentNode
 				tempChildNode.xPos++;
-				AddChild(tempChildNode, currentNode, goal);
+				AddChild(tempChildNode, currentNode, goal, "right");
 
 				//Move the child node to the left to get the node to the left of currentNode
 				tempChildNode.xPos -= 2;
-				AddChild(tempChildNode, currentNode, goal);
+				AddChild(tempChildNode, currentNode, goal, "left");
 
 				//Move the child node up one row to get the node above currentNode
 				tempChildNode.xPos++;
 				tempChildNode.zPos++;
-				AddChild(tempChildNode, currentNode, goal);
+				AddChild(tempChildNode, currentNode, goal, "up");
 
 				//Finally, move the child node to the bottom, to get the node one below currentNode
 				tempChildNode.zPos -= 2;
-				AddChild(tempChildNode, currentNode, goal);
+				AddChild(tempChildNode, currentNode, goal, "down");
 
 				mClosedSet.insert(currentNode);
 
@@ -87,7 +87,7 @@ bool Pathfinding::ArrivedAtEnd(PathNode* currNode, PathNode* goal)
 	return (currNode->xPos == goal->xPos) && (currNode->zPos == goal->zPos);
 }
 
-void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goal)
+void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goal, std::string facing)
 {
 	int col = (int)round(childNode.xPos + 14.5f) - 1;
 	int row = (MazeLoader::GetMazeHeight()) - (int)round(childNode.zPos + 15.5f);
@@ -99,6 +99,7 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 		{
 			if (!InClosedList(&childNode))
 			{
+				childNode.facing = facing;
 				int g = currNode->gCost + childNode.getDistanceFromParent(childNode, currNode);
 				int f = g + childNode.getDistance(goal, childNode.xPos, childNode.zPos);
 
@@ -115,7 +116,7 @@ void Pathfinding::AddChild(PathNode childNode, PathNode* currNode, PathNode* goa
 				else
 				{
 					//Add it to the openList with the current node as the parent
-					PathNode* newChildNode = new PathNode(childNode.xPos, childNode.zPos, g, f, currNode);
+					PathNode* newChildNode = new PathNode(childNode.xPos, childNode.zPos, g, f, currNode, facing);
 					mOpenList.push_back(newChildNode);
 				}
 			}

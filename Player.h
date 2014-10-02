@@ -58,4 +58,3 @@ public:
 protected:
 	Facing mFacing = F_LEFT;
 };
-

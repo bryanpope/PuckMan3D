@@ -11,7 +11,7 @@ Blinky::~Blinky()
 {
 }
 
-void Blinky::Update(float dt, bool powerUpActivated)
+void Blinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 {
 	/*if (powerUpActivated)
 	{
@@ -25,8 +25,8 @@ void Blinky::Update(float dt, bool powerUpActivated)
 	switch (mGhostStates)
 	{
 	case SCATTER:
-		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z, "");
 		waypoints = test.FindPath(mStart, mGoal);
 		if (waypoints.size() != 0)
 		{
@@ -37,7 +37,8 @@ void Blinky::Update(float dt, bool powerUpActivated)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.75f;
-			XMStoreFloat3(&mVel, vel);
+			XMStoreFloat3(&mVel, vel);// hello from Gumby.
+									  // Hey babe
 			break;
 		}
 		else if(mLevelNumber >= 2 || mLevelNumber <= 4)
@@ -55,9 +56,8 @@ void Blinky::Update(float dt, bool powerUpActivated)
 			break;
 		}
 	case CHASE:
-		//A simple call to pathfinding will suffice
-		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-		mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+		mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z), FacingToString(facingState));
 
 		waypoints = test.FindPath(mStart, mGoal);
 

@@ -11,7 +11,7 @@ Clyde::~Clyde()
 {
 }
 
-void Clyde::Update(float dt, bool powerUpActivated)
+void Clyde::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 {
 	/*if (powerUpActivated)
 	{
@@ -44,8 +44,8 @@ void Clyde::Update(float dt, bool powerUpActivated)
 	switch (mGhostStates)
 	{
 	case SCATTER:
-		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z, "");
 		waypoints = test.FindPath(mStart, mGoal);
 
 		if (waypoints.size() != 0)
@@ -75,8 +75,8 @@ void Clyde::Update(float dt, bool powerUpActivated)
 			break;
 		}
 	case CHASE:					
-		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-		mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+		mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z), FacingToString(facingState));
 		waypoints = test.FindPath(mStart, mGoal);
 		if (waypoints.size() != 0)
 		{

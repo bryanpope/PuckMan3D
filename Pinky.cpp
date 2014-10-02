@@ -25,8 +25,8 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 	switch (mGhostStates)
 	{
 	case SCATTER:
-		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+		mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z, "");
 		waypoints = test.FindPath(mStart, mGoal);
 
 		if (waypoints.size() != 0)
@@ -59,8 +59,8 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 		//Target 4 tiles in front of PuckMan's facing
 		if (facingState == PuckMan::Facing::F_FORWARD)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f), FacingToString(facingState));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -73,8 +73,8 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 
 		if (facingState == PuckMan::Facing::F_BACKWARD)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f), FacingToString(facingState));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -87,8 +87,8 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 
 		if (facingState == PuckMan::Facing::F_LEFT)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), FacingToString(facingState));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)
@@ -101,8 +101,8 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState)
 
 		if (facingState == PuckMan::Facing::F_RIGHT)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), FacingToString(facingState));
 			waypoints = test.FindPath(mStart, mGoal);
 
 			if (waypoints.size() != 0)

@@ -1,21 +1,23 @@
 #include "PathNode.h"
 
-PathNode::PathNode(int x, int z, int g, int fC, PathNode* p)
+PathNode::PathNode(int x, int z, int g, int fC, PathNode* p, std::string f)
 {
 	xPos = x;
 	zPos = z;
 	gCost = g;
 	fCost = fC;
 	parent = p;
+	facing = f;
 }
 
-PathNode::PathNode(int x, int z)
+PathNode::PathNode(int x, int z, std::string f)
 {
 	xPos = x;
 	zPos = z;
 	gCost = 0;
 	fCost = 0;
 	parent = NULL;
+	facing = f;
 }
 
 
@@ -27,6 +29,7 @@ PathNode* PathNode::combineNode(PathNode* initial, PathNode* target)
 	initial->zPos = target->zPos;
 	initial->gCost = target->gCost;
 	initial->fCost = target->fCost;
+	initial->facing = target->facing;
 
 	return initial;
 }
@@ -39,6 +42,55 @@ int PathNode::getDistance(PathNode* goal, int x, int z)
 
 int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 {
-	return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+	if (child.facing != parent->facing)
+	{
+		if (parent->facing == "left")
+		{
+			if (child.facing == "forward" || child.facing == "backward")
+			{
+				return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+			}
+			else if (child.facing == "right")
+			{
+				return 200;
+			}
+		}
+
+		if (parent->facing == "right")
+		{
+			if (child.facing == "forward" || child.facing == "backward")
+			{
+				return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+			}
+			else if (child.facing == "left")
+			{
+				return 200;
+			}
+		}
+
+		if (parent->facing == "forward")
+		{
+			if (child.facing == "left" || child.facing == "right")
+			{
+				return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+			}
+			else if (child.facing == "backward")
+			{
+				return 200;
+			}
+		}
+		if (parent->facing == "backward")
+		{
+			if (child.facing == "left" || child.facing == "right")
+			{
+				return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+			}
+			else if (child.facing == "forward")
+			{
+				return 200;
+			}
+		}
+		
+	}
 	//return sqrt((child.zPos - parent->zPos) * (child.zPos - parent->zPos) + (child.xPos - parent->xPos) * (child.xPos - parent->xPos));
 }

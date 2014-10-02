@@ -30,7 +30,6 @@ protected:
 	XMFLOAT3 mScatterTile;
 	float mSpeed;
 	float mRadius; //Originally set as 0.75f
-	const float Z_OFFSET = 0.5f;
 	int mLevelNumber;
 	std::string mFacing;
 
@@ -45,6 +44,30 @@ protected:
 
 	void MoveGhost(PathNode* target, float dt);
 	void MoveToPuckMan();
+
+	std::string FacingToString(PuckMan::Facing facing) const
+	{
+		if (facing == PuckMan::Facing::F_FORWARD)
+		{
+			return "forward";
+		}
+		else if (facing == PuckMan::Facing::F_BACKWARD)
+		{
+			return "backward";
+		}
+		else if (facing == PuckMan::Facing::F_LEFT)
+		{
+			return "left";
+		}
+		else if (facing == PuckMan::Facing::F_RIGHT)
+		{
+			return "right";
+		}
+		else
+		{
+			return "";
+		}
+	}
 
 public:
 	Ghost();
