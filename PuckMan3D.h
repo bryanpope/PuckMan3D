@@ -358,13 +358,14 @@ private:
 	RandGen rg;
 	int randNumber;
 	int mScore = 0;
-	std::stringstream currScore;
+	int mHighScore = 0;
 
 	float mTimeGhostCurrent;
 	float mTimeGhostNext;
 
-	std::stringstream mHighScores;
-	std::ifstream txtFile;
+	std::stringstream HighScore;
+	std::stringstream CurrScore;
+	std::ofstream txtFile;
 
 	ID3D11ShaderResourceView* mOffscreenSRV;
 	ID3D11UnorderedAccessView* mOffscreenUAV;

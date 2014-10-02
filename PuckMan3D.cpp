@@ -197,7 +197,7 @@ bool PuckMan3D::Init()
 	loadKaSFX();
 
 	//pass the score into stringstream
-	currScore << mScore;
+	CurrScore << mScore;
 
 	if(!D3DApp::Init())
 		return false;
@@ -1280,7 +1280,7 @@ void PuckMan3D::DrawWrapper()
 		//os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mPelletCounter;
 		mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 25, "Score: " + currScore.str());
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 25, "Score: " + CurrScore.str());
 		md3dImmediateContext->OMSetDepthStencilState(0, 0);
 		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 	}
@@ -1372,13 +1372,14 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_HIGHSCORE)
 	{
-		//pass the txt file into wstringstream and then through string
 		txtFile.open("highscores.txt");
-		mHighScores << txtFile.rdbuf();
-		std::string contents(mHighScores.str());
+		CurrScore << mHighScore;
+		std::string score(CurrScore.str());
+		txtFile << score;
+		txtFile.close();
 
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscores");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, contents);
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, score);
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
@@ -1606,8 +1607,13 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		else if (mGameState == GameState::GS_GAMEOVER)
 		{
+			if (mHighScore <= mScore)
+			{
+				mHighScore = mScore;
+			}
 			resetGame();
-			mGameState = GameState::GS_ATTRACT;
+			mLevelCounter = 1;
+			mGameState = GameState::GS_MAINMENU;
 		}
 	}
 }
@@ -2232,8 +2238,8 @@ void PuckMan3D::loadSystem()
 
 void PuckMan3D::updateStringStream()
 {
-	currScore.str("");
-	currScore << mScore;
+	CurrScore.str("");
+	CurrScore << mScore;
 }
 
 void PuckMan3D::MuteAllAudio()
