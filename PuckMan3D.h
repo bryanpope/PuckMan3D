@@ -217,8 +217,8 @@ private:
 	XMFLOAT4X4 mProj;
 	XMFLOAT4X4 m2DProj;
 
-	PointLightOptimized mPointLights[3];
-	SpotLightOptimized mSpotLight;
+	PointLightOptimized mPointLights[5];
+	SpotLightOptimized mSpotLights[9];
 
 	PuckMan* mPuckMan;
 	Terrain* mTestTerrain;

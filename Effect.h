@@ -95,14 +95,14 @@ protected:
 	ID3DX11EffectVectorVariable* mfxAmbientLight;
 	ID3DX11EffectVectorVariable* mfxEyePos;
 	ID3DX11EffectVariable* mfxPointLight;
-	//ID3DX11EffectVariable* mfxSpotLight;
+	ID3DX11EffectVariable* mfxSpotLight;
 	//ID3DX11EffectShaderResourceVariable* mfxDiffuseMap;
 	ID3DX11EffectVariable* mfxMaterial;
 
 public:
 	virtual ~LitMatEffect();
 
-	virtual void SetPerFrameParams(FXMVECTOR ambient, FXMVECTOR eyePos, const PointLightOptimized* point);
+	virtual void SetPerFrameParams(FXMVECTOR ambient, FXMVECTOR eyePos, const PointLightOptimized* point, const SpotLightOptimized* spot);
 
 	virtual void SetPerObjectParams(CXMMATRIX world, CXMMATRIX invTranspose, CXMMATRIX wvp, CXMMATRIX viewProj, Material &mat);
 

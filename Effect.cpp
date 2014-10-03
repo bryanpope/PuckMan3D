@@ -211,10 +211,11 @@ LitMatEffect::~LitMatEffect()
 {
 }
 
-void LitMatEffect::SetPerFrameParams(FXMVECTOR ambient, FXMVECTOR eyePos, const PointLightOptimized* point)
+void LitMatEffect::SetPerFrameParams(FXMVECTOR ambient, FXMVECTOR eyePos, const PointLightOptimized* point, const SpotLightOptimized* spot)
 {
 	mfxEyePos->SetRawValue(&eyePos, 0, 12);
-	mfxPointLight->SetRawValue(point, 0, 3 * sizeof(PointLightOptimized));
+	mfxPointLight->SetRawValue(point, 0, 5 * sizeof(PointLightOptimized));
+	mfxSpotLight->SetRawValue(spot, 0, 9 * sizeof(SpotLightOptimized));
 	mfxAmbientLight->SetRawValue(&ambient, 0, sizeof(XMVECTOR));
 }
 
@@ -236,6 +237,7 @@ void LitMatEffect::LoadEffectParams()
 	mfxAmbientLight = mEffect->GetVariableByName("gAmbientLight")->AsVector();
 	mfxEyePos = mEffect->GetVariableByName("gEyePos")->AsVector();
 	mfxPointLight = mEffect->GetVariableByName("gPointLight");
+	mfxSpotLight = mEffect->GetVariableByName("gSpotLight");
 	mfxWorld = mEffect->GetVariableByName("gW")->AsMatrix();
 	mfxInvTranspose = mEffect->GetVariableByName("gInvTransposeW")->AsMatrix();
 	mfxMaterial = mEffect->GetVariableByName("gMaterial");

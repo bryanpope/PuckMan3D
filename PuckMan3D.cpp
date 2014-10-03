@@ -50,6 +50,7 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	XMStoreFloat4x4(&mGridWorld, I);
 	XMStoreFloat4x4(&mHUDFruitWorld, I);
 	XMStoreFloat4x4(&mHUDFruitWorld2, I);
+	
 
 	srand((UINT)time(NULL));
 
@@ -170,28 +171,137 @@ void PuckMan3D::BuildSceneLights()
 	mPointLights[0].range = 1.7f;
 	mPointLights[0].att = XMFLOAT3(0.1f, 0.03f, 0.1f);
 	mPointLights[0].pad = 0.0f;
-	
-	mPointLights[1].pos = XMFLOAT3(-10.0f, 0.0f, -8.0f);
-	mPointLights[1].lightColour = XMFLOAT4(0.001f, 1.00f, 0.001f, 1.0f);
+
+	// Blinky scatter zone light
+	mPointLights[1].pos = XMFLOAT3(6.0f, 0.0f, 14.5f);
+	mPointLights[1].lightColour = XMFLOAT4(1.0f, 0.001f, 0.001f, 1.0f);
 	mPointLights[1].range = 1000.0f;
 	mPointLights[1].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
 	mPointLights[1].pad = 0.0f;
 
-	mPointLights[2].pos = XMFLOAT3(10.0f, 0.0f, -8.0f);
-	mPointLights[2].lightColour = XMFLOAT4(0.001f, 0.001f, 1.00f, 1.0f);
+	// Clyde scatter zone light
+	mPointLights[2].pos = XMFLOAT3(-7.0f, 0.0f, -8.5f);
+	mPointLights[2].lightColour = XMFLOAT4(1.0f, 0.45f, 0.001f, 1.0f);
 	mPointLights[2].range = 1000.0f;
 	mPointLights[2].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
 	mPointLights[2].pad = 0.0f;
 
-	mSpotLight.pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mSpotLight.lightColour = XMFLOAT4(0.75f, 0.75f, 0.75f, 1.0f);
-	mSpotLight.range = 100.0f;
-	mSpotLight.att = XMFLOAT3(0.0f, 0.25f, 0.0f);
-	XMVECTOR temp = XMVectorSet(-mSpotLight.pos.x, -mSpotLight.pos.y,
-							    -mSpotLight.pos.z, 0.0f);
+	// Inky scatter zone light
+	mPointLights[3].pos = XMFLOAT3(6.0f, 0.0f, -8.5f);
+	mPointLights[3].lightColour = XMFLOAT4(0.01f, 0.41f, 0.88f, 1.0f);
+	mPointLights[3].range = 1000.0f;
+	mPointLights[3].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
+	mPointLights[3].pad = 0.0f;
+
+	// Pinky scatter zone light
+	mPointLights[4].pos = XMFLOAT3(-7.0f, 0.0f, 14.5f);
+	mPointLights[4].lightColour = XMFLOAT4(1.0f, 0.01f, 1.0f, 1.0f);
+	mPointLights[4].range = 1000.0f;
+	mPointLights[4].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
+	mPointLights[4].pad = 0.0f;
+
+	std::vector<MazeLoader::MazeElementSpecs> powerUp = MazeLoader::GetPowerUpData();
+
+	// Pinky Scatter Zone PowerUp
+	mSpotLights[0].pos = powerUp[0].pos;
+	mSpotLights[0].direction.x = 1.0f;
+	mSpotLights[0].direction.y = 0.0f;
+	mSpotLights[0].direction.z = 0.0f;
+	mSpotLights[0].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	mSpotLights[0].range = 1000.0f;
+	mSpotLights[0].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
+	//XMVECTOR temp = XMVectorSet(-mSpotLights[0].pos.x, -((mSpotLights[0].pos.y) - 0.6f), -mSpotLights[0].pos.z, 0.0f);
+	//temp = XMVector3Normalize(temp);
+	//XMStoreFloat3(&mSpotLights[0].direction, temp);
+	mSpotLights[0].spot = 3.0f;
+	mSpotLights[0].pad = 0.0f;
+
+	mSpotLights[1].pos = powerUp[0].pos;
+	mSpotLights[1].direction.x = -1.0f;
+	mSpotLights[1].direction.y = 0.0f;
+	mSpotLights[1].direction.z = 0.0f;
+	mSpotLights[1].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	mSpotLights[1].range = 1000.0f;
+	mSpotLights[1].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
+	//XMVECTOR temp = XMVectorSet(-mSpotLights[0].pos.x, -((mSpotLights[0].pos.y) - 0.6f), -mSpotLights[0].pos.z, 0.0f);
+	//temp = XMVector3Normalize(temp);
+	//XMStoreFloat3(&mSpotLights[0].direction, temp);
+	mSpotLights[1].spot = 3.0f;
+	mSpotLights[1].pad = 0.0f;
+
+	// Scatter Zone PowerUp
+	mSpotLights[2].pos = powerUp[1].pos;
+	mSpotLights[2].direction.x = 1.0f;
+	mSpotLights[2].direction.y = 0.0f;
+	mSpotLights[2].direction.z = 0.0f;
+	mSpotLights[2].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	mSpotLights[2].range = 1000.0f;
+	mSpotLights[2].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
+	mSpotLights[2].spot = 3.0f;
+	mSpotLights[2].pad = 0.0f;
+
+	mSpotLights[3].pos = powerUp[1].pos;
+	mSpotLights[3].direction.x = -1.0f;
+	mSpotLights[3].direction.y = 0.0f;
+	mSpotLights[3].direction.z = 0.0f;
+	mSpotLights[3].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	mSpotLights[3].range = 1000.0f;
+	mSpotLights[3].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
+	mSpotLights[3].spot = 3.0f;
+	mSpotLights[3].pad = 0.0f;
+
+	// Scatter Zone PowerUp
+	mSpotLights[4].pos = powerUp[2].pos;
+	mSpotLights[4].direction.x = 1.0f;
+	mSpotLights[4].direction.y = 0.0f;
+	mSpotLights[4].direction.z = 0.0f;
+	mSpotLights[4].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	mSpotLights[4].range = 1000.0f;
+	mSpotLights[4].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
+	mSpotLights[4].spot = 3.0f;
+	mSpotLights[4].pad = 0.0f;
+
+	mSpotLights[5].pos = powerUp[2].pos;
+	mSpotLights[5].direction.x = -1.0f;
+	mSpotLights[5].direction.y = 0.0f;
+	mSpotLights[5].direction.z = 0.0f;
+	mSpotLights[5].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	mSpotLights[5].range = 1000.0f;
+	mSpotLights[5].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
+	mSpotLights[5].spot = 3.0f;
+	mSpotLights[5].pad = 0.0f;
+
+	// Scatter Zone PowerUp
+	mSpotLights[6].pos = powerUp[3].pos;
+	mSpotLights[6].direction.x = 1.0f;
+	mSpotLights[6].direction.y = 0.0f;
+	mSpotLights[6].direction.z = 0.0f;
+	mSpotLights[6].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	mSpotLights[6].range = 1000.0f;
+	mSpotLights[6].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
+	mSpotLights[6].spot = 3.0f;
+	mSpotLights[6].pad = 0.0f;
+
+	mSpotLights[7].pos = powerUp[3].pos;
+	mSpotLights[7].direction.x = -1.0f;
+	mSpotLights[7].direction.y = 0.0f;
+	mSpotLights[7].direction.z = 0.0f;
+	mSpotLights[7].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	mSpotLights[7].range = 1000.0f;
+	mSpotLights[7].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
+	mSpotLights[7].spot = 3.0f;
+	mSpotLights[7].pad = 0.0f;
+
+	mSpotLights[8].pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mSpotLights[8].lightColour = XMFLOAT4(0.75f, 0.75f, 0.75f, 1.0f);
+	mSpotLights[8].range = 100.0f;
+	mSpotLights[8].att = XMFLOAT3(0.0f, 0.25f, 0.0f);
+	XMVECTOR temp = XMVectorSet(-mSpotLights[8].pos.x, -mSpotLights[8].pos.y,
+		-mSpotLights[8].pos.z, 0.0f);
 	temp = XMVector3Normalize(temp);
-	XMStoreFloat3(&mSpotLight.direction, temp);
-	mSpotLight.spot = 128.0f;
+	XMStoreFloat3(&mSpotLights[8].direction, temp);
+	mSpotLights[8].spot = 128.0f;
+
 
 	mAmbientColour = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 }
@@ -587,7 +697,7 @@ void PuckMan3D::UpdateCollision()
 		mPuckMan->SetPos(playerPos);
 	}*/
 }
-
+float angle = 0.0f;
 float timer = 0.0f;
 void PuckMan3D::UpdateScene(float dt)
 {
@@ -634,6 +744,10 @@ void PuckMan3D::UpdateScene(float dt)
 	mPointLights[0].pos.x = pacMans[0].pos.x;
 	mPointLights[0].pos.z = pacMans[0].pos.z;
 
+	
+	
+	
+	
 	//// Checking PacMan collision with maze
 	mPuckMan->SetPos(PacManAABoxOverLap(mPuckMan->GetPos()));
 	MazeLoader::SetPacManPos(PacManAABoxOverLap(mPuckMan->GetPos()), 0);
@@ -763,6 +877,25 @@ void PuckMan3D::UpdateScene(float dt)
 			break;
 		}
 	}
+
+	//// PowerUp SpotLights Rotation 
+	angle += dt * 2;
+	if (angle > 2.0f)
+	{
+		angle = 0.0f;
+	}
+
+	for (int i = 0; i < powerUps.size() * 2; ++i)
+	{
+		XMVECTOR lightDirection = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+		lightDirection = i % 2 ? XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f) : XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+
+		XMMATRIX rotateSpotLight = XMMatrixRotationY(angle * (XM_PI ));
+		
+		lightDirection = XMVector3TransformNormal(lightDirection, rotateSpotLight);
+		XMStoreFloat3(&mSpotLights[i].direction, lightDirection);
+	}
+		
 
 	////PacMan Tunnel Check
 	if (pacMans[0].pos.x < -14.0f)
@@ -1062,8 +1195,8 @@ void PuckMan3D::UpdateScene(float dt)
 
 	m2DCam->Update();
 
-	XMStoreFloat3(&mSpotLight.pos, mCam->GetPos());
-	XMStoreFloat3(&mSpotLight.direction, mCam->GetLook());
+	XMStoreFloat3(&mSpotLights[0].pos, mCam->GetPos());
+	XMStoreFloat3(&mSpotLights[0].direction, mCam->GetLook());
 	
 	for (int i = 0; i < mProjectiles.size(); ++i)
 	{
@@ -1163,7 +1296,7 @@ void PuckMan3D::DrawWrapper()
 	XMVECTOR eyePos = XMVectorSet(mEyePosW.x, mEyePosW.y, mEyePosW.z, 0.0f);
 	XMMATRIX view = XMLoadFloat4x4(&mView);
 
-	mLitMatInstanceEffect->SetPerFrameParams(ambient, eyePos, mPointLights);
+	mLitMatInstanceEffect->SetPerFrameParams(ambient, eyePos, mPointLights, mSpotLights);
 
 	XMMATRIX vp = view * proj;
 
@@ -1297,20 +1430,20 @@ void PuckMan3D::DrawWrapper()
 		Material appleColour = Materials::APPLE;
 		Material peachColour = Materials::PEACH;
 
-		mCherry->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mCherry->SetPerFrameParams(ambient, eyePos, mPointLights, mSpotLights);
 		mCherry->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, cherryColour);
 
-		mGrapes->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mGrapes->SetPerFrameParams(ambient, eyePos, mPointLights, mSpotLights);
 		mGrapes->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, grapeColour);
 
-		mApple->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mApple->SetPerFrameParams(ambient, eyePos, mPointLights, mSpotLights);
 		mApple->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, appleColour);
 
-		mPeach->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mPeach->SetPerFrameParams(ambient, eyePos, mPointLights, mSpotLights);
 		mPeach->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, peachColour);
 
-		mHUDFruit->SetPerFrameParams(ambient, eyePos, mPointLights);
-		mHUDFruit2->SetPerFrameParams(ambient, eyePos, mPointLights);
+		mHUDFruit->SetPerFrameParams(ambient, eyePos, mPointLights, mSpotLights);
+		mHUDFruit2->SetPerFrameParams(ambient, eyePos, mPointLights, mSpotLights);
 
 		if (mFruit.size() != 0 )
 		{
@@ -1388,7 +1521,7 @@ void PuckMan3D::DrawWrapper()
 
 		std::stringstream os;
 		//os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mPelletCounter;
-		mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
+		mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLights[0]);
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 25, "Score: " + CurrScore.str());
 		md3dImmediateContext->OMSetDepthStencilState(0, 0);
@@ -1406,7 +1539,7 @@ void PuckMan3D::DrawWrapper()
 	md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
 
-	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLight);
+	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLights[0]);
 
 	if (mGameState == GameState::GS_ATTRACT)
 	{

@@ -47,9 +47,9 @@ cbuffer cbPerObject
 cbuffer cbPerFrame
 {
 	float4 gAmbientLight;
-	PointLight gPointLight[3];
+	PointLight gPointLight[5];
 	float3 gEyePos;
-	SpotLight gSpotLight;
+	SpotLight gSpotLight[9];
 };
 
 cbuffer cbFixed
@@ -113,7 +113,7 @@ float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) :
 	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	[unroll]
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 5; ++i)
 	{
 		ComputePointLight(mat, gPointLight[i], pin.PosW, pin.NormalW, toEye, d, s);
 		diffuse += d;
@@ -122,10 +122,13 @@ float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) :
 
 	if (gUseSpotLight)
 	{
-		ComputeSpotLight(mat, gSpotLight, pin.PosW, pin.NormalW, toEye, d, s);
+		for (int i = 0; i < 9; ++i)
+		{
+			ComputeSpotLight(mat, gSpotLight[i], pin.PosW, pin.NormalW, toEye, d, s);
 
-		diffuse += d;
-		specular += s;
+			diffuse += d;
+			specular += s;
+		}
 	}
 
 	float4 litColour = gAmbientLight * mat.Diffuse + diffuse + specular;
