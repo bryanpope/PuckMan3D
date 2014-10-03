@@ -536,6 +536,11 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 
 bool MazeLoader::IsBlocked(UINT row, UINT col)
 {
+	if ((row >= mMazeHeight) || (col >= mMazeWidth))
+	{
+		return true;
+	}
+
 	UINT index = (row * mMazeWidth) + col;
 
 	return ((mMazeElements[index] == ME_WALL) || (mMazeElements[index] == ME_BLANK));
@@ -543,6 +548,11 @@ bool MazeLoader::IsBlocked(UINT row, UINT col)
 
 bool MazeLoader::IsDivergent(UINT row, UINT col)
 {
+	if ((row >= mMazeHeight) || (col >= mMazeWidth))
+	{
+		return false;
+	}
+
 	UINT index = (row * mMazeWidth) + col;
 
 	return ((mMazeElements[index] == ME_PELLET_DIVERGENT) || (mMazeElements[index] == ME_NOTHING_DIVERGENT));
