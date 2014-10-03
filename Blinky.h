@@ -10,6 +10,6 @@ protected:
 public:
 	Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius);
 	~Blinky();
-	void Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, int levelNumber);
+	void Update(float dt, bool powerUpActivated, int levelNumber);
 	void Reset();
 };

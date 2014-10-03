@@ -66,7 +66,7 @@ const std::string Blinky::mScatterFacing[18] =
 	{ "right" }
 };
 
-void Blinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, int levelNumber)
+void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
 	std::cout << "Scatter timer: " << mScatterTimer << ", Chase Timer: " << mChaseTimer << std::endl;
 	switch (mGhostStates)
@@ -86,7 +86,6 @@ void Blinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState
 			{
 				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
 				waypointIterator++;
-				//std::cout << waypointIterator << std::endl;
 			}
 			else if (waypointIterator == waypoints.size())
 			{
@@ -144,6 +143,7 @@ else if (levelNumber >= 5)
 			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
 			waypoints = test.FindPath(mStart, mGoal);
 			waypointIterator = 0;
+			firstChasePathDrawn = true;
 		}
 		else
 		{
@@ -161,10 +161,8 @@ else if (levelNumber >= 5)
 		{
 			if (waypointIterator < waypoints.size())
 			{
-				//this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
 				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
 				waypointIterator++;
-				std::cout << waypointIterator++ << std::endl;
 			}
 			else if (waypointIterator >= waypoints.size())
 			{

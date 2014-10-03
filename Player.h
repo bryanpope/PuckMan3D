@@ -1,5 +1,6 @@
 #pragma once
 #include "MazeLoader.h"
+#include "Direction.h"
 
 class PuckMan
 {
@@ -24,15 +25,7 @@ public:
 
 	~PuckMan(void);
 
-	enum Facing
-	{
-		F_FORWARD,
-		F_BACKWARD,
-		F_LEFT,
-		F_RIGHT
-	};
-
-	void Move(float dt, float mSpeed, std::string direction);
+	void Move(float dt, float mSpeed, Direction::DIRECTION direction);
 	float CalculateSpeed(int levelNumber, bool powerUpActivated);
 
 	FXMVECTOR GetPos() const
@@ -45,16 +38,16 @@ public:
 		XMStoreFloat3(&mPos, pos);
 	}
 
-	Facing GetFacing() const
-	{
-		return mFacing;
-	}
-
 	FXMVECTOR GetVelocity() const
 	{
 		return XMLoadFloat3(&mVel);
 	}
 
+	Direction::DIRECTION GetFacing() const
+	{
+		return mFacing;
+	}
+
 protected:
-	Facing mFacing = F_LEFT;
+	Direction::DIRECTION mFacing = Direction::DIRECTION::WEST;
 };

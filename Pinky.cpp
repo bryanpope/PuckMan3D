@@ -15,7 +15,7 @@ Pinky::Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radiu
 	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
 	waypoints = test.FindPath(mStart, mGoal);
-	scatterPathDrawn = true;
+	scatterPathDrawn = false;
 }
 
 Pinky::~Pinky()
@@ -66,7 +66,7 @@ const std::string Pinky::mScatterFacing[18] =
 	{ "left" }
 };
 
-void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, int levelNumber)
+void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, int levelNumber)
 {
 	/*if (powerUpActivated)
 	{
@@ -82,8 +82,8 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState,
 	case SCATTER:
 		if (!scatterPathDrawn)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z, "");
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
 			waypoints = test.FindPath(mStart, mGoal);
 			scatterPathDrawn = true;
 			waypointIterator = 0;
@@ -111,84 +111,108 @@ void Pinky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState,
 			}
 		}
 
-		if (levelNumber == 1)
+		/*mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+		if (mScatterTimer >= 7.0f)
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.75f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if (levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.85f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if (levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.95f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
+			this->mGhostStates = GHOST_STATES::CHASE;
+			mScatterTimer = 0.0f;
+			scatterPathDrawn = false;
+			this->mCurrWaypointIndex = 0;
+			this->waypointIterator = 0;
+		}*/
+		break;
+
+
+/*if (levelNumber == 1)
+{
+	XMVECTOR vel = XMLoadFloat3(&mVel);
+	vel = vel * 0.75f;
+	XMStoreFloat3(&mVel, vel);
+	break;
+}
+else if (levelNumber >= 2 || levelNumber <= 4)
+{
+	XMVECTOR vel = XMLoadFloat3(&mVel);
+	vel = vel * 0.85f;
+	XMStoreFloat3(&mVel, vel);
+	break;
+}
+else if (levelNumber >= 5)
+{
+	XMVECTOR vel = XMLoadFloat3(&mVel);
+	vel = vel * 0.95f;
+	XMStoreFloat3(&mVel, vel);
+	break;
+}*/
 	case CHASE:
-		//Target 4 tiles in front of PuckMan's facing
-		if (facingState == PuckMan::Facing::F_FORWARD)
+		if (!firstChasePathDrawn)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f), PuckManFacingToString(facingState));
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
 			waypoints = test.FindPath(mStart, mGoal);
-
-			if (waypoints.size() != 0)
+			waypointIterator = 0;
+			firstChasePathDrawn = true;
+		}
+		else
+		{
+			int row = MazeLoader::GetMazeHeight() - (int)round(this->mPos.x + 15.5f);
+			int col = (int)round(this->mPos.z + 14.5f) - 1;
+			if (MazeLoader::IsDivergent(row, col))
 			{
-				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
-			}
+				//Target 4 tiles in front of PuckMan's facing
+				if (facingState == Direction::DIRECTION::NORTH)
+				{
+					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z + 4.0f), facingState);
+					waypoints = test.FindPath(mStart, mGoal);
+				}
 
-			break;
+				else if (facingState == Direction::DIRECTION::SOUTH)
+				{
+					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f), facingState);
+					waypoints = test.FindPath(mStart, mGoal);
+				}
+
+				else if (facingState == Direction::DIRECTION::WEST)
+				{
+					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), facingState);
+					waypoints = test.FindPath(mStart, mGoal);
+				}
+
+				else if (facingState == Direction::DIRECTION::EAST)
+				{
+					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), facingState);
+					waypoints = test.FindPath(mStart, mGoal);
+				}
+			}
+		}
+		
+		if (waypoints.size() != 0)
+		{
+			if (waypointIterator < waypoints.size())
+			{
+				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
+				waypointIterator++;
+			}
+			else if (waypointIterator >= waypoints.size())
+			{
+				waypointIterator = 0;
+			}
+		}		
+
+		this->mChaseTimer += 5.7142 * dt;
+		if (mChaseTimer >= 20.0f)
+		{
+			this->mGhostStates = GHOST_STATES::SCATTER;
+			mChaseTimer = 0.0f;
+			waypointIterator = 0;
+			firstChasePathDrawn = false;
+			scatterPathDrawn = false;
 		}
 
-		if (facingState == PuckMan::Facing::F_BACKWARD)
-		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4.0f), PuckManFacingToString(facingState));
-			waypoints = test.FindPath(mStart, mGoal);
-
-			if (waypoints.size() != 0)
-			{
-				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
-			}
-
-			break;
-		}
-
-		if (facingState == PuckMan::Facing::F_LEFT)
-		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), PuckManFacingToString(facingState));
-			waypoints = test.FindPath(mStart, mGoal);
-
-			if (waypoints.size() != 0)
-			{
-				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
-			}
-
-			break;
-		}
-
-		if (facingState == PuckMan::Facing::F_RIGHT)
-		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4.0f), (int)round(MazeLoader::GetPacManData().at(0).pos.z), PuckManFacingToString(facingState));
-			waypoints = test.FindPath(mStart, mGoal);
-
-			if (waypoints.size() != 0)
-			{
-				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
-			}
-
-			break;
-		}
 		break;
 	case FRIGHTENED:
 		if (levelNumber == 1)

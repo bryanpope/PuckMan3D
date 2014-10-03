@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include "d3dUtil.h"
+#include "Direction.h"
 
 class PathNode
 {
@@ -18,12 +19,12 @@ public:
 	int gCost;
 	int fCost;
 	bool isWalkable;
-	std::string facing;
+	Direction::DIRECTION facing;
 
 	PathNode* parent;
 
-	PathNode(int x, int z, int g, int f, PathNode* parent, std::string facing);
-	PathNode(int x, int z, std::string facing);
+	PathNode(int x, int z, int g, int f, PathNode* parent, Direction::DIRECTION facing);
+	PathNode(int x, int z, Direction::DIRECTION facing);
 	PathNode(int x, int z);
 	~PathNode(){}
 
@@ -35,6 +36,11 @@ public:
 	void setParent(PathNode* p)
 	{
 		parent = p;
+	}
+
+	void setFacing(Direction::DIRECTION dir)
+	{
+		facing = dir;
 	}
 
 	int getDistance(PathNode* goal, int x, int z);

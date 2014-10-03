@@ -1,6 +1,6 @@
 #include "PathNode.h"
 
-PathNode::PathNode(int x, int z, int g, int fC, PathNode* p, std::string f)
+PathNode::PathNode(int x, int z, int g, int fC, PathNode* p, Direction::DIRECTION f)
 {
 	xPos = x;
 	zPos = z;
@@ -10,7 +10,7 @@ PathNode::PathNode(int x, int z, int g, int fC, PathNode* p, std::string f)
 	facing = f;
 }
 
-PathNode::PathNode(int x, int z, std::string f)
+PathNode::PathNode(int x, int z, Direction::DIRECTION f)
 {
 	xPos = x;
 	zPos = z;
@@ -27,7 +27,7 @@ PathNode::PathNode(int x, int z)
 	gCost = 0;
 	fCost = 0;
 	parent = NULL;
-	facing = "";
+	facing = Direction::DIRECTION::NORTH;
 }
 
 
@@ -52,56 +52,20 @@ int PathNode::getDistance(PathNode* goal, int x, int z)
 
 int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 {
-	return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
-	/*if (child.facing != parent->facing)
+	auto directionLeft = Direction::turnLeft(parent->facing);
+	auto directionRight = Direction::turnRight(parent->facing);
+
+	if (child.facing != parent->facing)
 	{
-		if (parent->facing == "left")
+		if (child.facing == directionLeft || child.facing == directionRight)
 		{
-			if (child.facing == "forward" || child.facing == "backward")
-			{
-				
-			}
-			else if (child.facing == "right")
-			{
-				return 200;
-			}
+			return 1;//abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
 		}
-
-		if (parent->facing == "right")
+		else
 		{
-			if (child.facing == "forward" || child.facing == "backward")
-			{
-				return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
-			}
-			else if (child.facing == "left")
-			{
-				return 200;
-			}
+			return 50;
 		}
-
-		if (parent->facing == "forward")
-		{
-			if (child.facing == "left" || child.facing == "right")
-			{
-				return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
-			}
-			else if (child.facing == "backward")
-			{
-				return 200;
-			}
-		}
-		if (parent->facing == "backward")
-		{
-			if (child.facing == "left" || child.facing == "right")
-			{
-				return abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
-			}
-			else if (child.facing == "forward")
-			{
-				return 200;
-			}
-		}
-		
 	}
+	return 1;
 	//return sqrt((child.zPos - parent->zPos) * (child.zPos - parent->zPos) + (child.xPos - parent->xPos) * (child.xPos - parent->xPos));*/
 }

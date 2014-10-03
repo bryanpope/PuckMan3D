@@ -38,6 +38,7 @@ protected:
 	bool isLooping = false; //This is to determine whether or not the ghost is in their scatter loop, false = not looping
 	bool scatterPathDrawn = false; //This is to determine whether or not the path has been drawn for the scatter path to prevent multiple calculations
 	bool firstChasePathDrawn = false; //This is to determine whether or not the INITIAL path has been drawn for the chase state
+	bool isIdle = true;
 	GHOST_FACING mFacing = GHOST_FACING::NORTH;
 
 	Pathfinding test;
@@ -56,74 +57,6 @@ protected:
 	GHOST_FACING GetFacing() const
 	{
 		return mFacing;
-	}
-	
-	void SetFacing(std::string facing)
-	{
-		if (facing == "forward")
-		{
-			mFacing = GHOST_FACING::NORTH;
-		}
-		else if (facing == "backward")
-		{
-			mFacing = GHOST_FACING::SOUTH;
-		}
-		else if (facing == "left")
-		{
-			mFacing = GHOST_FACING::WEST;
-		}
-		else if (facing == "right")
-		{
-			mFacing = GHOST_FACING::EAST;
-		}
-	}
-
-	std::string PuckManFacingToString(PuckMan::Facing facing) const
-	{
-			if (facing == PuckMan::Facing::F_FORWARD)
-			{
-				return "forward";
-			}
-			else if (facing == PuckMan::Facing::F_BACKWARD)
-			{
-				return "backward";
-			}
-			else if (facing == PuckMan::Facing::F_LEFT)
-			{
-				return "left";
-			}
-			else if (facing == PuckMan::Facing::F_RIGHT)
-			{
-				return "right";
-			}
-			else
-			{
-				return "";
-			}
-	}
-
-	std::string GhostFacingToString(GHOST_FACING facing) const
-	{
-		if (facing == GHOST_FACING::NORTH)
-		{
-			return "forward";
-		}
-		else if (facing == GHOST_FACING::SOUTH)
-		{
-			return "backward";
-		}
-		else if (facing == GHOST_FACING::WEST)
-		{
-			return "left";
-		}
-		else if (facing == GHOST_FACING::EAST)
-		{
-			return "right";
-		}
-		else
-		{
-			return "";
-		}
 	}
 
 public:

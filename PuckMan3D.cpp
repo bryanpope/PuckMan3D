@@ -722,10 +722,10 @@ void PuckMan3D::UpdateScene(float dt)
 	{
 		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 		{
-			mBlinky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mLevelCounter);
+			mBlinky->Update(dt, powerUpActivated, mLevelCounter);
 			mPinky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mLevelCounter);
 			mInky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mBlinky->getPos(), mLevelCounter, mPelletCounter);
-			mClyde->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mLevelCounter, mPelletCounter);
+			mClyde->Update(dt, powerUpActivated, mLevelCounter, mPelletCounter);
 		}
 		MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z + 0.5f, 0.0f), 0);
 		MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z + 0.5f, 0.0f), 1);
@@ -1700,7 +1700,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mIsMoving = true;
 			mIsKeyPressed = true;
-			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), "forward");
+			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), Direction::DIRECTION::NORTH);
 		}
 
 		// Move Backwards 
@@ -1708,7 +1708,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mIsKeyPressed = true;
 			mIsMoving = true;
-			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), "backward");
+			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), Direction::DIRECTION::SOUTH);
 		}
 
 		// Move Left
@@ -1716,7 +1716,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mIsKeyPressed = true;
 			mIsMoving = true;
-			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), "left");
+			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), Direction::DIRECTION::WEST);
 		}
 
 		// Move Right
@@ -1724,7 +1724,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mIsKeyPressed = true;
 			mIsMoving = true;
-			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), "right");
+			mPuckMan->Move(dt, mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated), Direction::DIRECTION::EAST);
 		}
 	}
 	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
@@ -2134,6 +2134,11 @@ void PuckMan3D::ResetGhosts()
 	mInky->setPos(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f));
 	mPinky->setPos(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f));
 	mClyde->setPos(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f));
+
+	mBlinky->Reset();
+	mInky->Reset();
+	mPinky->Reset();
+	mClyde->Reset();
 }
 
 void PuckMan3D::SetMaterials()

@@ -60,7 +60,7 @@ const XMFLOAT3 Clyde::mScatterWaypoints[34] =
 	{ XMFLOAT3(-13.0f, 0.0f, -12.5f) }
 };
 
-void Clyde::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, int levelNumber, int pelletCounter)
+void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletCounter)
 {
 	/*if (powerUpActivated)
 	{
@@ -69,143 +69,200 @@ void Clyde::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState,
 	else
 	{
 		this->mGhostStates = prevState;
-	}
-
-	//Get clyde's position in row/col space
-	int clydePos = ((MazeLoader::GetMazeHeight()) - (int)round(this->getPos().z + 15.5f)) + 
-					((MazeLoader::GetMazeWidth()) - (int)round(this->getPos().x + 15.5f));
-	//Get puckman's position in row/col space
-	int puckmanPos = ((MazeLoader::GetMazeHeight()) - (int)round(MazeLoader::GetPacManData().at(0).pos.x + 15.5f)) + 
-					((MazeLoader::GetMazeWidth()) - (int)round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f));
-	//Determine the euclidean distance between clyde and puckman
-	int euclidDistance = abs(clydePos - puckmanPos);
-	//If the distance between Clyde and PuckMan is 8 tiles or more in Euclidean space, target PuckMan and chase like Blinky does
-	if (euclidDistance >= 8)
-	{
-		mGhostStates = GHOST_STATES::CHASE;
-	}
-	//If the distance between Clyde and Puckman is less than 8 tiles, go back to Scatter mode
-	else
-	{
-		mGhostStates = GHOST_STATES::SCATTER;
 	}*/
 
-	if (pelletCounter == 90)
+	if (pelletCounter >= 90)
 	{
-		this->mGhostStates = GHOST_STATES::SCATTER;
+		this->isIdle = false;
+		mGhostStates = GHOST_STATES::SCATTER;
 	}
 
-	switch (mGhostStates)
+	if (!isIdle)
 	{
-	case SCATTER:
-		if (!scatterPathDrawn)
+		//Get clyde's position in row/col space
+		/*int clydePos = ((MazeLoader::GetMazeHeight()) - (int)round(this->getPos().z + 15.5f)) +
+			((MazeLoader::GetMazeWidth()) - (int)round(this->getPos().x + 15.5f));
+		//Get puckman's position in row/col space
+		int puckmanPos = ((MazeLoader::GetMazeHeight()) - (int)round(MazeLoader::GetPacManData().at(0).pos.x + 15.5f)) +
+			((MazeLoader::GetMazeWidth()) - (int)round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f));
+		//Determine the euclidean distance between clyde and puckman
+		int euclidDistance = abs(clydePos - puckmanPos);
+		//If the distance between Clyde and PuckMan is 8 tiles or more in Euclidean space, target PuckMan and chase like Blinky does
+		if (euclidDistance >= 8)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z, "");
-			waypoints = test.FindPath(mStart, mGoal);
-			scatterPathDrawn = true;
+			mGhostStates = GHOST_STATES::CHASE;
+			mChaseTimer = 0.0f;
 			waypointIterator = 0;
+			firstChasePathDrawn = false;
 		}
-		if (waypoints.size() != 0)
+		//If the distance between Clyde and Puckman is less than 8 tiles, go back to Scatter mode
+		else
 		{
-			if (waypointIterator < waypoints.size())
+			mGhostStates = GHOST_STATES::SCATTER;
+			mScatterTimer = 0.0f;
+			scatterPathDrawn = false;
+			this->mCurrWaypointIndex = 0;
+			this->waypointIterator = 0;
+		}*/
+
+		switch (mGhostStates)
+		{
+		case SCATTER:
+			if (!scatterPathDrawn)
 			{
-				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
-				waypointIterator++;
+				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+				mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+				waypoints = test.FindPath(mStart, mGoal);
+				scatterPathDrawn = true;
+				waypointIterator = 0;
 			}
-			else if (waypointIterator == waypoints.size())
+			if (waypoints.size() != 0)
 			{
-				this->isLooping = true;
-				if (isLooping == true)
+				if (waypointIterator < waypoints.size())
 				{
-					this->setPos(XMVectorSet(mScatterWaypoints[this->mCurrWaypointIndex].x, mScatterWaypoints[this->mCurrWaypointIndex].y, mScatterWaypoints[this->mCurrWaypointIndex].z, 0.0f));
-					this->mCurrWaypointIndex++;
-					if (this->mCurrWaypointIndex == 34) //Temporarily hard coded
+					this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
+					waypointIterator++;
+				}
+				else if (waypointIterator == waypoints.size())
+				{
+					this->isLooping = true;
+					if (isLooping == true)
 					{
-						this->mCurrWaypointIndex = 0;
+						this->setPos(XMVectorSet(mScatterWaypoints[this->mCurrWaypointIndex].x, mScatterWaypoints[this->mCurrWaypointIndex].y, mScatterWaypoints[this->mCurrWaypointIndex].z, 0.0f));
+						this->mCurrWaypointIndex++;
+						if (this->mCurrWaypointIndex == 34) //Temporarily hard coded
+						{
+							this->mCurrWaypointIndex = 0;
+						}
 					}
 				}
 			}
-		}
 
-		if (levelNumber == 1)
-		{
+			/*mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+			if (mScatterTimer >= 7.0f)
+			{
+				this->mGhostStates = GHOST_STATES::CHASE;
+				mScatterTimer = 0.0f;
+				scatterPathDrawn = false;
+				this->mCurrWaypointIndex = 0;
+				this->waypointIterator = 0;
+			}*/
+			break;
+
+			/*if (levelNumber == 1)
+			{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.75f;
 			XMStoreFloat3(&mVel, vel);
 			break;
-		}
-		else if (levelNumber >= 2 || levelNumber <= 4)
-		{
+			}
+			else if (levelNumber >= 2 || levelNumber <= 4)
+			{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.85f;
 			XMStoreFloat3(&mVel, vel);
 			break;
-		}
-		else if (levelNumber >= 5)
-		{
+			}
+			else if (levelNumber >= 5)
+			{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.95f;
 			XMStoreFloat3(&mVel, vel);
 			break;
-		}
-	case CHASE:					
-		mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-		mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z), PuckManFacingToString(facingState));
-		waypoints = test.FindPath(mStart, mGoal);
-		if (waypoints.size() != 0)
-		{
-			this->setPos(XMVectorSet((float)waypoints.front()->xPos, 0.0f, (float)waypoints.front()->zPos, 0.0f));
-		}		
-		break;
-	case FRIGHTENED:
-		if (levelNumber == 1)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
+			}*/
+		case CHASE:
+			if (!firstChasePathDrawn)
+			{
+				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+				mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+				waypoints = test.FindPath(mStart, mGoal);
+				waypointIterator = 0;
+				firstChasePathDrawn = true;
+			}
+			else
+			{
+				int row = MazeLoader::GetMazeHeight() - (int)round(this->mPos.x + 15.5f);
+				int col = (int)round(this->mPos.z + 14.5f) - 1;
+				if (MazeLoader::IsDivergent(row, col))
+				{
+					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+					waypoints = test.FindPath(mStart, mGoal);
+					waypointIterator = 0;
+				}
+			}
+			if (waypoints.size() != 0)
+			{
+				if (waypointIterator < waypoints.size())
+				{
+					this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
+					waypointIterator++;
+				}
+				else if (waypointIterator >= waypoints.size())
+				{
+					waypointIterator = 0;
+				}
+			}
+
+			this->mChaseTimer += 5.7142 * dt;
+			if (mChaseTimer >= 20.0f)
+			{
+				this->mGhostStates = GHOST_STATES::SCATTER;
+				mChaseTimer = 0.0f;
+				waypointIterator = 0;
+				firstChasePathDrawn = false;
+			}
+
 			break;
-		}
-		else if (levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.55f;
-			XMStoreFloat3(&mVel, vel);
+		case FRIGHTENED:
+			if (levelNumber == 1)
+			{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.50f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+			}
+			else if (levelNumber >= 2 || levelNumber <= 4)
+			{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.55f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+			}
+			else if (levelNumber >= 5)
+			{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.60f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+			}
+		case DEAD:
+			//Spawn in box
+			//XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f)
 			break;
+			/*case IN_TUNNEL:
+				if (levelNumber == 1)
+				{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.40f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+				}
+				else if(levelNumber >= 2 || levelNumber <= 4)
+				{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.45f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+				}
+				else if(levelNumber >= 5)
+				{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.50f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+				}*/
 		}
-		else if (levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.60f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-	case DEAD:
-		//Spawn in box
-		//XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f)
-		break;
-	/*case IN_TUNNEL:
-		if (levelNumber == 1)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.40f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if(levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.45f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if(levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}*/
 	}
 }
 
@@ -216,4 +273,5 @@ void Clyde::Reset()
 	mCurrWaypointIndex = 0;
 	scatterPathDrawn = false;
 	isLooping = false;
+	isIdle = true;
 }

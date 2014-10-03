@@ -4,14 +4,14 @@ PuckMan::~PuckMan(void)
 {
 }
 
-void PuckMan::Move(float dt, float mSpeed, std::string direction)
+void PuckMan::Move(float dt, float mSpeed, Direction::DIRECTION direction)
 {
 	XMVECTOR pos = XMLoadFloat3(&mPos);
 	XMVECTOR vel = XMLoadFloat3(&mVel);
 
-	if (direction == "forward")
+	if (direction == Direction::DIRECTION::NORTH)
 	{
-		mFacing = Facing::F_FORWARD;
+		mFacing = Direction::DIRECTION::NORTH;
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = 1.0f * dt;
@@ -21,9 +21,9 @@ void PuckMan::Move(float dt, float mSpeed, std::string direction)
 		}
 	}
 
-	if (direction == "backward")
+	if (direction == Direction::DIRECTION::SOUTH)
 	{
-		mFacing = Facing::F_BACKWARD;
+		mFacing = Direction::DIRECTION::SOUTH;
 		vel.m128_f32[0] = 0.0f * dt;
 		vel.m128_f32[1] = 0.0f * dt;
 		vel.m128_f32[2] = -1.0f * dt;
@@ -33,9 +33,9 @@ void PuckMan::Move(float dt, float mSpeed, std::string direction)
 		}
 	}
 
-	if (direction == "left")
+	if (direction == Direction::DIRECTION::WEST)
 	{
-		mFacing = Facing::F_LEFT;
+		mFacing = Direction::DIRECTION::WEST;
 		vel.m128_f32[0] = -1.0f * dt;
 		if (vel.m128_f32[0] > -0.00826695096f)
 		{
@@ -45,9 +45,9 @@ void PuckMan::Move(float dt, float mSpeed, std::string direction)
 		vel.m128_f32[2] = 0.0f * dt;
 	}
 
-	if (direction == "right")
+	if (direction == Direction::DIRECTION::EAST)
 	{
-		mFacing = Facing::F_RIGHT;
+		mFacing = Direction::DIRECTION::EAST;
 		vel.m128_f32[0] = 1.0f * dt;
 		if (vel.m128_f32[0] < 0.00826695096f)
 		{
@@ -104,7 +104,7 @@ float PuckMan::CalculateSpeed(int levelNumber, bool powerUpActivated)
 
 	switch (mFacing)
 	{
-	case F_FORWARD:
+	case Direction::DIRECTION::NORTH:
 		if (levelNumber == 1)
 		{
 			if (MazeLoader::IsPellet(row - 1, col))
@@ -188,7 +188,7 @@ float PuckMan::CalculateSpeed(int levelNumber, bool powerUpActivated)
 
 		break;
 
-	case F_BACKWARD:
+	case Direction::DIRECTION::SOUTH:
 		if (levelNumber == 1)
 		{
 			if (MazeLoader::IsPellet(row + 1, col))
@@ -272,7 +272,7 @@ float PuckMan::CalculateSpeed(int levelNumber, bool powerUpActivated)
 
 		break;
 
-	case F_RIGHT:
+	case Direction::DIRECTION::EAST:
 		if (levelNumber == 1)
 		{
 			if (MazeLoader::IsPellet(row, col + 1))
@@ -356,7 +356,7 @@ float PuckMan::CalculateSpeed(int levelNumber, bool powerUpActivated)
 
 		break;
 
-	case F_LEFT:
+	case Direction::DIRECTION::WEST:
 		if (levelNumber == 1)
 		{
 			if (MazeLoader::IsPellet(row, col - 1))

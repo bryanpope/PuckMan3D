@@ -4,7 +4,7 @@ Inky::Inky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 {
 	XMStoreFloat3(&mPos, pos);
 	XMStoreFloat3(&mVel, vel);
-	this->mGhostStates = GHOST_STATES::IDLE;
+	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = 12;
 	this->mScatterTile.z = -14.5f;
 	this->waypointIterator = 0;
@@ -15,7 +15,7 @@ Inky::Inky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
 	waypoints = test.FindPath(mStart, mGoal);
-	scatterPathDrawn = true;
+	scatterPathDrawn = false;
 }
 
 Inky::~Inky()
@@ -60,7 +60,7 @@ const XMFLOAT3 Inky::mScatterWaypoints[34] =
 	{ XMFLOAT3(12.0f, 0.0f, -12.5f) },
 };
 
-void Inky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, XMFLOAT3 blinkyPos, int levelNumber, int pelletCounter)
+void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, XMFLOAT3 blinkyPos, int levelNumber, int pelletCounter)
 {
 	/*if (powerUpActivated)
 	{
@@ -70,204 +70,228 @@ void Inky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, 
 	{
 		this->mGhostStates = GHOST_STATES::CHASE;
 	}*/
-	if (pelletCounter == 30)
+	
+	if (pelletCounter >= 30)
 	{
-		this->mGhostStates = GHOST_STATES::SCATTER;
+		this->isIdle = false;
+		mGhostStates = GHOST_STATES::SCATTER;
 	}
-
-	switch (mGhostStates)
+	if (!isIdle)
 	{
-	case SCATTER:
-		if (!scatterPathDrawn)
+		switch (mGhostStates)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z, "");
-			waypoints = test.FindPath(mStart, mGoal);
-			scatterPathDrawn = true;
-			waypointIterator = 0;
-		}
-
-		if (waypoints.size() != 0)
-		{
-			if (waypointIterator < waypoints.size())
+		case SCATTER:
+			if (!scatterPathDrawn)
 			{
-				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
-				waypointIterator++;
+				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+				mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+				waypoints = test.FindPath(mStart, mGoal);
+				scatterPathDrawn = true;
+				waypointIterator = 0;
 			}
-			else if (waypointIterator == waypoints.size())
+
+			if (waypoints.size() != 0)
 			{
-				this->isLooping = true;
-				if (isLooping == true)
+				if (waypointIterator < waypoints.size())
 				{
-					this->setPos(XMVectorSet(mScatterWaypoints[this->mCurrWaypointIndex].x, mScatterWaypoints[this->mCurrWaypointIndex].y, mScatterWaypoints[this->mCurrWaypointIndex].z, 0.0f));
-					this->mCurrWaypointIndex++;
-					if (this->mCurrWaypointIndex == 34)
+					this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
+					waypointIterator++;
+				}
+				else if (waypointIterator == waypoints.size())
+				{
+					this->isLooping = true;
+					if (isLooping == true)
 					{
-						this->mCurrWaypointIndex = 0;
+						this->setPos(XMVectorSet(mScatterWaypoints[this->mCurrWaypointIndex].x, mScatterWaypoints[this->mCurrWaypointIndex].y, mScatterWaypoints[this->mCurrWaypointIndex].z, 0.0f));
+						this->mCurrWaypointIndex++;
+						if (this->mCurrWaypointIndex == 34)
+						{
+							this->mCurrWaypointIndex = 0;
+						}
 					}
 				}
 			}
-		}
 
-		if (levelNumber == 1)
-		{
+			/*mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+			if (mScatterTimer >= 7.0f)
+			{
+				this->mGhostStates = GHOST_STATES::CHASE;
+				mScatterTimer = 0.0f;
+				scatterPathDrawn = false;
+				this->mCurrWaypointIndex = 0;
+				this->waypointIterator = 0;
+			}*/
+			break;
+
+			/*if (levelNumber == 1)
+			{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.75f;
 			XMStoreFloat3(&mVel, vel);
 			break;
-		}
-		else if (levelNumber >= 2 || levelNumber <= 4)
-		{
+			}
+			else if (levelNumber >= 2 || levelNumber <= 4)
+			{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.85f;
 			XMStoreFloat3(&mVel, vel);
 			break;
-		}
-		else if (levelNumber >= 5)
-		{
+			}
+			else if (levelNumber >= 5)
+			{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.95f;
 			XMStoreFloat3(&mVel, vel);
 			break;
-		}
-	case CHASE:
-		PathNode* offsetTile;
-		
-		if (facingState == PuckMan::Facing::F_FORWARD)
-		{
-			//Offset tile = 2 spaces in PuckMan's facing
-			offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z + 2), "");
-			//Draw a vector from Blinky's current position to the offset tile's position
-			XMVECTOR targetTile = XMVectorSet(blinkyPos.x - offsetTile->xPos, 0.0f, blinkyPos.z - offsetTile->zPos, 0.0f);
-			//Double the vector length extending forward, this is Inky's target
-			targetTile = XMVectorScale(targetTile, 2.0f);
+			}*/
+		case CHASE:
+			PathNode* offsetTile;
+			if (!firstChasePathDrawn)
+			{
+				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+				mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+				waypoints = test.FindPath(mStart, mGoal);
+				waypointIterator = 0;
+				firstChasePathDrawn = true;
+			}
+			else
+			{
+				int row = MazeLoader::GetMazeHeight() - (int)round(this->mPos.x + 15.5f);
+				int col = (int)round(this->mPos.z + 14.5f) - 1;
+				if (MazeLoader::IsDivergent(row, col))
+				{
+					if (facingState == Direction::DIRECTION::NORTH || facingState == Direction::DIRECTION::SOUTH)
+					{
+						//Offset tile = 2 spaces in PuckMan's facing
+						offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x),
+							(int)round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2])));
+						//Draw a vector from Blinky's current position to the offset tile's position
+						XMVECTOR targetTile = XMVectorSet(blinkyPos.x - offsetTile->xPos, 0.0f, blinkyPos.z - offsetTile->zPos, 0.0f);
+						//Double the vector length extending forward, this is Inky's target
+						targetTile = XMVectorScale(targetTile, 2.0f);
 
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)targetTile.m128_f32[0], (int)targetTile.m128_f32[2], "");
-			waypoints = test.FindPath(mStart, mGoal);
+						mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+						mGoal = new PathNode((int)targetTile.m128_f32[0], (int)targetTile.m128_f32[2]);
+						waypoints = test.FindPath(mStart, mGoal);
+					}
+
+					/*else if (facingState == Direction::DIRECTION::SOUTH)
+					{
+					//Offset tile = 2 spaces in PuckMan's facing
+					offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 2));
+					//Draw a vector from Blinky's current position to the offset tile's position
+					XMVECTOR targetTile = XMVectorSet(blinkyPos.x - offsetTile->xPos, 0.0f, blinkyPos.z - offsetTile->zPos, 0.0f);
+					//Double the vector length extending forward, this is Inky's target
+					targetTile = XMVectorScale(targetTile, 2.0f);
+
+					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4));
+					waypoints = test.FindPath(mStart, mGoal);
+					}*/
+
+					else if (facingState == Direction::DIRECTION::WEST || facingState == Direction::DIRECTION::EAST)
+					{
+						//Offset tile = 2 spaces in PuckMan's facing
+						offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + (2 * Direction::getDirecitonVector(facingState).m128_f32[0])),
+							(int)round(MazeLoader::GetPacManData().at(0).pos.z));
+						//Draw a vector from Blinky's current position to the offset tile's position
+						XMVECTOR targetTile = XMVectorSet(blinkyPos.x - offsetTile->xPos, 0.0f, blinkyPos.z - offsetTile->zPos, 0.0f);
+						//Double the vector length extending forward, this is Inky's target
+						targetTile = XMVectorScale(targetTile, 2.0f);
+
+						mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+						mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+						waypoints = test.FindPath(mStart, mGoal);
+					}
+
+					/*else if (facingState == Direction::DIRECTION::EAST)
+					{
+					//Offset tile = 2 spaces in PuckMan's facing
+					offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 2), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+					//Draw a vector from Blinky's current position to the offset tile's position
+					XMVECTOR targetTile = XMVectorSet(blinkyPos.x - offsetTile->xPos, 0.0f, blinkyPos.z - offsetTile->zPos, 0.0f);
+					//Double the vector length extending forward, this is Inky's target
+					targetTile = XMVectorScale(targetTile, 2.0f);
+
+					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+					waypoints = test.FindPath(mStart, mGoal);
+					}*/
+				}
+			}
 
 			if (waypoints.size() != 0)
 			{
-				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
+				if (waypointIterator < waypoints.size())
+				{
+					this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
+					waypointIterator++;
+				}
+				else if (waypointIterator >= waypoints.size())
+				{
+					waypointIterator = 0;
+				}
 			}
 
-			break;
-		}
-
-		if (facingState == PuckMan::Facing::F_BACKWARD)
-		{
-			//Offset tile = 2 spaces in PuckMan's facing
-			offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 2), "");
-			//Draw a vector from Blinky's current position to the offset tile's position
-			XMVECTOR targetTile = XMVectorSet(blinkyPos.x - offsetTile->xPos, 0.0f, blinkyPos.z - offsetTile->zPos, 0.0f);
-			//Double the vector length extending forward, this is Inky's target
-			targetTile = XMVectorScale(targetTile, 2.0f);
-
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z - 4), "");
-			waypoints = test.FindPath(mStart, mGoal);
-
-			if (waypoints.size() != 0)
+			this->mChaseTimer += 5.7142 * dt;
+			if (mChaseTimer >= 20.0f)
 			{
-				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
+				this->mGhostStates = GHOST_STATES::SCATTER;
+				mChaseTimer = 0.0f;
+				waypointIterator = 0;
+				firstChasePathDrawn = false;
 			}
-
 			break;
-		}
 
-		if (facingState == PuckMan::Facing::F_LEFT)
-		{
-			//Offset tile = 2 spaces in PuckMan's facing
-			offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 2), (int)round(MazeLoader::GetPacManData().at(0).pos.z), "");
-			//Draw a vector from Blinky's current position to the offset tile's position
-			XMVECTOR targetTile = XMVectorSet(blinkyPos.x - offsetTile->xPos, 0.0f, blinkyPos.z - offsetTile->zPos, 0.0f);
-			//Double the vector length extending forward, this is Inky's target
-			targetTile = XMVectorScale(targetTile, 2.0f);
-
-
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x - 4), (int)round(MazeLoader::GetPacManData().at(0).pos.z), "");
-			waypoints = test.FindPath(mStart, mGoal);
-
-			if (waypoints.size() != 0)
+		case FRIGHTENED:
+			if (levelNumber == 1)
 			{
-				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.50f;
+				XMStoreFloat3(&mVel, vel);
+				break;
 			}
-
-			break;
-		}
-
-		if (facingState == PuckMan::Facing::F_RIGHT)
-		{
-			//Offset tile = 2 spaces in PuckMan's facing
-			offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 2), (int)round(MazeLoader::GetPacManData().at(0).pos.z), "");
-			//Draw a vector from Blinky's current position to the offset tile's position
-			XMVECTOR targetTile = XMVectorSet(blinkyPos.x - offsetTile->xPos, 0.0f, blinkyPos.z - offsetTile->zPos, 0.0f);
-			//Double the vector length extending forward, this is Inky's target
-			targetTile = XMVectorScale(targetTile, 2.0f);
-
-
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z, "");
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + 4), (int)round(MazeLoader::GetPacManData().at(0).pos.z), "");
-			waypoints = test.FindPath(mStart, mGoal);
-
-			if (waypoints.size() != 0)
+			else if (levelNumber >= 2 || levelNumber <= 4)
 			{
-				this->setPos(XMVectorSet((float)waypoints.front()->xPos, mPos.y, (float)waypoints.front()->zPos, 0.0f));
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.55f;
+				XMStoreFloat3(&mVel, vel);
+				break;
 			}
-
+			else if (levelNumber >= 5)
+			{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.60f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+			}
+		case DEAD:
+			//Spawn in box
+			//XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f)
 			break;
+			/*case IN_TUNNEL:
+				if (levelNumber == 1)
+				{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.40f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+				}
+				else if(levelNumber >= 2 || levelNumber <= 4)
+				{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.45f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+				}
+				else if(levelNumber >= 5)
+				{
+				XMVECTOR vel = XMLoadFloat3(&mVel);
+				vel = vel * 0.50f;
+				XMStoreFloat3(&mVel, vel);
+				break;
+				}*/
 		}
-		break;				
-
-	case FRIGHTENED:
-		if (levelNumber == 1)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if (levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.55f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if (levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.60f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-	case DEAD:
-		//Spawn in box
-		//XMVectorSet(-2.0f, 0.75f, 0.0f, 0.0f)
-		break;
-	/*case IN_TUNNEL:
-		if (levelNumber == 1)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.40f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if(levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.45f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if(levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}*/
 	}
 }
 
@@ -278,4 +302,5 @@ void Inky::Reset()
 	mCurrWaypointIndex = 0;
 	scatterPathDrawn = false;
 	isLooping = false;
+	isIdle = true;
 }
