@@ -215,7 +215,8 @@ bool PuckMan3D::Init()
 	outputTxtFile.open("highscores.txt");
 	while (std::getline(outputTxtFile, mTemp))
 	{
-		outputTxtFile >> CurrScore.str();
+		//outputTxtFile >> CurrScore.str();
+		CurrScore << mTemp;
 	}
 	outputTxtFile.close();
 
@@ -1485,6 +1486,10 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_HIGHSCORE)
 	{
+		inputTxtFile.open("highscores.txt");
+		CurrScore << mHighScore;
+		inputTxtFile << mHighScore;
+		inputTxtFile.close();
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, CurrScore.str());
 	}
