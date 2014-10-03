@@ -1,5 +1,10 @@
 #include "PuckMan3D.h"
 
+Pathfinding PuckMan3D::mPFDeadGhost;
+PathNode *PuckMan3D::mPNDeadGhostStart;
+PathNode *PuckMan3D::mPNDeadGhostEnd;
+std::vector<PathNode*> PuckMan3D::mPFWaypoints;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 				   PSTR cmdLine, int showCmd)
 {
@@ -647,6 +652,11 @@ void PuckMan3D::UpdateScene(float dt)
 			}
 			else
 			{
+				//mPNDeadGhostStart = new PathNode((int)ghosts[i].pos.x, (int)ghosts[i].pos.z);
+				//MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+				//mPNDeadGhostEnd = new PathNode((int)gPos.pinky.x, (int)gPos.pinky.z);
+				//hThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, (void*) this, 0, &dwThreadIdPathFinding);
+				//mPFWaypoints = mPFDeadGhost.FindPath(mPNDeadGhostStart, mPNDeadGhostEnd);
 				mFBBlueGhost->SetPos(ghosts[i].pos);
 				mFBBlueGhost->FireEffect();
 			}
@@ -1035,6 +1045,18 @@ void PuckMan3D::UpdateScene(float dt)
 	
 	UpdateParticleVB();
 	UpdateCollision();
+}
+
+DWORD WINAPI PuckMan3D::PathFindingStaticThreadStart(LPVOID lpParam)
+{
+	static PuckMan3D *This = (PuckMan3D*)lpParam;
+	return This->PathFindingThreadStart();
+}
+
+DWORD PuckMan3D::PathFindingThreadStart()
+{
+	mPFWaypoints = mPFDeadGhost.FindPath(mPNDeadGhostStart, mPNDeadGhostEnd);
+	return 0;
 }
 
 void PuckMan3D::DrawScene()

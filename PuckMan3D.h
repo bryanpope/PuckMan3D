@@ -147,6 +147,9 @@ private:
 	void DrawWrapper();
 	void DrawScreenQuad();
 	void BuildFruit();
+
+	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
+	DWORD PathFindingThreadStart();
 private:
 	struct Fruit
 	{
@@ -182,6 +185,12 @@ private:
 	FireBallParticles *mFBClyde;
 	float mCurrRatio;
 	XMVECTOR mOrigPos;
+	static Pathfinding mPFDeadGhost;
+	static PathNode *mPNDeadGhostStart;
+	static PathNode *mPNDeadGhostEnd;
+	static std::vector<PathNode*> mPFWaypoints;
+	HANDLE hThreadPathFinding;
+	DWORD dwThreadIdPathFinding;
 
 	//ParticleEffect* mFireBallEffect;
 	//std::vector<TestParticle> mFireBallParticles;
