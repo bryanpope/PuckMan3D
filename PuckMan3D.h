@@ -217,7 +217,7 @@ private:
 	XMFLOAT4X4 mProj;
 	XMFLOAT4X4 m2DProj;
 
-	PointLightOptimized mPointLights[5];
+	PointLightOptimized mPointLights[6];
 	SpotLightOptimized mSpotLights[9];
 
 	PuckMan* mPuckMan;
@@ -241,6 +241,8 @@ private:
 
 	ID3D11Buffer* mParticleVB;
 	ID3D11ShaderResourceView* mParticleTexture;
+
+	ID3D11ShaderResourceView* mFontTexture;
 
 	ID3D11BlendState* mAdditiveBS;
 	ID3D11BlendState* mTransparentBS;

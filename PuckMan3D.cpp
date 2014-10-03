@@ -200,6 +200,12 @@ void PuckMan3D::BuildSceneLights()
 	mPointLights[4].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
 	mPointLights[4].pad = 0.0f;
 
+	mPointLights[5].pos = XMFLOAT3(0.0f, 0.0f, 0.5f);
+	mPointLights[5].lightColour = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	mPointLights[5].range = 1000.0f;
+	mPointLights[5].att = XMFLOAT3(0.0f, 0.02f, 0.0f);
+	mPointLights[5].pad = 0.0f;
+
 	std::vector<MazeLoader::MazeElementSpecs> powerUp = MazeLoader::GetPowerUpData();
 
 	// Pinky Scatter Zone PowerUp
@@ -508,6 +514,7 @@ bool PuckMan3D::Init()
 
 	BuildParticleVB();
 
+	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
 	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"Textures/TestAdditive.png", 0, 0, &mParticleTexture, 0);
 
 	/*BuildFireBallParticleVB();
@@ -528,10 +535,10 @@ bool PuckMan3D::Init()
 	BuildBlendStates();
 	BuildDSStates();
 
-	ID3D11ShaderResourceView* font;
-	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"Textures/font2.png", 0, 0, &font, 0);
+	//ID3D11ShaderResourceView* font;
+	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"Textures/font2.png", 0, 0, &mFontTexture, 0);
 
-	mFont = new FontRasterizer(m2DCam, XMLoadFloat4x4(&m2DProj), mLitTexEffect, 10, 10, font, md3dDevice);
+	mFont = new FontRasterizer(m2DCam, XMLoadFloat4x4(&m2DProj), mLitTexEffect, 10, 10, mFontTexture, md3dDevice);
 
 	mTimeGhostCurrent = 0.0f;
 	mTimeGhostNext = mTimeGhostCurrent + (1/30);
@@ -1256,7 +1263,7 @@ void PuckMan3D::DrawScene()
 	md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Black));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);*/
 
-	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Silver));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//
 	// Draw the scene to the offscreen texture
@@ -1521,7 +1528,9 @@ void PuckMan3D::DrawWrapper()
 
 		std::stringstream os;
 		//os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mPelletCounter;
-		mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLights[0]);
+		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
+		mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[5], mSpotLights[0]);
+		mLitTexEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mFontTexture);
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 500.0f, 0.0f, 0.0f), 50, 75, 10, os.str());
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 25, "Score: " + CurrScore.str());
 		md3dImmediateContext->OMSetDepthStencilState(0, 0);
@@ -1539,7 +1548,9 @@ void PuckMan3D::DrawWrapper()
 	md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
 
-	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[0], mSpotLights[0]);
+	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
+	mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[5], mSpotLights[0]);
+	mLitTexEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mFontTexture);
 
 	if (mGameState == GameState::GS_ATTRACT)
 	{

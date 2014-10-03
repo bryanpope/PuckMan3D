@@ -139,7 +139,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	GeometryGenerator::MeshData meshGhost;
 
 	//geoGen.CreateBox(0.70f, 0.20f, 0.70f, meshBox);
-	geoGen.CreateGrid(mMazeWidth * 4, mMazeHeight * 4, mMazeHeight, mMazeWidth, meshFloor);
+	geoGen.CreateGrid(mMazeWidth, mMazeHeight, mMazeHeight, mMazeWidth, meshFloor);
 	//geoGen.CreateBox(mMazeWidth, 1.0f, mMazeHeight, meshFloor);
 	geoGen.CreateSphere(RADIUS_PELLET, 10, 10, meshPellet);
 	geoGen.CreateSphere(RADIUS_POWERUP, 10, 10, meshPowerUp);
