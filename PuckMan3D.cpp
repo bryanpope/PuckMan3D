@@ -5,6 +5,13 @@ PathNode *PuckMan3D::mPNDeadGhostStart;
 PathNode *PuckMan3D::mPNDeadGhostEnd;
 std::vector<PathNode*> PuckMan3D::mPFWaypoints;
 
+typedef struct PathFindingData
+{
+	XMFLOAT2 posStart;
+	XMFLOAT2 posEnd;
+	std::vector<PathNode*> waypoints;
+} PATHFINDINGDATA, *PPATHFINDINGDATA;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 				   PSTR cmdLine, int showCmd)
 {
@@ -653,9 +660,21 @@ void PuckMan3D::UpdateScene(float dt)
 			else
 			{
 				//mPNDeadGhostStart = new PathNode((int)ghosts[i].pos.x, (int)ghosts[i].pos.z);
-				//MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+				MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
 				//mPNDeadGhostEnd = new PathNode((int)gPos.pinky.x, (int)gPos.pinky.z);
-				//hThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, (void*) this, 0, &dwThreadIdPathFinding);
+				PathFindingData *pfData;
+				/*pfData = (PPATHFINDINGDATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(PATHFINDINGDATA));
+				pfData->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
+				pfData->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
+
+				if (pfData == NULL)
+				{
+					// If the array allocation fails, the system is out of memory
+					// so there is no point in trying to print an error message.
+					// Just terminate execution.
+					ExitProcess(2);
+				}
+				hThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, (void*) this, 0, &dwThreadIdPathFinding);*/
 				//mPFWaypoints = mPFDeadGhost.FindPath(mPNDeadGhostStart, mPNDeadGhostEnd);
 				mFBBlueGhost->SetPos(ghosts[i].pos);
 				mFBBlueGhost->FireEffect();
@@ -1437,12 +1456,14 @@ void PuckMan3D::DrawWrapper()
 	{
 		txtFile.open("highscores.txt");
 		CurrScore << mHighScore;
-		std::string score(CurrScore.str());
-		txtFile << score;
+		//CurrScore << mHighScore;
+		//std::string score(CurrScore.str());
+		//txtFile << score;
+		txtFile << mHighScore;
 		txtFile.close();
 
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, score);
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, CurrScore.str());
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
