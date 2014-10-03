@@ -103,6 +103,7 @@
     <ClInclude Include="Common\TextureMgr.h" />
     <ClInclude Include="Common\Waves.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="Direction.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="FireBallParticles.h" />
     <ClInclude Include="FontRasterizer.h" />
@@ -147,6 +148,7 @@
     <ClCompile Include="Common\TextureMgr.cpp" />
     <ClCompile Include="Common\Waves.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="Direction.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="FireBallParticles.cpp" />
     <ClCompile Include="FontRasterizer.cpp" />
