@@ -7,7 +7,9 @@ Inky::Inky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
 	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = 12;
 	this->mScatterTile.z = -14.5f;
-	waypointIterator = 0;
+	this->waypointIterator = 0;
+	this->mScatterTimer = 0;
+	this->mChaseTimer = 0;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
@@ -91,7 +93,6 @@ void Inky::Update(float dt, bool powerUpActivated, PuckMan::Facing facingState, 
 			{
 				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
 				waypointIterator++;
-				std::cout << waypointIterator << std::endl;
 			}
 			else if (waypointIterator == waypoints.size())
 			{
@@ -275,4 +276,6 @@ void Inky::Reset()
 	this->mGhostStates = GHOST_STATES::IDLE;
 	waypointIterator = 0;
 	mCurrWaypointIndex = 0;
+	scatterPathDrawn = false;
+	isLooping = false;
 }

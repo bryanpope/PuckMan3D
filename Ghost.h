@@ -37,6 +37,7 @@ protected:
 	int mCurrWaypointIndex = 0;
 	bool isLooping = false; //This is to determine whether or not the ghost is in their scatter loop, false = not looping
 	bool scatterPathDrawn = false; //This is to determine whether or not the path has been drawn for the scatter path to prevent multiple calculations
+	bool firstChasePathDrawn = false; //This is to determine whether or not the INITIAL path has been drawn for the chase state
 	GHOST_FACING mFacing = GHOST_FACING::NORTH;
 
 	Pathfinding test;
