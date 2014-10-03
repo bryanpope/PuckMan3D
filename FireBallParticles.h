@@ -3,6 +3,7 @@
 #include "d3dUtil.h"
 #include "Effect.h"
 #include <vector>
+#include "PathNode.h"
 
 class FireBallParticles
 {
@@ -50,6 +51,8 @@ public:
 	void SetFireBallTexture(ID3D11ShaderResourceView* fbTex){ mFBTexture = fbTex; }
 	void SetProperties(FireBallParticlesProperties p){ mProperties = p; }
 
+	void SetWayPoints(std::vector<PathNode*> wayP){ mWayPoints = wayP; }
+
 	void SetOriginalPos(FXMVECTOR oPos){ XMStoreFloat3(&mOriginalPos, oPos); }
 
 private:
@@ -75,5 +78,6 @@ private:
 	UINT mParticlesShown;
 
 	XMFLOAT3 mOriginalPos;
+	std::vector<PathNode*> mWayPoints;
 };
 

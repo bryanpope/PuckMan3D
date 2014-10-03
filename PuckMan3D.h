@@ -47,6 +47,7 @@ struct TestParticle
 	float lifetime;
 };
 
+
 const int MAX_PARTICLES = 100000;
 
 class PuckMan3D : public D3DApp
@@ -63,6 +64,14 @@ public:
 		FCS_LEFT,
 		FCS_DEFAULT
 	};
+
+	typedef struct PathFindingData
+	{
+		XMFLOAT2 posStart;
+		XMFLOAT2 posEnd;
+		PuckMan3D *thisThing;
+		std::vector<PathNode*> waypoints;
+	} PATHFINDINGDATA, *PPATHFINDINGDATA;
 
 	bool Init();
 	void OnResize();
@@ -189,8 +198,10 @@ private:
 	static PathNode *mPNDeadGhostStart;
 	static PathNode *mPNDeadGhostEnd;
 	static std::vector<PathNode*> mPFWaypoints;
-	HANDLE hThreadPathFinding;
-	DWORD dwThreadIdPathFinding;
+	HANDLE mhThreadPathFinding;
+	DWORD mdwThreadIdPathFinding;
+	bool mTouchedGhost;
+	static PathFindingData *mpfData;
 
 	//ParticleEffect* mFireBallEffect;
 	//std::vector<TestParticle> mFireBallParticles;

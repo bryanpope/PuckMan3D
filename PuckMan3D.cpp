@@ -4,13 +4,7 @@ Pathfinding PuckMan3D::mPFDeadGhost;
 PathNode *PuckMan3D::mPNDeadGhostStart;
 PathNode *PuckMan3D::mPNDeadGhostEnd;
 std::vector<PathNode*> PuckMan3D::mPFWaypoints;
-
-typedef struct PathFindingData
-{
-	XMFLOAT2 posStart;
-	XMFLOAT2 posEnd;
-	std::vector<PathNode*> waypoints;
-} PATHFINDINGDATA, *PPATHFINDINGDATA;
+PuckMan3D::PathFindingData * PuckMan3D::mpfData;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 				   PSTR cmdLine, int showCmd)
@@ -32,7 +26,7 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
 	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), 
-	mHUDFruitGeometry2(0)
+	mHUDFruitGeometry2(0), mhThreadPathFinding(NULL), mTouchedGhost(false)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -355,6 +349,14 @@ bool PuckMan3D::Init()
 
 	mFBClyde = new FireBallParticles();
 	mFBClyde->Init(XMLoadFloat3(&(mClyde->getPos())), MazeLoader::RADIUS_GHOST, L"Textures/GlowOrange.png", md3dDevice, BlP);
+	mpfData = (PPATHFINDINGDATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(PATHFINDINGDATA));
+	if (mpfData == NULL)
+	{
+		// If the array allocation fails, the system is out of memory
+		// so there is no point in trying to print an error message.
+		// Just terminate execution.
+		ExitProcess(2);
+	}
 
 	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
 
@@ -664,29 +666,34 @@ void PuckMan3D::UpdateScene(float dt)
 			}
 			else
 			{
-				//mPNDeadGhostStart = new PathNode((int)ghosts[i].pos.x, (int)ghosts[i].pos.z);
-				MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
-				//mPNDeadGhostEnd = new PathNode((int)gPos.pinky.x, (int)gPos.pinky.z);
-				PathFindingData *pfData;
-				/*pfData = (PPATHFINDINGDATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(PATHFINDINGDATA));
-				pfData->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
-				pfData->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
-
-				if (pfData == NULL)
-				{
-					// If the array allocation fails, the system is out of memory
-					// so there is no point in trying to print an error message.
-					// Just terminate execution.
-					ExitProcess(2);
-				}
-				hThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, (void*) this, 0, &dwThreadIdPathFinding);*/
-				//mPFWaypoints = mPFDeadGhost.FindPath(mPNDeadGhostStart, mPNDeadGhostEnd);
 				mFBBlueGhost->SetPos(ghosts[i].pos);
 				mFBBlueGhost->FireEffect();
+				/*if (!mTouchedGhost)
+				{
+					mTouchedGhost = true;
+					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+					mpfData->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
+					mpfData->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
+					mpfData->thisThing = this;
+
+					mhThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData, 0, &mdwThreadIdPathFinding);
+					//mPFWaypoints = mPFDeadGhost.FindPath(mPNDeadGhostStart, mPNDeadGhostEnd);
+				}*/
 			}
 		}
 
 	}
+
+	/*DWORD waitPFState = WaitForSingleObject(mhThreadPathFinding, 0);
+	if (waitPFState == WAIT_OBJECT_0)
+	{
+		int a = 1;
+		//mFBBlueGhost->SetPos(ghosts[i].pos);
+		mFBBlueGhost->SetWayPoints(mpfData->waypoints);
+		mFBBlueGhost->FireEffect();
+		mhThreadPathFinding = NULL;
+		//GpfData->waypoints;
+	}*/
 
 	////Checking PacMan Collision with fruit
 	for (int i = 0; i < mFruit.size(); ++i)
@@ -973,12 +980,12 @@ void PuckMan3D::UpdateScene(float dt)
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
 
 	mFireBallPac->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
-	//mFBBlueGhost->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
+	mFBBlueGhost->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
 
-	mOrigPos.m128_f32[0] = -12.5f;
-	mFBBlueGhost->Update(mOrigPos, MazeLoader::RADIUS_PAC_MAN, dt, mCurrRatio, md3dImmediateContext);
+	//mOrigPos.m128_f32[0] = -12.5f;
+	//mFBBlueGhost->Update(mOrigPos, MazeLoader::RADIUS_PAC_MAN, dt, mCurrRatio, md3dImmediateContext);
 	mCurrRatio += dt;
-	if (mCurrRatio >= 2.0f)
+	if (mCurrRatio > 1.0f)
 	{
 		mCurrRatio = 0.0f;
 	}
@@ -1085,8 +1092,15 @@ void PuckMan3D::UpdateScene(float dt)
 
 DWORD WINAPI PuckMan3D::PathFindingStaticThreadStart(LPVOID lpParam)
 {
-	static PuckMan3D *This = (PuckMan3D*)lpParam;
-	return This->PathFindingThreadStart();
+	PPATHFINDINGDATA pData = (PPATHFINDINGDATA)lpParam;
+	
+	static PathNode mPNDeadGhostStart(pData->posStart.x, pData->posStart.y);
+	static PathNode mPNDeadGhostEnd(pData->posEnd.x, pData->posEnd.y);
+	static Pathfinding pfDeadGhost;
+
+	pData->waypoints = pfDeadGhost.FindPath(&mPNDeadGhostStart, &mPNDeadGhostEnd);
+	return 0;
+	//return This->PathFindingThreadStart();
 }
 
 DWORD PuckMan3D::PathFindingThreadStart()
