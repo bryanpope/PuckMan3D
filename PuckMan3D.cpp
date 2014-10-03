@@ -221,7 +221,7 @@ bool PuckMan3D::Init()
 	outputTxtFile.open("highscores.txt");
 	while (std::getline(outputTxtFile, mTemp))
 	{
-	outputTxtFile >> CurrScore.str();
+		outputTxtFile >> CurrScore.str();
 	}
 	outputTxtFile.close();
 
@@ -809,6 +809,18 @@ void PuckMan3D::UpdateScene(float dt)
 			randNumber = rg(4) + 1;
 			mFruit.push_back(mFruitPos);
 			mCanDrawFruit = false;
+		}
+	}
+
+	if (mGameState == GS_GAMEOVER)
+	{
+		if (mHighScore <= mScore)
+		{
+			mHighScore = mScore;
+			inputTxtFile.open("highscores.txt");
+			CurrScore << mHighScore;
+			inputTxtFile << mHighScore;
+			inputTxtFile.close();
 		}
 	}
 
@@ -1459,11 +1471,6 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_HIGHSCORE)
 	{
-		inputTxtFile.open("highscores.txt");
-		CurrScore << mHighScore;
-		inputTxtFile << mHighScore;
-		inputTxtFile.close();
-
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, CurrScore.str());
 	}
@@ -1693,10 +1700,6 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		else if (mGameState == GameState::GS_GAMEOVER)
 		{
-			if (mHighScore <= mScore)
-			{
-				mHighScore = mScore;
-			}
 			resetGame();
 			mLevelCounter = 1;
 			mGameState = GameState::GS_MAINMENU;
