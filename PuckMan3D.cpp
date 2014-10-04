@@ -327,12 +327,13 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 
-	/*mTemp = CurrScore.str();
-	//read in text file to the stringstream object CurrScore
+	
+	/*//read in text file to the stringstream object CurrScore
 	outputTxtFile.open("highscores.txt");
 	while (std::getline(outputTxtFile, mTemp))
 	{
 		CurrScore >> mHighScore;
+		mTemp = CurrScore.str();
 	}
 	outputTxtFile.close();*/
 
