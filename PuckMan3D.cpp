@@ -327,14 +327,14 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 
-
+	/*mTemp = CurrScore.str();
+	//read in text file to the stringstream object CurrScore
 	outputTxtFile.open("highscores.txt");
 	while (std::getline(outputTxtFile, mTemp))
 	{
-		//outputTxtFile >> CurrScore.str();
-		CurrScore << mTemp;
+		CurrScore >> mHighScore;
 	}
-	outputTxtFile.close();
+	outputTxtFile.close();*/
 
 	if(!D3DApp::Init())
 		return false;
@@ -962,6 +962,7 @@ void PuckMan3D::UpdateScene(float dt)
 
 	if (mGameState == GS_GAMEOVER)
 	{
+		//check to see if the highscore variable is less than or equal to the score, if so write to the text file replacing the high score with the score's value
 		if (mHighScore <= mScore)
 		{
 			mHighScore = mScore;
@@ -1630,12 +1631,18 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_HIGHSCORE)
 	{
-		inputTxtFile.open("highscores.txt");
-		CurrScore << mHighScore;
-		inputTxtFile << mHighScore;
-		inputTxtFile.close();
+		//check to see if the highscore variable is less than or equal to the score, if so write to the text file replacing the high score with the score's value
+		if (mHighScore <= mScore)
+		{
+			mHighScore = mScore;
+			inputTxtFile.open("highscores.txt");
+			CurrScore << mHighScore;
+			inputTxtFile << mHighScore;
+			inputTxtFile.close();
+		}
+		mTemp = CurrScore.str();
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, CurrScore.str());
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, mTemp);
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
