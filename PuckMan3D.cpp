@@ -333,11 +333,11 @@ bool PuckMan3D::Init()
 	while (std::getline(readTxtFile, mTemp))
 	{
 		//string to int
-		CurrScore.clear();
-		CurrScore.str("");
-		CurrScore.str(mTemp);
-		CurrScore >> mHighScore;
-		mTemp = CurrScore.str();
+		HighScore.clear();
+		HighScore.str("");
+		HighScore.str(mTemp);
+		HighScore >> mHighScore;
+		mTemp = HighScore.str();
 	}
 	readTxtFile.close();
 
@@ -980,7 +980,7 @@ void PuckMan3D::UpdateScene(float dt)
 		{
 			mHighScore = mScore;
 			writeTxtFile.open("highscores.txt");
-			CurrScore << mHighScore;
+			HighScore << mHighScore;
 			writeTxtFile << mHighScore;
 			writeTxtFile.close();
 		}
@@ -2507,6 +2507,8 @@ void PuckMan3D::updateStringStream()
 {
 	CurrScore.str("");
 	CurrScore << mScore;
+	HighScore.str("");
+	HighScore << mHighScore;
 }
 
 void PuckMan3D::MuteAllAudio()
