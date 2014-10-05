@@ -156,7 +156,8 @@ private:
 	void DrawWrapper();
 	void DrawScreenQuad();
 	void BuildFruit();
-
+	void readToTxtFile();
+	void writeToTxtFile();
 	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
 	DWORD PathFindingThreadStart();
 private:

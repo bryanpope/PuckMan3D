@@ -327,19 +327,7 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 
-	
-	//read in text file to the stringstream object CurrScore
-	readTxtFile.open("highscores.txt");
-	while (std::getline(readTxtFile, mTemp))
-	{
-		//string to int
-		HighScore.clear();
-		HighScore.str("");
-		HighScore.str(mTemp);
-		HighScore >> mHighScore;
-		mTemp = HighScore.str();
-	}
-	readTxtFile.close();
+	readToTxtFile();
 
 	if(!D3DApp::Init())
 		return false;
@@ -978,11 +966,7 @@ void PuckMan3D::UpdateScene(float dt)
 		//check to see if the highscore variable is less than or equal to the score, if so write to the text file replacing the high score with the score's value
 		if (mHighScore <= mScore)
 		{
-			mHighScore = mScore;
-			writeTxtFile.open("highscores.txt");
-			HighScore << mHighScore;
-			writeTxtFile << mHighScore;
-			writeTxtFile.close();
+			readToTxtFile();
 		}
 	}
 
@@ -2507,8 +2491,10 @@ void PuckMan3D::updateStringStream()
 {
 	CurrScore.str("");
 	CurrScore << mScore;
-	HighScore.str("");
-	HighScore << mHighScore;
+	if (mHighScore <= mScore)
+	{
+		writeToTxtFile();
+	}
 }
 
 void PuckMan3D::MuteAllAudio()
@@ -2654,4 +2640,29 @@ void PuckMan3D::BuildFruit()
 
 	mHUDFruitGeometry2->SetVertices(md3dDevice, &vertices[0], vertices.size());
 	mHUDFruitGeometry2->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
+}
+
+void PuckMan3D::readToTxtFile()
+{
+	//read in text file to the stringstream object CurrScore
+	readTxtFile.open("highscores.txt");
+	while (std::getline(readTxtFile, mTemp))
+	{
+		//string to int
+		HighScore.clear();
+		HighScore.str("");
+		HighScore.str(mTemp);
+		HighScore >> mHighScore;
+		mTemp = HighScore.str();
+	}
+	readTxtFile.close();
+}
+
+void PuckMan3D::writeToTxtFile()
+{
+	mHighScore = mScore;
+	writeTxtFile.open("highscores.txt");
+	HighScore << mHighScore;
+	writeTxtFile << mHighScore;
+	writeTxtFile.close();
 }
