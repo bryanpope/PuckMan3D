@@ -887,7 +887,15 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 
 	//// PowerUp SpotLights Rotation 
-	angle += dt * 2;
+	if (powerUpActivated)
+	{
+		angle += dt * 4;
+	}
+	else
+	{
+		angle += dt * 2;
+	}
+	
 	if (angle > 2.0f)
 	{
 		angle = 0.0f;
