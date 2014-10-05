@@ -329,13 +329,17 @@ bool PuckMan3D::Init()
 
 	
 	//read in text file to the stringstream object CurrScore
-	/*readTxtFile.open("highscores.txt");
+	readTxtFile.open("highscores.txt");
 	while (std::getline(readTxtFile, mTemp))
 	{
+		//string to int
+		CurrScore.clear();
+		CurrScore.str("");
+		CurrScore.str(mTemp);
 		CurrScore >> mHighScore;
 		mTemp = CurrScore.str();
 	}
-	readTxtFile.close();*/
+	readTxtFile.close();
 
 	if(!D3DApp::Init())
 		return false;
@@ -1640,16 +1644,6 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_HIGHSCORE)
 	{
-		//check to see if the highscore variable is less than or equal to the score, if so write to the text file replacing the high score with the score's value
-		if (mHighScore <= mScore)
-		{
-			mHighScore = mScore;
-			writeTxtFile.open("highscores.txt");
-			CurrScore << mHighScore;
-			writeTxtFile << mHighScore;
-			writeTxtFile.close();
-		}
-		mTemp = CurrScore.str();
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, mTemp);
 	}
