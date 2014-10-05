@@ -328,14 +328,14 @@ bool PuckMan3D::Init()
 	loadKaSFX();
 
 	
-	/*//read in text file to the stringstream object CurrScore
-	outputTxtFile.open("highscores.txt");
-	while (std::getline(outputTxtFile, mTemp))
+	//read in text file to the stringstream object CurrScore
+	/*readTxtFile.open("highscores.txt");
+	while (std::getline(readTxtFile, mTemp))
 	{
 		CurrScore >> mHighScore;
 		mTemp = CurrScore.str();
 	}
-	outputTxtFile.close();*/
+	readTxtFile.close();*/
 
 	if(!D3DApp::Init())
 		return false;
@@ -967,10 +967,10 @@ void PuckMan3D::UpdateScene(float dt)
 		if (mHighScore <= mScore)
 		{
 			mHighScore = mScore;
-			inputTxtFile.open("highscores.txt");
+			writeTxtFile.open("highscores.txt");
 			CurrScore << mHighScore;
-			inputTxtFile << mHighScore;
-			inputTxtFile.close();
+			writeTxtFile << mHighScore;
+			writeTxtFile.close();
 		}
 	}
 
@@ -1636,10 +1636,10 @@ void PuckMan3D::DrawWrapper()
 		if (mHighScore <= mScore)
 		{
 			mHighScore = mScore;
-			inputTxtFile.open("highscores.txt");
+			writeTxtFile.open("highscores.txt");
 			CurrScore << mHighScore;
-			inputTxtFile << mHighScore;
-			inputTxtFile.close();
+			writeTxtFile << mHighScore;
+			writeTxtFile.close();
 		}
 		mTemp = CurrScore.str();
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");

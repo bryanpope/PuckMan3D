@@ -392,8 +392,8 @@ private:
 
 	std::stringstream HighScore;
 	std::stringstream CurrScore;
-	std::ofstream inputTxtFile;
-	std::ifstream outputTxtFile;
+	std::ofstream writeTxtFile;
+	std::ifstream readTxtFile;
 	std::string mTemp;
 
 	ID3D11ShaderResourceView* mOffscreenSRV;
