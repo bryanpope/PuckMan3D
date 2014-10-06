@@ -156,6 +156,7 @@ private:
 	void BuildFruit();
 	void readFromTxtFile();
 	void writeToTxtFile();
+	void resetHighScore();
 	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
 	DWORD PathFindingThreadStart();
 private:
@@ -362,7 +363,8 @@ private:
 		GS_OPTIONS,
 		GS_CREDITS,
 		GS_SOUNDOPTIONS,
-		GS_HIGHSCORE
+		GS_HIGHSCORE,
+		GS_INSTRUCTIONS
 	};
 	GameState mGameState = GameState::GS_MAINMENU;
 	FacingState mFacingState = FCS_DEFAULT;
