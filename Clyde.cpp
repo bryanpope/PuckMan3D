@@ -22,7 +22,7 @@ Clyde::~Clyde()
 {
 }
 
-const XMFLOAT3 Clyde::mScatterWaypoints[34] = 
+const XMFLOAT3 Clyde::mScatterWaypoints[MAX_WAYPOINTS] =
 {
 	{ XMFLOAT3(-13.0f, 0.0f, -13.5f) },
 	{ XMFLOAT3(-12.0f, 0.0f, -13.5f) },
