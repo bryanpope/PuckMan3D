@@ -815,7 +815,7 @@ void PuckMan3D::UpdateScene(float dt)
 			playFruitSFX();
 			mFruit.erase(mFruit.begin() + i);
 			mScore += 50;
-			mCanDrawFruit = true;
+			mCanDrawFruit = false;
 			mCanDrawHUDFruit = true;
 			mFruitCounter += 1;
 			mFruitTime = 0.0f;
@@ -824,7 +824,7 @@ void PuckMan3D::UpdateScene(float dt)
 		if (mFruitTime >= 10.0f)
 		{//if the fruit has been spawned for 10 seconds remove it
 			mFruit.erase(mFruit.begin() + i);
-			mCanDrawFruit = true;
+			mCanDrawFruit = false;
 			mFruitTime = 0.0f;
 			break;
 		}
@@ -847,6 +847,7 @@ void PuckMan3D::UpdateScene(float dt)
 			{
 				playKaSFX();
 			}
+			mCanDrawFruit = true;
 			mPelletCounter++;
 			MazeLoader::RemovePellet(i);
 			mScore += 10;
@@ -948,7 +949,7 @@ void PuckMan3D::UpdateScene(float dt)
 
 	if (mCanDrawFruit)
 	{
-		if (mPelletCounter == 1 || mPelletCounter == 20)
+		if (mPelletCounter == 70 || mPelletCounter == 170)
 		{
 			//pick a number between 1 and 4
 			randNumber = rg(4) + 1;
