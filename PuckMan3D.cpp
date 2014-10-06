@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
-	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), 
+	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), mGhostEatenCounter(0),
 	mHUDFruitGeometry2(0), mhThreadPathFinding(NULL), mTouchedGhost(false)
 {
 	soundStates = SoundsState::SS_KA;
@@ -780,7 +780,7 @@ void PuckMan3D::UpdateScene(float dt)
 				mFBBlueGhost->SetPos(ghosts[i].pos);
 				mFBBlueGhost->FireEffect();
 				/*if (!mTouchedGhost)
-				{
+				{					
 					mTouchedGhost = true;
 					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
 					mpfData->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
@@ -788,6 +788,9 @@ void PuckMan3D::UpdateScene(float dt)
 					mpfData->thisThing = this;
 
 					mhThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData, 0, &mdwThreadIdPathFinding);
+					mGhostEatenCounter++;
+					calcGhostScore();
+					mScore += mGhostEatenPoints;
 				}*/
 			}
 		}
@@ -2661,4 +2664,24 @@ void PuckMan3D::resetHighScore()
 	HighScore << 0;
 	writeTxtFile << 0;
 	writeTxtFile.close();
+}
+
+void PuckMan3D::calcGhostScore()
+{
+	if (mGhostEatenCounter == 1)
+	{
+		mGhostEatenPoints = 200;
+	}
+	if (mGhostEatenCounter == 2)
+	{
+		mGhostEatenPoints = 400;
+	}
+	if (mGhostEatenCounter == 3)
+	{
+		mGhostEatenPoints = 800;
+	}
+	if (mGhostEatenCounter == 4)
+	{
+		mGhostEatenPoints = 1600;
+	}
 }

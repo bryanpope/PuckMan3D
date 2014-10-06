@@ -157,6 +157,7 @@ private:
 	void readFromTxtFile();
 	void writeToTxtFile();
 	void resetHighScore();
+	void calcGhostScore();
 	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
 	DWORD PathFindingThreadStart();
 private:
@@ -285,6 +286,8 @@ private:
 	int mLevelCounter;
 	int mPelletCounter = 0;
 	int mFruitCounter = 0;
+	int mGhostEatenCounter = 0;
+	int mGhostEatenPoints = 0;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
