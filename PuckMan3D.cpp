@@ -792,23 +792,19 @@ void PuckMan3D::UpdateScene(float dt)
 					mpfData->thisThing = this;
 
 					mhThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData, 0, &mdwThreadIdPathFinding);
-					//mPFWaypoints = mPFDeadGhost.FindPath(mPNDeadGhostStart, mPNDeadGhostEnd);
 				}*/
 			}
 		}
 
 	}
 
-	/*DWORD waitPFState = WaitForSingleObject(mhThreadPathFinding, 0);
+	DWORD waitPFState = WaitForSingleObject(mhThreadPathFinding, 0);
 	if (waitPFState == WAIT_OBJECT_0)
 	{
-		int a = 1;
-		//mFBBlueGhost->SetPos(ghosts[i].pos);
-		mFBBlueGhost->SetWayPoints(mpfData->waypoints);
-		mFBBlueGhost->FireEffect();
+		//mFBBlueGhost->SetWayPoints(mpfData->waypoints);
+		//mFBBlueGhost->FireEffect();
 		mhThreadPathFinding = NULL;
-		//GpfData->waypoints;
-	}*/
+	}
 
 	////Checking PacMan Collision with fruit
 	for (int i = 0; i < mFruit.size(); ++i)

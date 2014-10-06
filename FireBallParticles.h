@@ -15,6 +15,7 @@ public:
 		XMFLOAT2 size;
 		float age;
 		float lifetime;
+		UINT tweenSegment;
 	};
 	struct FireBallRangeElement
 	{
@@ -35,6 +36,19 @@ public:
 		bool isFire;
 	};
 
+	struct TweenPoint
+	{
+		int startPosX;
+		int startPosZ;
+		int endPosX;
+		int endPosZ;
+		UINT distance;
+		XMFLOAT3 vector;
+		float startTween;
+		float endTween;
+		float tweenTime;
+	};
+
 
 	const int MAX_PARTICLES = 100000;
 
@@ -51,7 +65,7 @@ public:
 	void SetFireBallTexture(ID3D11ShaderResourceView* fbTex){ mFBTexture = fbTex; }
 	void SetProperties(FireBallParticlesProperties p){ mProperties = p; }
 
-	void SetWayPoints(std::vector<PathNode*> wayP){ mWayPoints = wayP; }
+	void SetWayPoints(std::vector<PathNode*> wayP);
 
 	void SetOriginalPos(FXMVECTOR oPos){ XMStoreFloat3(&mOriginalPos, oPos); }
 
@@ -79,5 +93,6 @@ private:
 
 	XMFLOAT3 mOriginalPos;
 	std::vector<PathNode*> mWayPoints;
+	std::vector<TweenPoint> mTweenPoints;
 };
 
