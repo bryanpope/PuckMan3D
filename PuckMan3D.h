@@ -37,7 +37,6 @@
 
 #include "xnacollision.h"
 
-
 struct TestParticle
 {
 	XMFLOAT3 pos;
@@ -46,7 +45,6 @@ struct TestParticle
 	float age;
 	float lifetime;
 };
-
 
 const int MAX_PARTICLES = 100000;
 
@@ -156,7 +154,7 @@ private:
 	void DrawWrapper();
 	void DrawScreenQuad();
 	void BuildFruit();
-	void readToTxtFile();
+	void readFromTxtFile();
 	void writeToTxtFile();
 	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
 	DWORD PathFindingThreadStart();
