@@ -91,7 +91,7 @@ VertexOut VS(VertexIn vin)
     return vout;
 }
 
-float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) : SV_Target
+float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight, uniform bool gFontDisplay) : SV_Target
 {
 
 	Material mat;
@@ -112,26 +112,30 @@ float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) :
 	float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	[unroll]
-	for (int i = 0; i < 5; ++i)
+	if (!gFontDisplay)
 	{
-		ComputePointLight(mat, gPointLight[i], pin.PosW, pin.NormalW, toEye, d, s);
-		diffuse += d;
-		specular += s;
-	}
-
-	if (gUseSpotLight)
-	{
-		for (int i = 0; i < 9; ++i)
+		[unroll]
+		for (int i = 0; i < 5; ++i)
 		{
-			ComputeSpotLight(mat, gSpotLight[i], pin.PosW, pin.NormalW, toEye, d, s);
-
+			ComputePointLight(mat, gPointLight[i], pin.PosW, pin.NormalW, toEye, d, s);
 			diffuse += d;
 			specular += s;
+		}
+
+		if (gUseSpotLight)
+		{
+			for (int i = 0; i < 9; ++i)
+			{
+				ComputeSpotLight(mat, gSpotLight[i], pin.PosW, pin.NormalW, toEye, d, s);
+
+				diffuse += d;
+				specular += s;
+			}
 		}
 	}
 
 	float4 litColour = gAmbientLight * mat.Diffuse + diffuse + specular;
+	//float4 litColour = gAmbientLight * mat.Diffuse;
 	//float4 litColour = gAmbientLight * mat.Diffuse;
 	//float4 litColour = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	litColour.a = mat.Diffuse.a;
@@ -152,7 +156,7 @@ technique11 TestTech
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(true, true) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(true, true, false) ) );
 		
     }
 }
@@ -163,7 +167,19 @@ technique11 LitMatTech
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(false, false)));
+		SetPixelShader(CompileShader(ps_5_0, PS(false, false, false)));
 
 	}
 }
+
+technique11 FontTech
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS(true, false, true)));
+
+	}
+}
+

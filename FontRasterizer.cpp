@@ -105,6 +105,7 @@ void FontRasterizer::DrawFont(ID3D11DeviceContext* context, FXMVECTOR pos, float
 
 	mEffect->SetPerObjectParams(XMMatrixIdentity(), XMMatrixIdentity(),
 		vp, mFontImage);
+	mEffect->SetEffectTech("FontTech");
 
 	mEffect->Draw(context, VB, IB, text.size() * 6);
 

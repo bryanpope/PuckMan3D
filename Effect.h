@@ -34,6 +34,7 @@ public:
 		return mTech;
 	}
 	
+	virtual void SetEffectTech(LPCSTR effectName);
 
 protected:
 
@@ -105,8 +106,6 @@ public:
 	virtual void SetPerFrameParams(FXMVECTOR ambient, FXMVECTOR eyePos, const PointLightOptimized* point, const SpotLightOptimized* spot);
 
 	virtual void SetPerObjectParams(CXMMATRIX world, CXMMATRIX invTranspose, CXMMATRIX wvp, CXMMATRIX viewProj, Material &mat);
-
-	virtual void SetEffectTech(LPCSTR effectName);
 
 	//virtual void SetDiffuseMap(ID3D11ShaderResourceView* texture);
 

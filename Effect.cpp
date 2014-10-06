@@ -135,6 +135,11 @@ void Effect::SetPerObjectParams(CXMMATRIX wvp)
 
 }
 
+void Effect::SetEffectTech(LPCSTR effectName)
+{
+	mTech = mEffect->GetTechniqueByName(effectName);
+}
+
 void SkyBoxEffect::LoadEffectParams()
 {
 	mfxCubeMap = mEffect->GetVariableByName("gCubeMap")->AsShaderResource();
@@ -242,11 +247,6 @@ void LitMatEffect::LoadEffectParams()
 	mfxInvTranspose = mEffect->GetVariableByName("gInvTransposeW")->AsMatrix();
 	mfxMaterial = mEffect->GetVariableByName("gMaterial");
 	mfxViewProj = mEffect->GetVariableByName("gViewProj")->AsMatrix();
-}
-
-void LitMatEffect::SetEffectTech(LPCSTR effectName)
-{
-	mTech = mEffect->GetTechniqueByName(effectName);
 }
 
 
