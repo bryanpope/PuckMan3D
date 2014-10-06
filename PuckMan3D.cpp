@@ -327,7 +327,7 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 
-	readToTxtFile();
+	readFromTxtFile();
 
 	if(!D3DApp::Init())
 		return false;
@@ -744,10 +744,6 @@ void PuckMan3D::UpdateScene(float dt)
 	mPointLights[0].pos.x = pacMans[0].pos.x;
 	mPointLights[0].pos.z = pacMans[0].pos.z;
 
-	
-	
-	
-	
 	//// Checking PacMan collision with maze
 	mPuckMan->SetPos(PacManAABoxOverLap(mPuckMan->GetPos()));
 	MazeLoader::SetPacManPos(PacManAABoxOverLap(mPuckMan->GetPos()), 0);
@@ -945,6 +941,11 @@ void PuckMan3D::UpdateScene(float dt)
 	if (!pacMans[0].isShown)
 	{
 		mGameState = GameState::GS_GAMEOVER;
+		if (mHighScore <= mScore)
+		{
+			writeToTxtFile();
+			readFromTxtFile();
+		}
 	}
 
 	if (mCanDrawFruit)
@@ -955,15 +956,6 @@ void PuckMan3D::UpdateScene(float dt)
 			randNumber = rg(4) + 1;
 			mFruit.push_back(mFruitPos);
 			mCanDrawFruit = false;
-		}
-	}
-
-	if (mGameState == GS_GAMEOVER)
-	{
-		//check to see if the highscore variable is less than or equal to the score, if so write to the text file replacing the high score with the score's value
-		if (mHighScore <= mScore)
-		{
-			readToTxtFile();
 		}
 	}
 
@@ -1627,6 +1619,8 @@ void PuckMan3D::DrawWrapper()
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, mTemp);
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 150.0f, 0.0f, 0.0f), 40, 75, 25, "Press Backspace");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 100.0f, 0.0f, 0.0f), 40, 75, 25, "to retun");
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
@@ -2488,10 +2482,6 @@ void PuckMan3D::updateStringStream()
 {
 	CurrScore.str("");
 	CurrScore << mScore;
-	if (mHighScore <= mScore)
-	{
-		writeToTxtFile();
-	}
 }
 
 void PuckMan3D::MuteAllAudio()
@@ -2639,7 +2629,7 @@ void PuckMan3D::BuildFruit()
 	mHUDFruitGeometry2->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
 }
 
-void PuckMan3D::readToTxtFile()
+void PuckMan3D::readFromTxtFile()
 {
 	//read in text file to the stringstream object CurrScore
 	readTxtFile.open("highscores.txt");
