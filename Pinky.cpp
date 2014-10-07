@@ -12,8 +12,8 @@ Pinky::Pinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mChaseTimer = 0;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
-	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+	mStart = new PathNode(this->mPos.x, this->mPos.z);
+	mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 	mWaypoints = path.FindPath(mStart, mGoal);
 	scatterPathDrawn = false;
 }
@@ -24,24 +24,24 @@ Pinky::~Pinky()
 
 void Pinky::LoadScatterWaypoints()
 {
-	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)12.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)11.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-12.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-11.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-10.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-9.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)11.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)12.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-9.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-10.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-11.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-12.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode(-13.0f, 13.5f));
+	mScatterWaypoints.push_back(new PathNode(-13.0f, 12.5f));
+	mScatterWaypoints.push_back(new PathNode(-13.0f, 11.5f));
+	mScatterWaypoints.push_back(new PathNode(-13.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(-12.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(-11.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(-10.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(-9.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(-8.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(-8.0f, 11.5f));
+	mScatterWaypoints.push_back(new PathNode(-8.0f, 12.5f));
+	mScatterWaypoints.push_back(new PathNode(-8.0f, 13.5f));
+	mScatterWaypoints.push_back(new PathNode(-8.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(-9.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(-10.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(-11.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(-12.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(-13.0f, 14.5f));
 }
 
 void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, int levelNumber)
@@ -62,8 +62,8 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 	case SCATTER:
 		if (!scatterPathDrawn)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 			mWaypoints = path.FindPath(mStart, mGoal);
 			this->SetWayPoints(mWaypoints);
 			scatterPathDrawn = true;
@@ -153,38 +153,38 @@ else if (levelNumber >= 5)
 		}
 		if (!firstChasePathDrawn)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 			mWaypoints = path.FindPath(mStart, mGoal);
 			waypointIterator = 0;
 			firstChasePathDrawn = true;
 		}
 		else
 		{
-			int row = MazeLoader::GetMazeHeight() - (int)round(this->mPos.x + 15.5f);
-			int col = (int)round(this->mPos.z + 14.5f) - 1;
+			int row = MazeLoader::GetMazeHeight() - round(this->mPos.x + 15.5f);
+			int col = round(this->mPos.z + 14.5f) - 1;
 			if (MazeLoader::IsDivergent(row, col))
 			{
 				//Target 4 tiles in front of PuckMan's facing
 				if (facingState == Direction::DIRECTION::NORTH || facingState == Direction::DIRECTION::SOUTH)
 				{
 					//Clamp the Z value of the target so it cannot choose a tile outside of the level
-					float clampedZ = MathHelper::Clamp((int)round(MazeLoader::GetPacManData().at(0).pos.z + (4 * Direction::getDirecitonVector(facingState).m128_f32[2])), 
-										   (int)round(MazeLoader::GetPacManData().at(0).pos.z + (4 * Direction::getDirecitonVector(facingState).m128_f32[2])),
-										   (int)MazeLoader::GetMazeHeight());
+					float clampedZ = MathHelper::Clamp((int)round(MazeLoader::GetPacManData().at(0).pos.z + (4 * Direction::getDirecitonVector(facingState).m128_f32[2])),
+						(int)round(MazeLoader::GetPacManData().at(0).pos.z + (4 * Direction::getDirecitonVector(facingState).m128_f32[2])),
+						(int)MazeLoader::GetMazeHeight());
 
 					//Check if clampedZ is a valid tile, if not move the target tile one more in the opposite direction and try again
-					int goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
-					int goalCol = ((int)round(MazeLoader::GetPacManData().at(0).pos.x + 14.5f) - 1);
+					int goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
+					int goalCol = (round(MazeLoader::GetPacManData().at(0).pos.x + 14.5f) - 1);
 					while(MazeLoader::IsBlocked(goalRow, goalCol))
 					{
 						clampedZ -= 1 * Direction::getDirecitonVector(facingState).m128_f32[2];
-						goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
-						goalCol = ((int)round(MazeLoader::GetPacManData().at(0).pos.x + 14.5f) - 1);
+						goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
+						goalCol = (round(MazeLoader::GetPacManData().at(0).pos.x + 14.5f) - 1);
 					}
 
-					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)clampedZ);
+					mStart = new PathNode(this->mPos.x, this->mPos.z);
+					mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), clampedZ);
 					mWaypoints = path.FindPath(mStart, mGoal);
 				}
 
@@ -192,21 +192,21 @@ else if (levelNumber >= 5)
 				{
 					//Clamp the X value of the target so it cannot choose a tile outside of the level
 					float clampedX = MathHelper::Clamp((int)round(MazeLoader::GetPacManData().at(0).pos.x + (4 * Direction::getDirecitonVector(facingState).m128_f32[0])),
-										   (int)round(MazeLoader::GetPacManData().at(0).pos.x + (4 * Direction::getDirecitonVector(facingState).m128_f32[0])),
-										   (int)MazeLoader::GetMazeWidth());
+						(int)round(MazeLoader::GetPacManData().at(0).pos.x + (4 * Direction::getDirecitonVector(facingState).m128_f32[0])),
+						(int)MazeLoader::GetMazeWidth());
 
 					//Check if clampedX is a valid tile, if not move the target tile one more in the opposite direction and try again
-					int goalRow = (MazeLoader::GetMazeHeight()) - (int)round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f);
-					int goalCol = ((int)round(clampedX + 14.5f) - 1);
+					int goalRow = (MazeLoader::GetMazeHeight()) - round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f);
+					int goalCol = (round(clampedX + 14.5f) - 1);
 					while (MazeLoader::IsBlocked(goalRow, goalCol))
 					{
 						clampedX -= 1 * Direction::getDirecitonVector(facingState).m128_f32[0];
-						goalRow = (MazeLoader::GetMazeHeight()) - (int)round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f);
-						goalCol = ((int)round(clampedX + 14.5f) - 1);
+						goalRow = (MazeLoader::GetMazeHeight()) - round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f);
+						goalCol = (round(clampedX + 14.5f) - 1);
 					}
 
-					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-					mGoal = new PathNode((int)clampedX, (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+					mStart = new PathNode(this->mPos.x, this->mPos.z);
+					mGoal = new PathNode(clampedX, round(MazeLoader::GetPacManData().at(0).pos.z));
 					mWaypoints = path.FindPath(mStart, mGoal);
 				}
 			}

@@ -12,8 +12,8 @@ Blinky::Blinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mChaseTimer = 0.0f;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
-	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+	mStart = new PathNode(this->mPos.x, this->mPos.z);
+	mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 	mWaypoints = path.FindPath(mStart, mGoal);
 	scatterPathDrawn = false;
 }
@@ -24,36 +24,37 @@ Blinky::~Blinky()
 
 void Blinky::LoadScatterWaypoints()
 {
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)12.5f));
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)11.5f));
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)11.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)10.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)9.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)8.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)11.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)12.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)8.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)9.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)10.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)11.0f, (int)14.5f));
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, 13.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, 12.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, 11.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(11.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(10.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(9.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(8.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, 10.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, 11.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, 12.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, 13.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(8.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(9.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(10.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(11.0f, 14.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, 14.5f));
 }
 
 void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
+	std::cout << "blinky pos " << mPos.x << ", " << mPos.z << std::endl;
 	switch (mGhostStates)
 	{
 	case SCATTER:
 		//SetVelocity(levelNumber, GHOST_STATES::SCATTER);
 		if (!scatterPathDrawn)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 			mWaypoints = path.FindPath(mStart, mGoal);
 			this->SetWayPoints(mWaypoints);
 			scatterPathDrawn = true;
@@ -97,8 +98,8 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 		//SetVelocity(levelNumber, GHOST_STATES::CHASE);
 		if (!firstChasePathDrawn)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+			mStart = new PathNode(this->mPos.x, this->mPos.z);
+			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 			mWaypoints = path.FindPath(mStart, mGoal);
 			this->SetWayPoints(mWaypoints);
 			waypointIterator = 0;
@@ -106,12 +107,12 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 		}
 		else
 		{
-			int row = MazeLoader::GetMazeHeight() - (int)round(this->mPos.x + 15.5f);
-			int col = (int)round(this->mPos.z + 14.5f) - 1;
+			int row = MazeLoader::GetMazeHeight() - round(this->mPos.x + 15.5f);
+			int col = round(this->mPos.z + 14.5f) - 1;
 			if (MazeLoader::IsDivergent(row, col))
 			{
-				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-				mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+				mStart = new PathNode(this->mPos.x, this->mPos.z);
+				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
 				waypointIterator = 0;

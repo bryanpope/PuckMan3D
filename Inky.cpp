@@ -12,8 +12,8 @@ Inky::Inky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mChaseTimer = 0;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
-	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+	mStart = new PathNode(this->mPos.x, this->mPos.z);
+	mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 	mWaypoints = path.FindPath(mStart, mGoal);
 	scatterPathDrawn = false;
 	firstChasePathDrawn = true;
@@ -25,40 +25,40 @@ Inky::~Inky()
 
 void Inky::LoadScatterWaypoints()
 {
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)11.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)10.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)9.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)8.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)6.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)5.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)4.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)3.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)2.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)1.0f, (int)-13.5f));
-	mScatterWaypoints.push_back(new PathNode((int)1.0f, (int)-12.5f));
-	mScatterWaypoints.push_back(new PathNode((int)1.0f, (int)-11.5f));
-	mScatterWaypoints.push_back(new PathNode((int)1.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)2.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)3.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)4.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)4.0f, (int)-9.5f));
-	mScatterWaypoints.push_back(new PathNode((int)4.0f, (int)-8.5f));
-	mScatterWaypoints.push_back(new PathNode((int)4.0f, (int)-7.5f));
-	mScatterWaypoints.push_back(new PathNode((int)5.0f, (int)-7.5f));
-	mScatterWaypoints.push_back(new PathNode((int)6.0f, (int)-7.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)-7.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)-8.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)-9.5f));
-	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)8.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)9.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)10.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)11.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)-10.5f));
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)-11.5f));
-	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)-12.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(11.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(10.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(9.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(8.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(6.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(5.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(4.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(3.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(2.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(1.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(1.0f, -12.5f));
+	mScatterWaypoints.push_back(new PathNode(1.0f, -11.5f));
+	mScatterWaypoints.push_back(new PathNode(1.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(2.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(3.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(4.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(4.0f, -9.5f));
+	mScatterWaypoints.push_back(new PathNode(4.0f, -8.5f));
+	mScatterWaypoints.push_back(new PathNode(4.0f, -7.5f));
+	mScatterWaypoints.push_back(new PathNode(5.0f, -7.5f));
+	mScatterWaypoints.push_back(new PathNode(6.0f, -7.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, -7.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, -8.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, -9.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(8.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(9.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(10.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(11.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, -11.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, -12.5f));
 }
 
 void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, XMFLOAT3 blinkyPos, int levelNumber, int pelletCounter)
@@ -86,8 +86,8 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 		case SCATTER:
 			if (!scatterPathDrawn)
 			{
-				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-				mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
+				mStart = new PathNode(this->mPos.x, this->mPos.z);
+				mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
 				scatterPathDrawn = true;
@@ -125,8 +125,8 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				this->mCurrWaypointIndex = 0;
 				this->waypointIterator = 0;
 				//Draw an initial path to PuckMan so Inky has somewhere to go
-				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-				mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+				mStart = new PathNode(this->mPos.x, this->mPos.z);
+				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				mWaypoints = path.FindPath(mStart, mGoal);
 			}*/
 			break;
@@ -156,15 +156,15 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 			PathNode* offsetTile;
 			if (!firstChasePathDrawn)
 			{
-				int row = MazeLoader::GetMazeHeight() - (int)round(this->mPos.z + 15.5f);
-				int col = (int)round(this->mPos.x + 14.5f) - 1;
+				int row = MazeLoader::GetMazeHeight() - round(this->mPos.z + 15.5f);
+				int col = round(this->mPos.x + 14.5f) - 1;
 				if (MazeLoader::IsDivergent(row, col))
 				{
 					if (facingState == Direction::DIRECTION::NORTH || facingState == Direction::DIRECTION::SOUTH)
 					{
 						//Offset tile = 2 spaces in PuckMan's facing
-						offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x),
-									 (int)round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2])));
+						offsetTile = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x),
+									 round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2])));
 						//Draw a vector from Blinky's current position to the offset tile's position
 						XMVECTOR targetTile = XMVectorSet(offsetTile->xPos - blinkyPos.x, 0.0f, offsetTile->zPos - blinkyPos.z, 0.0f);
 						//Double the vector length extending forward, this is Inky's target
@@ -175,8 +175,8 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						float clampedZ = MathHelper::Clamp((int)targetTile.m128_f32[2], 0, (int)(MazeLoader::GetMazeHeight()));
 
 						//Check if clampedZ is a valid tile, if not move the target tile one more in the opposite direction and try again
-						int goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
-						int goalCol = (int)round(clampedX + 14.5f) - 1;
+						int goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
+						int goalCol = round(clampedX + 14.5f) - 1;
 						while (MazeLoader::IsBlocked(goalRow, goalCol))
 						{
 							clampedX -= 1 * Direction::getDirecitonVector(facingState).m128_f32[0];
@@ -185,20 +185,20 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 							{
 								break;
 							}
-							//goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
-							//goalCol = (int)round(clampedX + 13.5f);
+							//goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
+							//goalCol = round(clampedX + 13.5f);
 						}
 
-						mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-						mGoal = new PathNode((int)clampedX, (int)clampedZ);
+						mStart = new PathNode(this->mPos.x, this->mPos.z);
+						mGoal = new PathNode(clampedX, clampedZ);
 						mWaypoints = path.FindPath(mStart, mGoal);
 					}
 
 					else if (facingState == Direction::DIRECTION::WEST || facingState == Direction::DIRECTION::EAST)
 					{
 						//Offset tile = 2 spaces in PuckMan's facing
-						offsetTile = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x + (2 * Direction::getDirecitonVector(facingState).m128_f32[0])),
-												  (int)round(MazeLoader::GetPacManData().at(0).pos.z));
+						offsetTile = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x + (2 * Direction::getDirecitonVector(facingState).m128_f32[0])),
+												  round(MazeLoader::GetPacManData().at(0).pos.z));
 						//Draw a vector from Blinky's current position to the offset tile's position
 						XMVECTOR targetTile = XMVectorSet(offsetTile->xPos - blinkyPos.x, 0.0f, offsetTile->zPos - blinkyPos.z, 0.0f);
 						//Double the vector length extending forward, this is Inky's target
@@ -219,12 +219,12 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 							{
 								break;
 							}
-							//goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
-							//goalCol = (int)round(clampedX + 13.5f);
+							//goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
+							//goalCol = round(clampedX + 13.5f);
 						}
 
-						mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
-						mGoal = new PathNode((int)clampedX, (int)clampedZ);
+						mStart = new PathNode(this->mPos.x, this->mPos.z);
+						mGoal = new PathNode(clampedX, clampedZ);
 						mWaypoints = path.FindPath(mStart, mGoal);
 					}
 				}

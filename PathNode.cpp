@@ -1,6 +1,6 @@
 #include "PathNode.h"
 
-PathNode::PathNode(int x, int z, int g, int fC, PathNode* p, Direction::DIRECTION f)
+PathNode::PathNode(float x, float z, int g, int fC, PathNode* p, Direction::DIRECTION f)
 {
 	xPos = x;
 	zPos = z;
@@ -10,7 +10,7 @@ PathNode::PathNode(int x, int z, int g, int fC, PathNode* p, Direction::DIRECTIO
 	facing = f;
 }
 
-PathNode::PathNode(int x, int z, Direction::DIRECTION f)
+PathNode::PathNode(float x, float z, Direction::DIRECTION f)
 {
 	xPos = x;
 	zPos = z;
@@ -20,7 +20,7 @@ PathNode::PathNode(int x, int z, Direction::DIRECTION f)
 	facing = f;
 }
 
-PathNode::PathNode(int x, int z)
+PathNode::PathNode(float x, float z)
 {
 	xPos = x;
 	zPos = z;
