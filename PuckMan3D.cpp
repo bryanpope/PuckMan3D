@@ -800,6 +800,10 @@ void PuckMan3D::UpdateScene(float dt)
 				{
 					mFBBlueGhost[i]->SetPos(ghosts[i].pos, MazeLoader::RADIUS_GHOST);
 					mTouchedGhost[i] = true;
+					playGhostDeathSFX();
+					mGhostEatenCounter++;
+					calcGhostScore();
+					mScore += mGhostEatenPoints;
 					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
 					mpfData[i]->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
 					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
@@ -2289,17 +2293,20 @@ void PuckMan3D::loadGhostDeathSFX()
 void PuckMan3D::playGhostDeathSFX()
 {
 	bool isPlaying = false;
+	float volume = 1.1f;
 
 	if (channel[0] != NULL)
 	{
 		channel[0]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying && !mMuteAll)
+	if (!mMuteAll)
 	{
 		result = sys->playSound(sound[0], 0, false, &channel[0]);
+		result = channel[0]->setVolume(volume);
 		result = channel[0]->setChannelGroup(soundGroup);
 		result = channel[0]->setPaused(false);
+
 	}
 }
 
@@ -2313,6 +2320,7 @@ void PuckMan3D::loadScaredGhostSFX()
 void PuckMan3D::playScaredGhostSFX()
 {
 	bool isPlaying = false;
+	float volume = 0.7f;
 
 	if (channel[1] != NULL)
 	{
@@ -2322,6 +2330,7 @@ void PuckMan3D::playScaredGhostSFX()
 	if (!isPlaying && powerUpActivated && !mMuteAll)
 	{
 		result = sys->playSound(sound[1], 0, false, &channel[1]);
+		result = channel[1]->setVolume(volume);
 		result = channel[1]->setChannelGroup(soundGroup);
 		result = channel[1]->setPaused(false);
 	}
@@ -2342,7 +2351,7 @@ void PuckMan3D::playDeathSFX()
 		channel[2]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying && !mMuteAll)
+	if (!mMuteAll)
 	{
 		result = sys->playSound(sound[2], 0, false, &channel[2]);
 		result = channel[2]->setChannelGroup(soundGroup);
@@ -2366,7 +2375,7 @@ void PuckMan3D::playFruitSFX()
 		channel[4]->isPlaying(&isPlaying);
 	}
 
-	if (!isPlaying && !mMuteAll)
+	if (!mMuteAll)
 	{
 		result = sys->playSound(sound[3], 0, false, &channel[4]);
 		result = channel[4]->setChannelGroup(soundGroup);
