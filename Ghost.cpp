@@ -4,10 +4,11 @@ Ghost::Ghost()
 {
 }
 
-Ghost::Ghost(FXMVECTOR pos, FXMVECTOR vel, float radius)
+Ghost::Ghost(FXMVECTOR pos, float radius)
 {
 	XMStoreFloat3(&mPos, pos);
-	XMStoreFloat3(&mVel, vel);
+	//XMStoreFloat3(&mVel, vel);
+	mVel = XMFLOAT3(1000.0f, 0.0f, 1000.0f);
 	mRadius = radius;
 	mSpeed = 1.0f;
 }
@@ -16,115 +17,191 @@ Ghost::~Ghost()
 {
 }
 
-void Ghost::MoveGhost(PathNode* target, float dt)
-{
-	XMVECTOR pos = XMLoadFloat3(&mPos);
-	XMVECTOR vel = XMLoadFloat3(&mVel);
-	//Calculate the vector in the direction to move
-	XMVECTOR dir = XMVectorSet(this->mPos.x - target->xPos, this->mPos.y, this->mPos.z - target->zPos, 0.0f);
-	
-	//dir.m128_f32[0] = abs(dir.m128_f32[0]);
-	//Normalize vector
-	dir = XMVector3Normalize(dir);
-	//Add vector to ghost position * speed
-	
-	pos += (dir * -1.0f) * vel * dt;
-
-	XMStoreFloat3(&mPos, pos);
-	/*this->mPos.x += (dir.m128_f32[0] * mVel.x) * dt;
-	this->mPos.z += (dir.m128_f32[2] * mVel.z) * dt;*/
-}
-
 void Ghost::Update()
+{}
+
+void Ghost::SetVelocity(int levelCounter, GHOST_STATES ghostState)
 {
-	/*switch (mGhostStates)
+	if (ghostState == GHOST_STATES::CHASE || ghostState == GHOST_STATES::SCATTER)
 	{
-	case SCATTER:
-		if (mLevelNumber == 1)
+		if (levelCounter == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.75f;
-			XMStoreFloat3(&mVel, vel);
-			break;
+			XMStoreFloat3(&mVel, vel);// hello from Gumby.
+									  // Hey babe
 		}
-		else if (mLevelNumber >= 2 || mLevelNumber <= 4)
+		else if (levelCounter >= 2 || levelCounter <= 4)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.85f;
 			XMStoreFloat3(&mVel, vel);
-			break;
 		}
-		else if (mLevelNumber >= 5)
+		else if (levelCounter >= 5)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.95f;
 			XMStoreFloat3(&mVel, vel);
-			break;
 		}
-	case CHASE:
-		//Target 4 tiles in front of PuckMan's facing
-		//std::string goalFacing = mPuckMan->getFacing();
-		if (goalFacing == "forward" || goalFacing == "backward")
-		{
-			//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
-			//mGoal = new PathNode(mPuckMan->getRow() + (4 * goalFacing), mPuckMan->getCol(), 0, 0, NULL, mPuckMan->getFacing());
-		}
-
-		if (goalFacing == "left" || goalFacing == "right")
-		{
-			//mStart = new PathNode(mRow, mCol, 0, 0, NULL, mFacing);
-			//mGoal = new PathNode(mPuckMan->getRow(), mPuckMan->getCol() + (4 * goalFacing), 0, 0, NULL, mPuckMan->getFacing());
-		}
-
-		//mPath = FindPath(mStart, mGoal);
-		break;
-	case FRIGHTENED:
-		if (mLevelNumber == 1)
+	}
+	else if (ghostState == GHOST_STATES::FRIGHTENED)
+	{
+		if (levelCounter == 1)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.50f;
 			XMStoreFloat3(&mVel, vel);
-			break;
 		}
-		else if (mLevelNumber >= 2 || mLevelNumber <= 4)
+		else if (levelCounter >= 2 || levelCounter <= 4)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.55f;
 			XMStoreFloat3(&mVel, vel);
-			break;
 		}
-		else if (mLevelNumber >= 5)
+		else if (levelCounter >= 5)
 		{
 			XMVECTOR vel = XMLoadFloat3(&mVel);
 			vel = vel * 0.60f;
 			XMStoreFloat3(&mVel, vel);
-			break;
 		}
-	case DEAD:
-		//Spawn in box
-		//XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f)
-		break;
-		case IN_TUNNEL:
-			if (mLevelNumber == 1)
+	}
+}
+
+void Ghost::UpdateCurrentTweenPoint(float dt)
+{
+	XMVECTOR pos = XMLoadFloat3(&mCurrTweenPoint);
+	UINT tIndex = mCurrTweenIndex;
+	XMFLOAT3 vector = mTweenPoints[tIndex].vector;
+	XMVECTOR vel = XMLoadFloat3(&vector);
+	pos = pos + (vel * dt * 50);
+	XMStoreFloat3(&mCurrTweenPoint, pos);
+	if (abs(vector.x) == 1.0f && vector.z == 0.0f)
+	{
+		if (mTweenPoints[tIndex].endPosX > mTweenPoints[tIndex].startPosX)
+		{
+			if (mCurrTweenPoint.x >= mTweenPoints[tIndex].endPosX)
 			{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.40f;
-			XMStoreFloat3(&mVel, vel);
-			break;
+				++mCurrTweenIndex;
+			}
 		}
-		else if(mLevelNumber >= 2 || mLevelNumber <= 4)
+		else
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.45f;
-			XMStoreFloat3(&mVel, vel);
-			break;
+			if (mCurrTweenPoint.x <= mTweenPoints[tIndex].endPosX)
+			{
+				++mCurrTweenIndex;
+			}
 		}
-		else if(mLevelNumber >= 5)
+	}
+	else  // vector.x == 0.0f && vector.z == 1.0f;
+	{
+		if (mTweenPoints[tIndex].endPosZ > mTweenPoints[tIndex].startPosZ)
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
-			break;
+			if (mCurrTweenPoint.z >= mTweenPoints[tIndex].endPosZ)
+			{
+				++mCurrTweenIndex;
+			}
 		}
-	}*/
+		else
+		{
+			if (mCurrTweenPoint.z <= mTweenPoints[tIndex].endPosZ)
+			{
+				++mCurrTweenIndex;
+			}
+		}
+	}
+	if (mCurrTweenIndex >= mTweenPoints.size())
+	{
+		mCurrTweenIndex = 0;
+		mCurrTweenPoint.x = mTweenPoints[0].startPosX;
+		mCurrTweenPoint.z = mTweenPoints[0].startPosZ;
+		reachedEnd = true;
+	}
+}
+
+void Ghost::SetWayPoints(std::vector<PathNode*> wayP)
+{
+	//mWaypoints = wayP;
+
+	mTweenPoints.clear();
+	mTweenPoints.push_back({ wayP[0]->xPos, wayP[0]->zPos, 0, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f), 0.0f });
+	UINT lastAdd = 0;
+	XMFLOAT2 lastSame = XMFLOAT2(0.0f, 0.0f);
+
+	for (int i = 1; i < wayP.size(); ++i)
+	{
+		if (lastSame.x == 0.0f && lastSame.y == 0.0f)
+		{
+			if (wayP[i]->xPos == mTweenPoints[lastAdd].startPosX)
+			{
+				lastSame = XMFLOAT2(1.0f, 0.0f);
+				continue;
+			}
+			if (wayP[i]->zPos == mTweenPoints[lastAdd].startPosZ)
+			{
+				lastSame = XMFLOAT2(0.0f, 1.0f);
+				continue;
+			}
+			//mTweenPoints.push_back({ wayP[i]->xPos, wayP[i]->zPos, 0.0f });
+			//++lastAdd;
+			//continue;
+		}
+		if (lastSame.x == 1.0f && lastSame.y == 0.0f)
+		{
+			if (wayP[i]->xPos == mTweenPoints[lastAdd].startPosX)
+			{
+				continue;
+			}
+			lastSame = XMFLOAT2(0.0f, 0.0f);
+			mTweenPoints[lastAdd] = { mTweenPoints[lastAdd].startPosX, mTweenPoints[lastAdd].startPosZ, wayP[i - 1]->xPos, wayP[i - 1]->zPos,
+				abs(mTweenPoints[lastAdd].startPosZ - wayP[i - 1]->zPos), XMFLOAT3(0.0f, 0.0f, wayP[i - 1]->zPos > mTweenPoints[lastAdd].startPosZ ? 1.0f : -1.0f), 0.0f };
+			mTweenPoints.push_back({ wayP[i - 1]->xPos, wayP[i - 1]->zPos, 0, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f), 0.0f });
+			++lastAdd;
+			--i;
+			continue;
+		}
+		if (lastSame.x == 0.0f && lastSame.y == 1.0f)
+		{
+			if (wayP[i]->zPos == mTweenPoints[lastAdd].startPosZ)
+			{
+				continue;
+			}
+			lastSame = XMFLOAT2(0.0f, 0.0f);
+			mTweenPoints[lastAdd] = { mTweenPoints[lastAdd].startPosX, mTweenPoints[lastAdd].startPosZ, wayP[i - 1]->xPos, wayP[i - 1]->zPos,
+				abs(mTweenPoints[lastAdd].startPosX - wayP[i - 1]->xPos), XMFLOAT3(wayP[i - 1]->xPos > mTweenPoints[lastAdd].startPosX ? 1.0f : -1.0f, 0.0f, 0.0f), 0.0f };
+			mTweenPoints.push_back({ wayP[i - 1]->xPos, wayP[i - 1]->zPos, 0, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f), 0.0f });
+			++lastAdd;
+			--i;
+			continue;
+		}
+	}
+	if (lastSame.x == 1.0f && lastSame.y == 0.0f)
+	{
+		mTweenPoints[lastAdd] = { mTweenPoints[lastAdd].startPosX, mTweenPoints[lastAdd].startPosZ, wayP[wayP.size() - 1]->xPos, wayP[wayP.size() - 1]->zPos,
+			abs(mTweenPoints[lastAdd].startPosZ - wayP[wayP.size() - 1]->zPos), XMFLOAT3(0.0f, 0.0f, wayP[wayP.size() - 1]->zPos > mTweenPoints[lastAdd].startPosZ ? 1.0f : -1.0f), 0.0f };
+	}
+	else
+	{
+		mTweenPoints[lastAdd] = { mTweenPoints[lastAdd].startPosX, mTweenPoints[lastAdd].startPosZ, wayP[wayP.size() - 1]->xPos, wayP[wayP.size() - 1]->zPos,
+			abs(mTweenPoints[lastAdd].startPosX - wayP[wayP.size() - 1]->xPos), XMFLOAT3(wayP[wayP.size() - 1]->xPos > mTweenPoints[lastAdd].startPosX ? 1.0f : -1.0f, 0.0f, 0.0f), 0.0f };
+	}
+
+	UINT totalDistance = 0;
+	for (int i = 0; i < mTweenPoints.size(); ++i)
+	{
+		totalDistance += mTweenPoints[i].distance;
+	}
+	mTweenPoints[0].startTween = 0.0f;
+	mTweenPoints[0].tweenTime = (float)mTweenPoints[0].distance / totalDistance;
+	mTweenPoints[0].endTween = mTweenPoints[0].tweenTime;
+	for (int i = 1; i < mTweenPoints.size(); ++i)
+	{
+		mTweenPoints[i].startTween = mTweenPoints[i - 1].endTween;
+		mTweenPoints[i].tweenTime = (float)mTweenPoints[i].distance / totalDistance;
+		mTweenPoints[i].endTween = mTweenPoints[i].startTween + mTweenPoints[i].tweenTime;
+	}
+
+	mCurrTweenPoint.x = mTweenPoints[0].startPosX;
+	mCurrTweenPoint.y = 0.0f;
+	mCurrTweenPoint.z = mTweenPoints[0].startPosZ;
+	mCurrTweenIndex = 0;
 }

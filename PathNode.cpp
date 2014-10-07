@@ -63,7 +63,7 @@ int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 		}
 		else
 		{
-			return 50;
+			return 500;
 		}
 	}
 	return 1;

@@ -1,9 +1,9 @@
 #include "Blinky.h"
 
-Blinky::Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
+Blinky::Blinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 {
 	XMStoreFloat3(&mPos, pos);
-	XMStoreFloat3(&mVel, vel);
+	LoadScatterWaypoints();
 	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = 12.0f;
 	this->mScatterTile.z = 14.5f;
@@ -14,67 +14,69 @@ Blinky::Blinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, rad
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
-	waypoints = test.FindPath(mStart, mGoal);
-	scatterPathDrawn = true;
+	mWaypoints = path.FindPath(mStart, mGoal);
+	scatterPathDrawn = false;
 }
 
 Blinky::~Blinky()
 {
 }
 
-const XMFLOAT3 Blinky::mScatterWaypoints[MAX_WAYPOINTS] =
+void Blinky::LoadScatterWaypoints()
 {
-	{ XMFLOAT3(12.0f, 0.0f, 13.5f) },
-	{ XMFLOAT3(12.0f, 0.0f, 12.5f) },
-	{ XMFLOAT3(12.0f, 0.0f, 11.5f) },
-	{ XMFLOAT3(12.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(11.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(10.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(9.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(8.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(7.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(7.0f, 0.0f, 11.5f) },
-	{ XMFLOAT3(7.0f, 0.0f, 12.5f) },
-	{ XMFLOAT3(7.0f, 0.0f, 13.5f) },
-	{ XMFLOAT3(7.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(8.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(9.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(10.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(11.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(12.0f, 0.0f, 14.5f) }
-};
+	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)12.5f));
+	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)11.5f));
+	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)11.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)10.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)9.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)8.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)11.5f));
+	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)12.5f));
+	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)7.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)8.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)9.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)10.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)11.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)12.0f, (int)14.5f));
+}
 
 void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
 	switch (mGhostStates)
 	{
 	case SCATTER:
+		//SetVelocity(levelNumber, GHOST_STATES::SCATTER);
 		if (!scatterPathDrawn)
 		{
 			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
-			waypoints = test.FindPath(mStart, mGoal);
+			mWaypoints = path.FindPath(mStart, mGoal);
+			this->SetWayPoints(mWaypoints);
 			scatterPathDrawn = true;
 			waypointIterator = 0;
 		}
-		if (waypoints.size() != 0)
+		if (mWaypoints.size() != 0)
 		{
-			if (waypointIterator < waypoints.size())
+			if (!this->reachedEnd)
 			{
-				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
-				waypointIterator++;
+				this->UpdateCurrentTweenPoint(dt);
+				this->mPos = this->mCurrTweenPoint;
 			}
-			else if (waypointIterator == waypoints.size())
+			else if (this->reachedEnd)
 			{
-				this->isLooping = true;
-				if (isLooping == true)
+				if (!isLooping)
 				{
-					this->setPos(XMVectorSet(mScatterWaypoints[this->mCurrWaypointIndex].x, mScatterWaypoints[this->mCurrWaypointIndex].y, mScatterWaypoints[this->mCurrWaypointIndex].z, 0.0f));
-					this->mCurrWaypointIndex++;
-					if (this->mCurrWaypointIndex == 18)
-					{
-						this->mCurrWaypointIndex = 0;
-					}
+					this->SetWayPoints(mScatterWaypoints);
+					this->isLooping = true;
+				}
+				if (isLooping == true && this->reachedEnd)
+				{
+					this->UpdateCurrentTweenPoint(dt);
+					this->mPos = this->mCurrTweenPoint;
 				}
 			}
 		}
@@ -84,41 +86,21 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			this->mGhostStates = GHOST_STATES::CHASE;
 			mScatterTimer = 0.0f;
 			scatterPathDrawn = false;
+			this->isLooping = false;
+			this->reachedEnd = false;
 			this->mCurrWaypointIndex = 0;
 			this->waypointIterator = 0;
-		}
-
-
-/*if (levelNumber == 1)
-{
-
-	/*XMVECTOR vel = XMLoadFloat3(&mVel);
-	vel = vel * 0.75f;
-	XMStoreFloat3(&mVel, vel);// hello from Gumby.
-	break;					  // Hey babe
-}
-else if (levelNumber >= 2 || levelNumber <= 4)
-{
-	XMVECTOR vel = XMLoadFloat3(&mVel);
-	vel = vel * 0.85f;
-	XMStoreFloat3(&mVel, vel);
-	break;
-}
-else if (levelNumber >= 5)
-{
-	XMVECTOR vel = XMLoadFloat3(&mVel);
-	vel = vel * 0.95f;
-	XMStoreFloat3(&mVel, vel);
-	break;
-}*/
-			
+		}			
 		break;
+
 	case CHASE:
+		//SetVelocity(levelNumber, GHOST_STATES::CHASE);
 		if (!firstChasePathDrawn)
 		{
 			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
-			waypoints = test.FindPath(mStart, mGoal);
+			mWaypoints = path.FindPath(mStart, mGoal);
+			this->SetWayPoints(mWaypoints);
 			waypointIterator = 0;
 			firstChasePathDrawn = true;
 		}
@@ -130,20 +112,17 @@ else if (levelNumber >= 5)
 			{
 				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 				mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
-				waypoints = test.FindPath(mStart, mGoal);
+				mWaypoints = path.FindPath(mStart, mGoal);
+				this->SetWayPoints(mWaypoints);
 				waypointIterator = 0;
 			}
 		}
-		if (waypoints.size() != 0)
+		if (mWaypoints.size() != 0)
 		{
-			if (waypointIterator < waypoints.size())
+			if (waypointIterator < mWaypoints.size())
 			{
-				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
-				waypointIterator++;
-			}
-			else if (waypointIterator >= waypoints.size())
-			{
-				waypointIterator = 0;
+				this->UpdateCurrentTweenPoint(dt);
+				this->mPos = this->mCurrTweenPoint;
 			}
 		}
 
@@ -158,53 +137,8 @@ else if (levelNumber >= 5)
 
 		break;
 	case FRIGHTENED:
-		if (levelNumber == 1)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if (levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.55f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if (levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.60f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-	case DEAD:
-		//Spawn in box
-		//XMVectorSet(0.0f, 0.75f, 3.5f, 0.0f)
+		SetVelocity(levelNumber, GHOST_STATES::FRIGHTENED);
 		break;
-	/*case IN_TUNNEL:
-		if (levelNumber == 1)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.40f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if(levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.45f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if(levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}*/
 	}
 }
 

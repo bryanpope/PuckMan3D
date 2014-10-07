@@ -1,9 +1,9 @@
 #include "Clyde.h"
 
-Clyde::Clyde(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
+Clyde::Clyde(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 {
 	XMStoreFloat3(&mPos, pos);
-	XMStoreFloat3(&mVel, vel);
+	LoadScatterWaypoints();
 	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = -13.0f;
 	this->mScatterTile.z = -14.5f;
@@ -14,7 +14,7 @@ Clyde::Clyde(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radiu
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
-	waypoints = test.FindPath(mStart, mGoal);
+	mWaypoints = path.FindPath(mStart, mGoal);
 	scatterPathDrawn = true;
 }
 
@@ -22,43 +22,43 @@ Clyde::~Clyde()
 {
 }
 
-const XMFLOAT3 Clyde::mScatterWaypoints[MAX_WAYPOINTS] =
+void Clyde::LoadScatterWaypoints()
 {
-	{ XMFLOAT3(-13.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-12.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-11.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-10.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-9.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-7.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-6.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-5.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-4.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-3.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-2.0f, 0.0f, -13.5f) },
-	{ XMFLOAT3(-2.0f, 0.0f, -12.5f) },
-	{ XMFLOAT3(-2.0f, 0.0f, -11.5f) },
-	{ XMFLOAT3(-2.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-3.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-4.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-5.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-5.0f, 0.0f, -9.5f) },
-	{ XMFLOAT3(-5.0f, 0.0f, -8.5f) },
-	{ XMFLOAT3(-5.0f, 0.0f, -7.5f) },
-	{ XMFLOAT3(-6.0f, 0.0f, -7.5f) },
-	{ XMFLOAT3(-7.0f, 0.0f, -7.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, -7.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, -8.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, -9.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-9.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-10.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-11.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-12.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-13.0f, 0.0f, -10.5f) },
-	{ XMFLOAT3(-13.0f, 0.0f, -11.5f) },
-	{ XMFLOAT3(-13.0f, 0.0f, -12.5f) }
-};
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-12.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-11.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-10.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-9.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-7.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-6.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-5.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-4.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-3.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-2.0f, (int)-13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-2.0f, (int)-12.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-2.0f, (int)-11.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-2.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-3.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-4.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-5.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-5.0f, (int)-9.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-5.0f, (int)-8.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-5.0f, (int)-7.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-6.0f, (int)-7.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-7.0f, (int)-7.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)-7.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)-8.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)-9.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-9.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-10.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-11.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-12.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)-10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)-11.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)-12.5f));
+}
 
 void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletCounter)
 {
@@ -70,6 +70,8 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 	{
 		this->mGhostStates = prevState;
 	}*/
+
+	//this->UpdateCurrentTweenPoint(dt);
 
 	if (pelletCounter >= 90)
 	{
@@ -112,28 +114,29 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 			{
 				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 				mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
-				waypoints = test.FindPath(mStart, mGoal);
+				mWaypoints = path.FindPath(mStart, mGoal);
+				this->SetWayPoints(mWaypoints);
 				scatterPathDrawn = true;
 				waypointIterator = 0;
 			}
-			if (waypoints.size() != 0)
+			if (mWaypoints.size() != 0)
 			{
-				if (waypointIterator < waypoints.size())
+				if (!this->reachedEnd)
 				{
-					this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
-					waypointIterator++;
+					this->UpdateCurrentTweenPoint(dt);
+					this->mPos = this->mCurrTweenPoint;
 				}
-				else if (waypointIterator == waypoints.size())
+				else if (this->reachedEnd)
 				{
-					this->isLooping = true;
-					if (isLooping == true)
+					if (!isLooping)
 					{
-						this->setPos(XMVectorSet(mScatterWaypoints[this->mCurrWaypointIndex].x, mScatterWaypoints[this->mCurrWaypointIndex].y, mScatterWaypoints[this->mCurrWaypointIndex].z, 0.0f));
-						this->mCurrWaypointIndex++;
-						if (this->mCurrWaypointIndex == 34) //Temporarily hard coded
-						{
-							this->mCurrWaypointIndex = 0;
-						}
+						this->SetWayPoints(mScatterWaypoints);
+						this->isLooping = true;
+					}
+					if (isLooping == true && this->reachedEnd)
+					{
+						this->UpdateCurrentTweenPoint(dt);
+						this->mPos = this->mCurrTweenPoint;
 					}
 				}
 			}
@@ -175,7 +178,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 			{
 				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 				mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
-				waypoints = test.FindPath(mStart, mGoal);
+				mWaypoints = path.FindPath(mStart, mGoal);
 				waypointIterator = 0;
 				firstChasePathDrawn = true;
 			}
@@ -187,18 +190,18 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 				{
 					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
-					waypoints = test.FindPath(mStart, mGoal);
+					mWaypoints = path.FindPath(mStart, mGoal);
 					waypointIterator = 0;
 				}
 			}
-			if (waypoints.size() != 0)
+			if (mWaypoints.size() != 0)
 			{
-				if (waypointIterator < waypoints.size())
+				if (waypointIterator < mWaypoints.size())
 				{
-					this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
+					this->setPos(XMVectorSet(this->mWaypoints.at(waypointIterator)->xPos, mPos.y, this->mWaypoints.at(waypointIterator)->zPos, 0.0f));
 					waypointIterator++;
 				}
-				else if (waypointIterator >= waypoints.size())
+				else if (waypointIterator >= mWaypoints.size())
 				{
 					waypointIterator = 0;
 				}
@@ -236,32 +239,6 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 				XMStoreFloat3(&mVel, vel);
 				break;
 			}
-		case DEAD:
-			//Spawn in box
-			//XMVectorSet(2.0f, 0.75f, 0.0f, 0.0f)
-			break;
-			/*case IN_TUNNEL:
-				if (levelNumber == 1)
-				{
-				XMVECTOR vel = XMLoadFloat3(&mVel);
-				vel = vel * 0.40f;
-				XMStoreFloat3(&mVel, vel);
-				break;
-				}
-				else if(levelNumber >= 2 || levelNumber <= 4)
-				{
-				XMVECTOR vel = XMLoadFloat3(&mVel);
-				vel = vel * 0.45f;
-				XMStoreFloat3(&mVel, vel);
-				break;
-				}
-				else if(levelNumber >= 5)
-				{
-				XMVECTOR vel = XMLoadFloat3(&mVel);
-				vel = vel * 0.50f;
-				XMStoreFloat3(&mVel, vel);
-				break;
-				}*/
 		}
 	}
 }

@@ -14,9 +14,7 @@ protected:
 		SCATTER = 1,
 		CHASE = 2,
 		FRIGHTENED = 3,
-		DEAD = 4,
-		IDLE = 5
-		//IN_TUNNEL = 6 //Maybe make this a state?
+		IDLE = 4
 	};
 
 	enum GHOST_FACING
@@ -39,36 +37,50 @@ protected:
 	bool scatterPathDrawn = false; //This is to determine whether or not the path has been drawn for the scatter path to prevent multiple calculations
 	bool firstChasePathDrawn = false; //This is to determine whether or not the INITIAL path has been drawn for the chase state
 	bool isIdle = true;
+	bool reachedEnd = false;
 	GHOST_FACING mFacing = GHOST_FACING::NORTH;
 
-	Pathfinding test;
-
-	std::vector<PathNode*> waypoints;
-	int waypointIterator;
-	PathNode* mStart;
-	PathNode* mGoal;
+	Pathfinding path;
 
 	GameTimer mGhostStateTimer;
 	GHOST_STATES mGhostStates;
 
-	void MoveGhost(PathNode* target, float dt);
-	void MoveToPuckMan();
+	void UpdateCurrentTweenPoint(float dt);
 
 	GHOST_FACING GetFacing() const
 	{
 		return mFacing;
 	}
 
-	inline float clamp(float x, float a, float b)
+	struct TweenPoint
 	{
-		return x < a ? a : (x > b ? b : x);
-	}
+		int startPosX;
+		int startPosZ;
+		int endPosX;
+		int endPosZ;
+		UINT distance;
+		XMFLOAT3 vector;
+		float startTween;
+		float endTween;
+		float tweenTime;
+	};
+
+	std::vector<PathNode*> mWaypoints;
+	int waypointIterator;
+	PathNode* mStart;
+	PathNode* mGoal;
+
+	std::vector<TweenPoint> mTweenPoints;
+	XMFLOAT3 mCurrTweenPoint;
+	UINT mCurrTweenIndex;
 
 public:
 	Ghost();
-	Ghost(FXMVECTOR pos, FXMVECTOR vel, float radius);
+	Ghost(FXMVECTOR pos, float radius);
 	~Ghost();
 	virtual void Update();
+	void SetWayPoints(std::vector<PathNode*> wayP);
+	void SetVelocity(int levelCounter, GHOST_STATES ghostState);
 
 	XMFLOAT3 getPos()
 	{

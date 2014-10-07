@@ -2181,10 +2181,10 @@ void PuckMan3D::ResetPuckMan()
 void PuckMan3D::BuildGhosts()
 {
 	MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
-	mBlinky = new Blinky(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), XMVectorSet(3.75f, 0.0f, 3.75f, 0.0f), MazeLoader::RADIUS_GHOST);
-	mInky = new Inky(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), MazeLoader::RADIUS_GHOST);
-	mPinky = new Pinky(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), XMVectorSet(3.75f, 0.0f, 3.75f, 0.0f), MazeLoader::RADIUS_GHOST);
-	mClyde = new Clyde(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), MazeLoader::RADIUS_GHOST);
+	mBlinky = new Blinky(XMVectorSet(gPos.blinky.x, gPos.blinky.y, gPos.blinky.z, 0.0f), MazeLoader::RADIUS_GHOST);
+	mInky = new Inky(XMVectorSet(gPos.inky.x, gPos.inky.y, gPos.inky.z, 0.0f), MazeLoader::RADIUS_GHOST);
+	mPinky = new Pinky(XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f), MazeLoader::RADIUS_GHOST);
+	mClyde = new Clyde(XMVectorSet(gPos.clyde.x, gPos.clyde.y, gPos.clyde.z, 0.0f), MazeLoader::RADIUS_GHOST);
 
 	ResetGhosts();
 }

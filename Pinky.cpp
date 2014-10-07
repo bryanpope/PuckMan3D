@@ -1,9 +1,9 @@
 #include "Pinky.h"
 
-Pinky::Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radius)
+Pinky::Pinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 {
 	XMStoreFloat3(&mPos, pos);
-	XMStoreFloat3(&mVel, vel);
+	LoadScatterWaypoints();
 	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = -13.0f;
 	this->mScatterTile.z = 14.5f;
@@ -14,7 +14,7 @@ Pinky::Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius) : Ghost(pos, vel, radiu
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 	mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
-	waypoints = test.FindPath(mStart, mGoal);
+	mWaypoints = path.FindPath(mStart, mGoal);
 	scatterPathDrawn = false;
 }
 
@@ -22,27 +22,27 @@ Pinky::~Pinky()
 {
 }
 
-const XMFLOAT3 Pinky::mScatterWaypoints[MAX_WAYPOINTS] =
+void Pinky::LoadScatterWaypoints()
 {
-	{ XMFLOAT3(-13.0f, 0.0f, 13.5f) },
-	{ XMFLOAT3(-13.0f, 0.0f, 12.5f) },
-	{ XMFLOAT3(-13.0f, 0.0f, 11.5f) },
-	{ XMFLOAT3(-13.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(-12.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(-11.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(-10.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(-9.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, 10.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, 11.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, 12.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, 13.5f) },
-	{ XMFLOAT3(-8.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(-9.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(-10.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(-11.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(-12.0f, 0.0f, 14.5f) },
-	{ XMFLOAT3(-13.0f, 0.0f, 14.5f) },
-};
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)12.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)11.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-12.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-11.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-10.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-9.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)10.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)11.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)12.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)13.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-8.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-9.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-10.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-11.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-12.0f, (int)14.5f));
+	mScatterWaypoints.push_back(new PathNode((int)-13.0f, (int)14.5f));
+}
 
 void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, int levelNumber)
 {
@@ -55,6 +55,8 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 		this->mGhostStates = GHOST_STATES::CHASE;
 	}*/
 
+	//this->UpdateCurrentTweenPoint(dt);
+
 	switch (mGhostStates)
 	{
 	case SCATTER:
@@ -62,29 +64,29 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 		{
 			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
-			waypoints = test.FindPath(mStart, mGoal);
+			mWaypoints = path.FindPath(mStart, mGoal);
+			this->SetWayPoints(mWaypoints);
 			scatterPathDrawn = true;
 			waypointIterator = 0;
 		}
-
-		if (waypoints.size() != 0)
+		if (mWaypoints.size() != 0)
 		{
-			if (waypointIterator < waypoints.size())
+			if (!this->reachedEnd)
 			{
-				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
-				waypointIterator++;
+				this->UpdateCurrentTweenPoint(dt);
+				this->mPos = this->mCurrTweenPoint;
 			}
-			else if (waypointIterator == waypoints.size())
+			else if (this->reachedEnd)
 			{
-				this->isLooping = true;
-				if (isLooping == true)
+				if (!isLooping)
 				{
-					this->setPos(XMVectorSet(mScatterWaypoints[this->mCurrWaypointIndex].x, mScatterWaypoints[this->mCurrWaypointIndex].y, mScatterWaypoints[this->mCurrWaypointIndex].z, 0.0f));
-					this->mCurrWaypointIndex++;
-					if (this->mCurrWaypointIndex == 18)
-					{
-						this->mCurrWaypointIndex = 0;
-					}
+					this->SetWayPoints(mScatterWaypoints);
+					this->isLooping = true;
+				}
+				if (isLooping == true && this->reachedEnd)
+				{
+					this->UpdateCurrentTweenPoint(dt);
+					this->mPos = this->mCurrTweenPoint;
 				}
 			}
 		}
@@ -147,13 +149,13 @@ else if (levelNumber >= 5)
 			waypointIterator = 0;
 			firstChasePathDrawn = false;
 			scatterPathDrawn = false;
-			waypoints.clear();
+			mWaypoints.clear();
 		}
 		if (!firstChasePathDrawn)
 		{
 			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 			mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
-			waypoints = test.FindPath(mStart, mGoal);
+			mWaypoints = path.FindPath(mStart, mGoal);
 			waypointIterator = 0;
 			firstChasePathDrawn = true;
 		}
@@ -167,9 +169,9 @@ else if (levelNumber >= 5)
 				if (facingState == Direction::DIRECTION::NORTH || facingState == Direction::DIRECTION::SOUTH)
 				{
 					//Clamp the Z value of the target so it cannot choose a tile outside of the level
-					float clampedZ = clamp(round(MazeLoader::GetPacManData().at(0).pos.z + (4 * Direction::getDirecitonVector(facingState).m128_f32[2])), 
-										   round(MazeLoader::GetPacManData().at(0).pos.z + (4 * Direction::getDirecitonVector(facingState).m128_f32[2])),
-										   MazeLoader::GetMazeHeight());
+					float clampedZ = MathHelper::Clamp((int)round(MazeLoader::GetPacManData().at(0).pos.z + (4 * Direction::getDirecitonVector(facingState).m128_f32[2])), 
+										   (int)round(MazeLoader::GetPacManData().at(0).pos.z + (4 * Direction::getDirecitonVector(facingState).m128_f32[2])),
+										   (int)MazeLoader::GetMazeHeight());
 
 					//Check if clampedZ is a valid tile, if not move the target tile one more in the opposite direction and try again
 					int goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
@@ -183,15 +185,15 @@ else if (levelNumber >= 5)
 
 					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 					mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)clampedZ);
-					waypoints = test.FindPath(mStart, mGoal);
+					mWaypoints = path.FindPath(mStart, mGoal);
 				}
 
 				else if (facingState == Direction::DIRECTION::WEST || facingState == Direction::DIRECTION::EAST)
 				{
 					//Clamp the X value of the target so it cannot choose a tile outside of the level
-					float clampedX = clamp(round(MazeLoader::GetPacManData().at(0).pos.x + (4 * Direction::getDirecitonVector(facingState).m128_f32[0])),
-										   round(MazeLoader::GetPacManData().at(0).pos.x + (4 * Direction::getDirecitonVector(facingState).m128_f32[0])),
-										   MazeLoader::GetMazeWidth());
+					float clampedX = MathHelper::Clamp((int)round(MazeLoader::GetPacManData().at(0).pos.x + (4 * Direction::getDirecitonVector(facingState).m128_f32[0])),
+										   (int)round(MazeLoader::GetPacManData().at(0).pos.x + (4 * Direction::getDirecitonVector(facingState).m128_f32[0])),
+										   (int)MazeLoader::GetMazeWidth());
 
 					//Check if clampedX is a valid tile, if not move the target tile one more in the opposite direction and try again
 					int goalRow = (MazeLoader::GetMazeHeight()) - (int)round(MazeLoader::GetPacManData().at(0).pos.z + 15.5f);
@@ -205,19 +207,19 @@ else if (levelNumber >= 5)
 
 					mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 					mGoal = new PathNode((int)clampedX, (int)round(MazeLoader::GetPacManData().at(0).pos.z));
-					waypoints = test.FindPath(mStart, mGoal);
+					mWaypoints = path.FindPath(mStart, mGoal);
 				}
 			}
 		}
 		
-		if (waypoints.size() != 0)
+		if (mWaypoints.size() != 0)
 		{
-			if (waypointIterator < waypoints.size())
+			if (waypointIterator < mWaypoints.size())
 			{
-				this->setPos(XMVectorSet(this->waypoints.at(waypointIterator)->xPos, mPos.y, this->waypoints.at(waypointIterator)->zPos, 0.0f));
+				this->setPos(XMVectorSet(this->mWaypoints.at(waypointIterator)->xPos, mPos.y, this->mWaypoints.at(waypointIterator)->zPos, 0.0f));
 				waypointIterator++;
 			}
-			else if (waypointIterator >= waypoints.size())
+			else if (waypointIterator >= mWaypoints.size())
 			{
 				waypointIterator = 0;
 			}
@@ -231,7 +233,7 @@ else if (levelNumber >= 5)
 			waypointIterator = 0;
 			firstChasePathDrawn = false;
 			scatterPathDrawn = false;
-			waypoints.clear();
+			mWaypoints.clear();
 		}
 
 		break;
@@ -257,10 +259,6 @@ else if (levelNumber >= 5)
 			XMStoreFloat3(&mVel, vel);
 			break;
 		}
-	case DEAD:
-		//Spawn in box
-		//XMVectorSet(0.0f, 0.75f, 0.0f, 0.0f)
-		break;
 	/*case IN_TUNNEL:
 		if (levelNumber == 1)
 		{
