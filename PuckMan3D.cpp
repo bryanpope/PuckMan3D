@@ -825,6 +825,7 @@ void PuckMan3D::UpdateScene(float dt)
 		{
 			mFBBlueGhost[i]->SetWayPoints(mpfData[i]->waypoints);
 			mFBBlueGhost[i]->FireEffect();
+			mFBBlueGhost[i]->SetOneShot(false);
 			mhThreadPathFinding[i] = NULL;
 		}
 	}
@@ -1130,14 +1131,48 @@ void PuckMan3D::UpdateScene(float dt)
 	mCountGhosts = 0;
 	for (UINT i = 0; i < ghosts.size(); ++i)
 	{
-		dataView[mCountGhosts++] = { ghosts[i].world, ghosts[i].colour };
+		if (ghosts[i].isShown)
+		{
+			dataView[mCountGhosts++] = { ghosts[i].world, ghosts[i].colour };
+		}
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
 
 	mFireBallPac->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
 	for (int i = 0; i < 4; ++i)
 	{
-		mFBBlueGhost[i]->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
+		if (mFBBlueGhost[i]->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext))
+		{
+			if (!ghosts[i].isShown)	// Ghost was hidden because of being eaten, reset position to home base.
+			{
+				MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+				XMVECTOR nPos = XMVectorSet(gPos.pinky.x, gPos.pinky.y, gPos.pinky.z, 0.0f);
+				switch (i)	
+				{
+				case 0:
+					mBlinky->setPos(nPos);
+					mBlinky->Reset();
+					break;
+				case 1:
+					mInky->setPos(nPos);
+					mInky->Reset();
+					break;
+				case 2:
+					mPinky->setPos(nPos);
+					mPinky->Reset();
+					break;
+				case 3:
+					mClyde->setPos(nPos);
+					mClyde->Reset();
+					break;
+				}
+			}
+			MazeLoader::ShowGhost(i);
+		}
+		else
+		{
+			MazeLoader::HideGhost(i);
+		}
 	}
 
 	//mOrigPos.m128_f32[0] = -12.5f;

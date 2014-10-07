@@ -174,11 +174,11 @@ void FireBallParticles::FireEffect()
 	mIsAllParticlesDead = false;
 }
 
-void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context)
+bool FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context)
 {
 	if (!mProperties.isFire || mIsAllParticlesDead)
 	{
-		return;
+		return true;
 	}
 
 	XMVECTOR nPos = newPos;
@@ -274,6 +274,7 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 			ResetParticles();
 		}
 	}
+	return false;
 }
 
 void FireBallParticles::UpdateCurrentTweenPoint(float dt)

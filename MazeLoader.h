@@ -123,6 +123,8 @@ public:
 	static void SetGhostPos(FXMVECTOR pos, UINT index);
 	static void SetGhostVel(FXMVECTOR vel, UINT index);
 	static void SetGhostColour(XMFLOAT4 col, UINT index);
+	static void HideGhost(UINT index){ mGhosts[index].isShown = mGhosts[index].isCollider = false; }
+	static void ShowGhost(UINT index){ mGhosts[index].isShown = mGhosts[index].isCollider = true; }
 
 	static void RemovePellet(UINT index);
 	static void RemovePowerUp(UINT index);

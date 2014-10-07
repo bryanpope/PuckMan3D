@@ -56,7 +56,7 @@ public:
 	~FireBallParticles();
 
 	void Init(FXMVECTOR initialPos, float fireballRadius, LPCWSTR texFilename, ID3D11Device* device, FireBallParticlesProperties p);
-	void Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context);
+	bool Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context);
 	void Update(FXMVECTOR newPos, float fireballRadius, float dt, float ratio, ID3D11DeviceContext* context);
 	void DrawFireBall(FXMVECTOR eyePos, CXMMATRIX viewProj, ID3D11DeviceContext* context);
 	void SetPos(XMFLOAT3 newPos, float fireballRadius);
@@ -64,6 +64,7 @@ public:
 
 	void SetFireBallTexture(ID3D11ShaderResourceView* fbTex){ mFBTexture = fbTex; }
 	void SetProperties(FireBallParticlesProperties p){ mProperties = p; }
+	void SetOneShot(bool o){ mProperties.isOneShot = o; }
 
 	void SetWayPoints(std::vector<PathNode*> wayP);
 
