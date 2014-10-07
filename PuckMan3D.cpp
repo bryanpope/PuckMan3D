@@ -25,13 +25,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
-<<<<<<< HEAD
-	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), 
-	mHUDFruitGeometry2(0)
-=======
 	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), mGhostEatenCounter(0),
-	mHUDFruitGeometry2(0), mhThreadPathFinding(NULL), mTouchedGhost(false)
->>>>>>> origin/master
+	mHUDFruitGeometry2(0)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -801,36 +796,19 @@ void PuckMan3D::UpdateScene(float dt)
 			}
 			else
 			{
-<<<<<<< HEAD
-				//mFBBlueGhost->FireEffect();
 				if (!mTouchedGhost[i])
 				{
 					mFBBlueGhost[i]->SetPos(ghosts[i].pos, MazeLoader::RADIUS_GHOST);
 					mTouchedGhost[i] = true;
-=======
-				mFBBlueGhost->SetPos(ghosts[i].pos);
-				mFBBlueGhost->FireEffect();
-				/*if (!mTouchedGhost)
-				{					
-					mTouchedGhost = true;
->>>>>>> origin/master
 					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
 					mpfData[i]->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
 					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
 					mpfData[i]->thisThing = this;
 					mpfData[i]->waypoints.clear();
 
-<<<<<<< HEAD
 					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);
 				}
 				break;
-=======
-					mhThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData, 0, &mdwThreadIdPathFinding);
-					mGhostEatenCounter++;
-					calcGhostScore();
-					mScore += mGhostEatenPoints;
-				}*/
->>>>>>> origin/master
 			}
 		}
 
