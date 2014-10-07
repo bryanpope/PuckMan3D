@@ -1582,7 +1582,7 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_OPTIONS)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Reset High Score - (r)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Reset High Score - (0)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, "Bloom - (2)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "Audio - (3)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
@@ -1793,7 +1793,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		if (mGameState == GS_OPTIONS)
 		{
-		
+			//bloom
 		}
 		if (mGameState == GS_SOUNDOPTIONS)
 		{
@@ -1861,7 +1861,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			}	
 		}
 	}
-	if (GetAsyncKeyState('R') & 0x0001)
+	if (GetAsyncKeyState('0') & 0x0001)
 	{
 		if (mGameState == GS_OPTIONS)
 		{
