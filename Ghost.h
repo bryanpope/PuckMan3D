@@ -39,7 +39,6 @@ protected:
 	bool scatterPathDrawn = false; //This is to determine whether or not the path has been drawn for the scatter path to prevent multiple calculations
 	bool firstChasePathDrawn = false; //This is to determine whether or not the INITIAL path has been drawn for the chase state
 	bool isIdle = true;
-	bool isBlocked = false;
 	GHOST_FACING mFacing = GHOST_FACING::NORTH;
 
 	Pathfinding test;

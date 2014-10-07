@@ -72,7 +72,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 		this->mGhostStates = GHOST_STATES::CHASE;
 	}*/
 	
-	if (pelletCounter == 30)
+	if (pelletCounter >= 30)
 	{
 		this->isIdle = false;
 		mGhostStates = GHOST_STATES::SCATTER;
@@ -113,7 +113,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				}
 			}
 
-			mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+			/*mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 			if (mScatterTimer >= 7.0f)
 			{
 				this->mGhostStates = GHOST_STATES::CHASE;
@@ -126,7 +126,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
 				mGoal = new PathNode((int)round(MazeLoader::GetPacManData().at(0).pos.x), (int)round(MazeLoader::GetPacManData().at(0).pos.z));
 				waypoints = test.FindPath(mStart, mGoal);
-			}
+			}*/
 			break;
 
 			/*if (levelNumber == 1)
@@ -179,12 +179,8 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						{
 							clampedX -= 1 * Direction::getDirecitonVector(facingState).m128_f32[0];
 							clampedZ -= 1 * Direction::getDirecitonVector(facingState).m128_f32[2];
-							if (!MazeLoader::IsBlocked(clampedZ, clampedX))
-							{
-								break;
-							}
-							/*goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
-							goalCol = (int)round(clampedX + 13.5f);*/
+							goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
+							goalCol = (int)round(clampedX + 13.5f);
 						}
 
 						mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
@@ -212,11 +208,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						while (MazeLoader::IsBlocked(clampedZ, clampedX))
 						{
 							clampedX -= 1 * Direction::getDirecitonVector(facingState).m128_f32[0];
-							clampedZ -= 1 * Direction::getDirecitonVector(facingState).m128_f32[0];
-							if (!MazeLoader::IsBlocked(clampedZ, clampedX))
-							{
-								break;
-							}
+							clampedZ -= 1 * Direction::getDirecitonVector(facingState).m128_f32[2];
 							//goalRow = (MazeLoader::GetMazeHeight()) - (int)round(clampedZ + 15.5f);
 							//goalCol = (int)round(clampedX + 13.5f);
 						}
