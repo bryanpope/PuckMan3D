@@ -46,6 +46,7 @@ protected:
 	GHOST_STATES mGhostStates;
 
 	void UpdateCurrentTweenPoint(float dt);
+	void SnapTweenPoint();
 
 	GHOST_FACING GetFacing() const
 	{

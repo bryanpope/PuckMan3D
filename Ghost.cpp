@@ -81,6 +81,7 @@ void Ghost::UpdateCurrentTweenPoint(float dt)
 		{
 			if (mCurrTweenPoint.x >= mTweenPoints[tIndex].endPosX)
 			{
+				SnapTweenPoint();
 				++mCurrTweenIndex;
 			}
 		}
@@ -88,6 +89,7 @@ void Ghost::UpdateCurrentTweenPoint(float dt)
 		{
 			if (mCurrTweenPoint.x <= mTweenPoints[tIndex].endPosX)
 			{
+				SnapTweenPoint();
 				++mCurrTweenIndex;
 			}
 		}
@@ -98,6 +100,7 @@ void Ghost::UpdateCurrentTweenPoint(float dt)
 		{
 			if (mCurrTweenPoint.z >= mTweenPoints[tIndex].endPosZ)
 			{
+				SnapTweenPoint();
 				++mCurrTweenIndex;
 			}
 		}
@@ -105,6 +108,7 @@ void Ghost::UpdateCurrentTweenPoint(float dt)
 		{
 			if (mCurrTweenPoint.z <= mTweenPoints[tIndex].endPosZ)
 			{
+				SnapTweenPoint();
 				++mCurrTweenIndex;
 			}
 		}
@@ -116,6 +120,12 @@ void Ghost::UpdateCurrentTweenPoint(float dt)
 		mCurrTweenPoint.z = mTweenPoints[0].startPosZ;
 		reachedEnd = true;
 	}
+}
+
+void Ghost::SnapTweenPoint()
+{
+	mCurrTweenPoint.x = mTweenPoints[mCurrTweenIndex].endPosX;
+	mCurrTweenPoint.z = mTweenPoints[mCurrTweenIndex].endPosZ;
 }
 
 void Ghost::SetWayPoints(std::vector<PathNode*> wayP)
