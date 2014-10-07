@@ -22,7 +22,7 @@ Blinky::~Blinky()
 {
 }
 
-const XMFLOAT3 Blinky::mScatterWaypoints[18] =
+const XMFLOAT3 Blinky::mScatterWaypoints[MAX_WAYPOINTS] =
 {
 	{ XMFLOAT3(12.0f, 0.0f, 13.5f) },
 	{ XMFLOAT3(12.0f, 0.0f, 12.5f) },
@@ -44,38 +44,15 @@ const XMFLOAT3 Blinky::mScatterWaypoints[18] =
 	{ XMFLOAT3(12.0f, 0.0f, 14.5f) }
 };
 
-const std::string Blinky::mScatterFacing[18] =
-{
-	{ "backward" },
-	{ "backward" },
-	{ "backward" },
-	{ "backward" },
-	{ "left" },
-	{ "left" },
-	{ "left" },
-	{ "left" },
-	{ "left" },
-	{ "up" },
-	{ "up" },
-	{ "up" },
-	{ "up" },
-	{ "right" },
-	{ "right" },
-	{ "right" },
-	{ "right" },
-	{ "right" }
-};
-
 void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
-	std::cout << "Scatter timer: " << mScatterTimer << ", Chase Timer: " << mChaseTimer << std::endl;
 	switch (mGhostStates)
 	{
 	case SCATTER:
 		if (!scatterPathDrawn)
 		{
-			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);// , GhostFacingToString(this->mFacing));
-			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);//, "");
+			mStart = new PathNode((int)this->mPos.x, (int)this->mPos.z);
+			mGoal = new PathNode((int)this->mScatterTile.x, (int)this->mScatterTile.z);
 			waypoints = test.FindPath(mStart, mGoal);
 			scatterPathDrawn = true;
 			waypointIterator = 0;
@@ -101,7 +78,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				}
 			}
 		}
-		/*mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+		//mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 		if (mScatterTimer >= 7.0f)
 		{
 			this->mGhostStates = GHOST_STATES::CHASE;
@@ -109,7 +86,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			scatterPathDrawn = false;
 			this->mCurrWaypointIndex = 0;
 			this->waypointIterator = 0;
-		}*/
+		}
 
 
 /*if (levelNumber == 1)

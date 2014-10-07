@@ -25,8 +25,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
+<<<<<<< HEAD
 	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), 
 	mHUDFruitGeometry2(0)
+=======
+	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), mGhostEatenCounter(0),
+	mHUDFruitGeometry2(0), mhThreadPathFinding(NULL), mTouchedGhost(false)
+>>>>>>> origin/master
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -334,7 +339,7 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 
-	readToTxtFile();
+	readFromTxtFile();
 
 	if(!D3DApp::Init())
 		return false;
@@ -763,10 +768,6 @@ void PuckMan3D::UpdateScene(float dt)
 	mPointLights[0].pos.x = pacMans[0].pos.x;
 	mPointLights[0].pos.z = pacMans[0].pos.z;
 
-	
-	
-	
-	
 	//// Checking PacMan collision with maze
 	mPuckMan->SetPos(PacManAABoxOverLap(mPuckMan->GetPos()));
 	MazeLoader::SetPacManPos(PacManAABoxOverLap(mPuckMan->GetPos()), 0);
@@ -800,20 +801,36 @@ void PuckMan3D::UpdateScene(float dt)
 			}
 			else
 			{
+<<<<<<< HEAD
 				//mFBBlueGhost->FireEffect();
 				if (!mTouchedGhost[i])
 				{
 					mFBBlueGhost[i]->SetPos(ghosts[i].pos, MazeLoader::RADIUS_GHOST);
 					mTouchedGhost[i] = true;
+=======
+				mFBBlueGhost->SetPos(ghosts[i].pos);
+				mFBBlueGhost->FireEffect();
+				/*if (!mTouchedGhost)
+				{					
+					mTouchedGhost = true;
+>>>>>>> origin/master
 					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
 					mpfData[i]->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
 					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
 					mpfData[i]->thisThing = this;
 					mpfData[i]->waypoints.clear();
 
+<<<<<<< HEAD
 					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);
 				}
 				break;
+=======
+					mhThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData, 0, &mdwThreadIdPathFinding);
+					mGhostEatenCounter++;
+					calcGhostScore();
+					mScore += mGhostEatenPoints;
+				}*/
+>>>>>>> origin/master
 			}
 		}
 
@@ -839,7 +856,7 @@ void PuckMan3D::UpdateScene(float dt)
 			playFruitSFX();
 			mFruit.erase(mFruit.begin() + i);
 			mScore += 50;
-			mCanDrawFruit = true;
+			mCanDrawFruit = false;
 			mCanDrawHUDFruit = true;
 			mFruitCounter += 1;
 			mFruitTime = 0.0f;
@@ -848,7 +865,7 @@ void PuckMan3D::UpdateScene(float dt)
 		if (mFruitTime >= 10.0f)
 		{//if the fruit has been spawned for 10 seconds remove it
 			mFruit.erase(mFruit.begin() + i);
-			mCanDrawFruit = true;
+			mCanDrawFruit = false;
 			mFruitTime = 0.0f;
 			break;
 		}
@@ -871,6 +888,7 @@ void PuckMan3D::UpdateScene(float dt)
 			{
 				playKaSFX();
 			}
+			mCanDrawFruit = true;
 			mPelletCounter++;
 			MazeLoader::RemovePellet(i);
 			mScore += 10;
@@ -968,25 +986,21 @@ void PuckMan3D::UpdateScene(float dt)
 	if (!pacMans[0].isShown)
 	{
 		mGameState = GameState::GS_GAMEOVER;
+		if (mHighScore <= mScore)
+		{
+			writeToTxtFile();
+			readFromTxtFile();
+		}
 	}
 
 	if (mCanDrawFruit)
 	{
-		if (mPelletCounter == 1 || mPelletCounter == 20)
+		if (mPelletCounter == 70 || mPelletCounter == 170)
 		{
 			//pick a number between 1 and 4
 			randNumber = rg(4) + 1;
 			mFruit.push_back(mFruitPos);
 			mCanDrawFruit = false;
-		}
-	}
-
-	if (mGameState == GS_GAMEOVER)
-	{
-		//check to see if the highscore variable is less than or equal to the score, if so write to the text file replacing the high score with the score's value
-		if (mHighScore <= mScore)
-		{
-			readToTxtFile();
 		}
 	}
 
@@ -1586,76 +1600,74 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_OPTIONS)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, "Fog - (1)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 400.0f, 0.0f, 0.0f), 50, 75, 25, "Bloom - (2)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 300.0f, 0.0f, 0.0f), 50, 75, 25, "Audio - (3)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 150.0f, 0.0f, 0.0f), 40, 75, 25, "Press Backspace");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 100.0f, 0.0f, 0.0f), 40, 75, 25, "to retun");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Reset High Score - (r)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, "Bloom - (2)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "Audio - (3)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
 	}
 	if (mGameState == GameState::GS_SOUNDOPTIONS)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 600.0f, 0.0f, 0.0f), 40, 75, 25, "Mute All - (1)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 600.0f, 0.0f, 0.0f), 20, 60, 25, "Mute All - (1)");
 
 		if (mMuteDeathSFX || mMuteAll)
 		{
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 540.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Death SFX");
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 480.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (2) - (on)");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 540.0f, 0.0f, 0.0f), 20, 60, 45, "Mute Death SFX - (2) - (on)");
 		}
 		else
 		{
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 540.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Death SFX");
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 480.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (2) - (off)");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 540.0f, 0.0f, 0.0f), 20, 60, 45, "Mute Death SFX - (2) - (off)");
 		}
 		if (mMuteBackGroundSFX || mMuteAll)
 		{
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 420.0f, 0.0f, 0.0f), 40, 75, 25, "Mute BackGround");
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (3) - (on)");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 480.0f, 0.0f, 0.0f), 20, 60, 45, "Mute BackGround SFX - (3) - (on)");
 		}
 		else
 		{
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 420.0f, 0.0f, 0.0f), 40, 75, 25, "Mute BackGround");
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (3) - (off)");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 480.0f, 0.0f, 0.0f), 20, 60, 45, "Mute BackGround SFX - (3) - (off)");
 		}
 		if (mMuteEatingSFX || mMuteAll)
 		{
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Eating");
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 240.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (4) - (on)");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 420.0f, 0.0f, 0.0f), 20, 60, 45, "Mute Eating SFX - (4) - (on)");
 		}
 		else
 		{
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Eating");
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 240.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (4) - (off)");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 420.0f, 0.0f, 0.0f), 20, 60, 45, "Mute Eating SFX - (4) - (off)");
 		}
 		if (mMuteGhostSFX || mMuteAll)
 		{
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 180.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Ghosts");
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 120.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (5) - (on)");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 20, 60, 45, "Mute Ghosts SFX - (5) - (on)");
 		}
 		else
 		{
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 180.0f, 0.0f, 0.0f), 40, 75, 25, "Mute Ghosts");
-			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 120.0f, 0.0f, 0.0f), 40, 75, 25, "SFX - (5) - (off)");
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 20, 60, 45, "Mute Ghosts SFX - (5) - (off)");
 		}
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 60.0f, 0.0f, 0.0f), 40, 75, 25, "Backspace to return");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
 	}
 	if (mGameState == GameState::GS_MAINMENU)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, "Play Game - (1)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 50, 75, 25, "Options - (2)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 50, 75, 25, "Credits - (3)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 50, 75, 25, "Highscores - (4)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Highscore: " + mTemp);
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 40, 75, 25, "Play Game - (1)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 40, 75, 25, "Options - (2)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Credits - (3)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 40, 75, 25, "Controls - (4)");
 	}
 	if (mGameState == GameState::GS_CREDITS)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 500.0f, 0.0f, 0.0f), 40, 75, 25, "Bryan Pope");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 400.0f, 0.0f, 0.0f), 40, 75, 25, "Andrew Best");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Shane Boorse");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 200.0f, 0.0f, 0.0f), 40, 75, 25, "Brandon Coulthard");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(250.0f, 600.0f, 0.0f, 0.0f), 40, 75, 25, "Credits");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, "Andrew Best");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "Brandon Coulthard");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, "Bryan Pope");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 200.0f, 0.0f, 0.0f), 30, 75, 25, "Shane Boorse");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
 	}
-	if (mGameState == GameState::GS_HIGHSCORE)
+	if (mGameState == GameState::GS_INSTRUCTIONS)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 600.0f, 0.0f, 0.0f), 50, 75, 25, "Highscore");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(50.0f, 500.0f, 0.0f, 0.0f), 50, 75, 25, mTemp);
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "W/Up Arrow - Move Up");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, "S/Down Arrow - Move Down");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "A/Left Arrow - Move Left");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 30, "D/Right Arrow - Move Right");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 30, 75, 30, "Escape - Close Game");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
@@ -1764,7 +1776,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 	if (GetAsyncKeyState(VK_BACK) & 0x0001)
 	{
-		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_HIGHSCORE)
+		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_HIGHSCORE || mGameState == GS_INSTRUCTIONS)
 		{
 			mGameState = GS_MAINMENU;
 		}
@@ -1778,10 +1790,6 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		if (mGameState == GS_MAINMENU)
 		{
 			mGameState = GS_ATTRACT;
-		}
-		if (mGameState == GS_OPTIONS)
-		{
-
 		}
 		if (mGameState == GS_SOUNDOPTIONS)
 		{
@@ -1803,7 +1811,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		if (mGameState == GS_OPTIONS)
 		{
-
+		
 		}
 		if (mGameState == GS_SOUNDOPTIONS)
 		{
@@ -1854,7 +1862,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		if (mGameState == GS_MAINMENU)
 		{
-			mGameState = GS_HIGHSCORE;
+			mGameState = GS_INSTRUCTIONS;
 		}
 	}
 	if (GetAsyncKeyState('5') & 0x0001)
@@ -1869,6 +1877,15 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			{
 				mMuteGhostSFX = true;
 			}	
+		}
+	}
+	if (GetAsyncKeyState('R') & 0x0001)
+	{
+		if (mGameState == GS_OPTIONS)
+		{
+			//reset highscore
+			resetHighScore();
+			readFromTxtFile();
 		}
 	}
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
@@ -2197,6 +2214,7 @@ void PuckMan3D::updateGhosts(float dt)
 		MazeLoader::SetGhostColour(Materials::INKY.Diffuse, 1);
 		MazeLoader::SetGhostColour(Materials::PINKY.Diffuse, 2);
 		MazeLoader::SetGhostColour(Materials::CLYDE.Diffuse, 3);
+		mGhostEatenCounter = 0;
 		break;
 
 		//set the Ghost blue
@@ -2521,10 +2539,6 @@ void PuckMan3D::updateStringStream()
 {
 	CurrScore.str("");
 	CurrScore << mScore;
-	if (mHighScore <= mScore)
-	{
-		writeToTxtFile();
-	}
 }
 
 void PuckMan3D::MuteAllAudio()
@@ -2672,7 +2686,7 @@ void PuckMan3D::BuildFruit()
 	mHUDFruitGeometry2->SetIndices(md3dDevice, &sphere.Indices[0], sphere.Indices.size());
 }
 
-void PuckMan3D::readToTxtFile()
+void PuckMan3D::readFromTxtFile()
 {
 	//read in text file to the stringstream object CurrScore
 	readTxtFile.open("highscores.txt");
@@ -2695,4 +2709,32 @@ void PuckMan3D::writeToTxtFile()
 	HighScore << mHighScore;
 	writeTxtFile << mHighScore;
 	writeTxtFile.close();
+}
+
+void PuckMan3D::resetHighScore()
+{
+	writeTxtFile.open("highscores.txt");
+	HighScore << 0;
+	writeTxtFile << 0;
+	writeTxtFile.close();
+}
+
+void PuckMan3D::calcGhostScore()
+{
+	if (mGhostEatenCounter == 1)
+	{
+		mGhostEatenPoints = 200;
+	}
+	if (mGhostEatenCounter == 2)
+	{
+		mGhostEatenPoints = 400;
+	}
+	if (mGhostEatenCounter == 3)
+	{
+		mGhostEatenPoints = 800;
+	}
+	if (mGhostEatenCounter == 4)
+	{
+		mGhostEatenPoints = 1600;
+	}
 }

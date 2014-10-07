@@ -4,8 +4,9 @@
 class Pinky : public Ghost
 {
 protected:
-	static const XMFLOAT3 mScatterWaypoints[18]; //This is an array of waypoints in which Pinky will loop through during scatter mode
-	static const std::string mScatterFacing[18]; //This is an array of facings to match the waypoints
+	static const int MAX_WAYPOINTS = 18;
+	static const XMFLOAT3 mScatterWaypoints[MAX_WAYPOINTS]; //This is an array of waypoints in which Pinky will loop through during scatter mode
+	
 
 public:
 	Pinky(FXMVECTOR pos, FXMVECTOR vel, float radius);

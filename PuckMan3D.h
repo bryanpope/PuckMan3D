@@ -37,7 +37,6 @@
 
 #include "xnacollision.h"
 
-
 struct TestParticle
 {
 	XMFLOAT3 pos;
@@ -46,7 +45,6 @@ struct TestParticle
 	float age;
 	float lifetime;
 };
-
 
 const int MAX_PARTICLES = 100000;
 
@@ -156,8 +154,10 @@ private:
 	void DrawWrapper();
 	void DrawScreenQuad();
 	void BuildFruit();
-	void readToTxtFile();
+	void readFromTxtFile();
 	void writeToTxtFile();
+	void resetHighScore();
+	void calcGhostScore();
 	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
 	DWORD PathFindingThreadStart();
 private:
@@ -286,6 +286,8 @@ private:
 	int mLevelCounter;
 	int mPelletCounter = 0;
 	int mFruitCounter = 0;
+	int mGhostEatenCounter = 0;
+	int mGhostEatenPoints = 0;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
@@ -364,7 +366,8 @@ private:
 		GS_OPTIONS,
 		GS_CREDITS,
 		GS_SOUNDOPTIONS,
-		GS_HIGHSCORE
+		GS_HIGHSCORE,
+		GS_INSTRUCTIONS
 	};
 	GameState mGameState = GameState::GS_MAINMENU;
 	FacingState mFacingState = FCS_DEFAULT;

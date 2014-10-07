@@ -59,6 +59,11 @@ protected:
 		return mFacing;
 	}
 
+	inline float clamp(float x, float a, float b)
+	{
+		return x < a ? a : (x > b ? b : x);
+	}
+
 public:
 	Ghost();
 	Ghost(FXMVECTOR pos, FXMVECTOR vel, float radius);
