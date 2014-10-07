@@ -2260,7 +2260,9 @@ void PuckMan3D::updateGhosts(float dt)
 
 void PuckMan3D::resetGame()
 {
-	result = channel[6]->setPaused(true);
+	
+	//result = channel[6]->setPaused(true);
+	
 	ghostState = GhostState::GS_NORMAL;
 	soundStates = SoundsState::SS_KA;
 	fruitState = FruitState::FS_DEFAULT;
@@ -2270,11 +2272,17 @@ void PuckMan3D::resetGame()
 		mScore = 0;
 		MazeLoader::ResetPacMan();
 	}
+	mFruit.clear();
 	mPelletCounter = 0;
+	mGhostEatenCounter = 0;
+	mFruitCounter = 0;
+	mFruitTime = 0.0f;
+	mCanDrawFruit = true;
+	mCanDrawHUDFruit = false;
 	powerUpActivated = false;
 	mIsBlue = false;
 	mIsMoving = false;
-	mIsPlayerDead = false;
+	mIsPlayerDead = true;
 	mIsBeginningPlaying = false;
 	ResetGhosts();
 	MazeLoader::ResetPellets();
