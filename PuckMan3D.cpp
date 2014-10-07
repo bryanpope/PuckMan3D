@@ -2166,6 +2166,7 @@ void PuckMan3D::updateGhosts(float dt)
 		MazeLoader::SetGhostColour(Materials::INKY.Diffuse, 1);
 		MazeLoader::SetGhostColour(Materials::PINKY.Diffuse, 2);
 		MazeLoader::SetGhostColour(Materials::CLYDE.Diffuse, 3);
+		mGhostEatenCounter = 0;
 		break;
 
 		//set the Ghost blue
