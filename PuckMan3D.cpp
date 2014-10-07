@@ -1758,7 +1758,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 	if (GetAsyncKeyState(VK_BACK) & 0x0001)
 	{
-		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_HIGHSCORE || mGameState == GS_INSTRUCTIONS)
+		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_HIGHSCORE || mGameState == GS_INSTRUCTIONS || mGameState == GS_ATTRACT)
 		{
 			mGameState = GS_MAINMENU;
 		}
