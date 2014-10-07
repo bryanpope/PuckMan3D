@@ -59,7 +59,7 @@ public:
 	void Update(FXMVECTOR newPos, float fireballRadius, float dt, ID3D11DeviceContext* context);
 	void Update(FXMVECTOR newPos, float fireballRadius, float dt, float ratio, ID3D11DeviceContext* context);
 	void DrawFireBall(FXMVECTOR eyePos, CXMMATRIX viewProj, ID3D11DeviceContext* context);
-	void SetPos(XMFLOAT3 newPos);
+	void SetPos(XMFLOAT3 newPos, float fireballRadius);
 	void FireEffect();
 
 	void SetFireBallTexture(ID3D11ShaderResourceView* fbTex){ mFBTexture = fbTex; }
@@ -79,6 +79,7 @@ private:
 	float GetSpeedMultiplier();
 	float GetSize();
 	float GetLifetime();
+	void UpdateCurrentTweenPoint(float dt);
 
 	ParticleEffect* mFireBallEffect;
 	std::vector<FireBallParticle> mFireBallParticles;
@@ -94,5 +95,7 @@ private:
 	XMFLOAT3 mOriginalPos;
 	std::vector<PathNode*> mWayPoints;
 	std::vector<TweenPoint> mTweenPoints;
+	XMFLOAT3 mCurrTweenPoint;
+	UINT mCurrTweenIndex;
 };
 

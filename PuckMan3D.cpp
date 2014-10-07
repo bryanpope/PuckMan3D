@@ -4,7 +4,7 @@ Pathfinding PuckMan3D::mPFDeadGhost;
 PathNode *PuckMan3D::mPNDeadGhostStart;
 PathNode *PuckMan3D::mPNDeadGhostEnd;
 std::vector<PathNode*> PuckMan3D::mPFWaypoints;
-PuckMan3D::PathFindingData * PuckMan3D::mpfData;
+PuckMan3D::PathFindingData * PuckMan3D::mpfData[4];
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 				   PSTR cmdLine, int showCmd)
@@ -26,7 +26,7 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
 	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), 
-	mHUDFruitGeometry2(0), mhThreadPathFinding(NULL), mTouchedGhost(false)
+	mHUDFruitGeometry2(0)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -50,7 +50,11 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	XMStoreFloat4x4(&mGridWorld, I);
 	XMStoreFloat4x4(&mHUDFruitWorld, I);
 	XMStoreFloat4x4(&mHUDFruitWorld2, I);
-	
+
+	mTouchedGhost[0] = false;
+	mTouchedGhost[1] = false;
+	mTouchedGhost[2] = false;
+	mTouchedGhost[3] = false;
 
 	srand((UINT)time(NULL));
 
@@ -100,8 +104,11 @@ PuckMan3D::~PuckMan3D()
 	if (mFireBallPac)
 		delete mFireBallPac;
 
-	if (mFBBlueGhost)
-		delete mFBBlueGhost;
+	for (int i = 0; i < 4; ++i)
+	{
+		if (mFBBlueGhost[i])
+			delete mFBBlueGhost[i];
+	}
 
 	if (mFBBlinky)
 		delete mFBBlinky;
@@ -408,26 +415,35 @@ bool PuckMan3D::Init()
 	//mFireBallEffect = new ParticleEffect();
 	//mFireBallEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
 
-	mFBBlueGhost = new FireBallParticles();
+	mFBBlueGhost[0] = new FireBallParticles();
+	mFBBlueGhost[1] = new FireBallParticles();
+	mFBBlueGhost[2] = new FireBallParticles();
+	mFBBlueGhost[3] = new FireBallParticles();
 	FireBallParticles::FireBallParticlesProperties bgP;
-	bgP.numParticles = 5000;
+	bgP.numParticles = 1500;
 	bgP.velX.isRandomRange = true;
 	bgP.velX.range = XMFLOAT2(-0.5f, 0.5f);
 	bgP.velY.isRandomRange = true;
-	bgP.velY.range = XMFLOAT2(0.0f, 0.2f);
+	bgP.velY.range = XMFLOAT2(-0.5f, 0.5f);
 	bgP.velZ.isRandomRange = true;
 	bgP.velZ.range = XMFLOAT2(-0.5f, 0.5f);
-	bgP.velocityAddition = XMFLOAT3(0.0f, 0.5f, 0.0f);
+	bgP.velocityAddition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	bgP.speedMult.isRandomRange = true;
 	bgP.speedMult.range = XMFLOAT2(0.1f, 0.2f);
 	bgP.size.isRandomRange = false;
-	bgP.size.range = XMFLOAT2(0.25f, 0.25f);
+	bgP.size.range = XMFLOAT2(0.10f, 0.10f);
 	bgP.lifetime.isRandomRange = true;
-	bgP.lifetime.range = XMFLOAT2(0.5f, 2.0f);
-	bgP.isOneShot = true;
+	bgP.lifetime.range = XMFLOAT2(0.25f, 0.50f);
+	bgP.isOneShot = false;
 	bgP.isFire = false;
-	mFBBlueGhost->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowBlue.png", md3dDevice, bgP);
-	mFBBlueGhost->SetOriginalPos(mPuckMan->GetPos());
+	mFBBlueGhost[0]->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowRed.png", md3dDevice, bgP);
+	mFBBlueGhost[0]->SetOriginalPos(mPuckMan->GetPos());
+	mFBBlueGhost[1]->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowCyan.png", md3dDevice, bgP);
+	mFBBlueGhost[1]->SetOriginalPos(mPuckMan->GetPos());
+	mFBBlueGhost[2]->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowPink.png", md3dDevice, bgP);
+	mFBBlueGhost[2]->SetOriginalPos(mPuckMan->GetPos());
+	mFBBlueGhost[3]->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_GHOST, L"Textures/GlowOrange.png", md3dDevice, bgP);
+	mFBBlueGhost[3]->SetOriginalPos(mPuckMan->GetPos());
 	mCurrRatio = 0.0f;
 	mOrigPos = mPuckMan->GetPos();
 
@@ -459,13 +475,16 @@ bool PuckMan3D::Init()
 
 	mFBClyde = new FireBallParticles();
 	mFBClyde->Init(XMLoadFloat3(&(mClyde->getPos())), MazeLoader::RADIUS_GHOST, L"Textures/GlowOrange.png", md3dDevice, BlP);
-	mpfData = (PPATHFINDINGDATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(PATHFINDINGDATA));
-	if (mpfData == NULL)
+	for (int i = 0; i < 4; ++i)
 	{
-		// If the array allocation fails, the system is out of memory
-		// so there is no point in trying to print an error message.
-		// Just terminate execution.
-		ExitProcess(2);
+		mpfData[i] = (PPATHFINDINGDATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(PATHFINDINGDATA));
+		if (mpfData[i] == NULL)
+		{
+			// If the array allocation fails, the system is out of memory
+			// so there is no point in trying to print an error message.
+			// Just terminate execution.
+			ExitProcess(2);
+		}
 	}
 
 	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
@@ -781,29 +800,34 @@ void PuckMan3D::UpdateScene(float dt)
 			}
 			else
 			{
-				mFBBlueGhost->SetPos(ghosts[i].pos);
-				mFBBlueGhost->FireEffect();
-				/*if (!mTouchedGhost)
+				//mFBBlueGhost->FireEffect();
+				if (!mTouchedGhost[i])
 				{
-					mTouchedGhost = true;
+					mFBBlueGhost[i]->SetPos(ghosts[i].pos, MazeLoader::RADIUS_GHOST);
+					mTouchedGhost[i] = true;
 					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
-					mpfData->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
-					mpfData->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
-					mpfData->thisThing = this;
+					mpfData[i]->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
+					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
+					mpfData[i]->thisThing = this;
+					mpfData[i]->waypoints.clear();
 
-					mhThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData, 0, &mdwThreadIdPathFinding);
-				}*/
+					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);
+				}
+				break;
 			}
 		}
 
 	}
 
-	DWORD waitPFState = WaitForSingleObject(mhThreadPathFinding, 0);
-	if (waitPFState == WAIT_OBJECT_0)
+	for (int i = 0; i < 4; ++i)
 	{
-		//mFBBlueGhost->SetWayPoints(mpfData->waypoints);
-		//mFBBlueGhost->FireEffect();
-		mhThreadPathFinding = NULL;
+		DWORD waitPFState = WaitForSingleObject(mhThreadPathFinding[i], 0);
+		if (waitPFState == WAIT_OBJECT_0)
+		{
+			mFBBlueGhost[i]->SetWayPoints(mpfData[i]->waypoints);
+			mFBBlueGhost[i]->FireEffect();
+			mhThreadPathFinding[i] = NULL;
+		}
 	}
 
 	////Checking PacMan Collision with fruit
@@ -1115,7 +1139,10 @@ void PuckMan3D::UpdateScene(float dt)
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
 
 	mFireBallPac->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
-	mFBBlueGhost->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
+	for (int i = 0; i < 4; ++i)
+	{
+		mFBBlueGhost[i]->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
+	}
 
 	//mOrigPos.m128_f32[0] = -12.5f;
 	//mFBBlueGhost->Update(mOrigPos, MazeLoader::RADIUS_PAC_MAN, dt, mCurrRatio, md3dImmediateContext);
@@ -1229,9 +1256,9 @@ DWORD WINAPI PuckMan3D::PathFindingStaticThreadStart(LPVOID lpParam)
 {
 	PPATHFINDINGDATA pData = (PPATHFINDINGDATA)lpParam;
 	
-	static PathNode mPNDeadGhostStart(pData->posStart.x, pData->posStart.y);
-	static PathNode mPNDeadGhostEnd(pData->posEnd.x, pData->posEnd.y);
-	static Pathfinding pfDeadGhost;
+	PathNode mPNDeadGhostStart(pData->posStart.x, pData->posStart.y);
+	PathNode mPNDeadGhostEnd(pData->posEnd.x, pData->posEnd.y);
+	Pathfinding pfDeadGhost;
 
 	pData->waypoints = pfDeadGhost.FindPath(&mPNDeadGhostStart, &mPNDeadGhostEnd);
 	return 0;
@@ -1532,7 +1559,10 @@ void PuckMan3D::DrawWrapper()
 	}
 
 	mFireBallPac->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
-	mFBBlueGhost->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
+	for (int i = 0; i < 4; ++i)
+	{
+		mFBBlueGhost[i]->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
+	}
 	//mFBBlinky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
 	//mFBInky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
 	//mFBPinky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
@@ -2219,6 +2249,10 @@ void PuckMan3D::updateGhosts(float dt)
 			mTotalTime = 0.0f;
 			ghostState = GhostState::GS_NORMAL;
 			powerUpActivated = false;
+			for (int j = 0; j < 4; ++j)
+			{
+				mTouchedGhost[j] = false;
+			}
 		}
 		break;
 	}

@@ -188,7 +188,7 @@ private:
 	ParticleEffect* mParticleEffect;
 	
 	FireBallParticles *mFireBallPac;
-	FireBallParticles *mFBBlueGhost;
+	FireBallParticles *mFBBlueGhost[4];
 	FireBallParticles *mFBBlinky;
 	FireBallParticles *mFBInky;
 	FireBallParticles *mFBPinky;
@@ -199,10 +199,10 @@ private:
 	static PathNode *mPNDeadGhostStart;
 	static PathNode *mPNDeadGhostEnd;
 	static std::vector<PathNode*> mPFWaypoints;
-	HANDLE mhThreadPathFinding;
-	DWORD mdwThreadIdPathFinding;
-	bool mTouchedGhost;
-	static PathFindingData *mpfData;
+	HANDLE mhThreadPathFinding[4];
+	DWORD mdwThreadIdPathFinding[4];
+	bool mTouchedGhost[4];
+	static PathFindingData *mpfData[4];
 
 	//ParticleEffect* mFireBallEffect;
 	//std::vector<TestParticle> mFireBallParticles;

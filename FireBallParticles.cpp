@@ -56,11 +56,17 @@ void FireBallParticles::Init(FXMVECTOR initialPos, float fireballRadius, LPCWSTR
 	BuildDSState(device);
 }
 
-void FireBallParticles::SetPos(XMFLOAT3 newPos)
+void FireBallParticles::SetPos(XMFLOAT3 newPos, float fireballRadius)
 {
+	XMVECTOR nPos = XMLoadFloat3(&newPos);
+	//XMVECTOR pos = XMLoadFloat3(&mFireBallParticles[i].pos);
+	XMVECTOR vel;
 	for (int i = 0; i < mFireBallParticles.size(); ++i)
 	{
-		mFireBallParticles[i].pos = newPos;
+		vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), 0.0f)) * fireballRadius;
+		XMStoreFloat3(&mFireBallParticles[i].pos, nPos + vel);
+		mFireBallParticles[i].age = 0.0f;
+		//mFireBallParticles[i].pos = newPos;
 	}
 	mParticlesShown = mProperties.numParticles;
 }
@@ -69,6 +75,7 @@ void FireBallParticles::SetWayPoints(std::vector<PathNode*> wayP)
 { 
 	mWayPoints = wayP;
 
+	mTweenPoints.clear();
 	mTweenPoints.push_back({ wayP[0]->xPos, wayP[0]->zPos, 0, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f), 0.0f });
 	UINT lastAdd = 0;
 	XMFLOAT2 lastSame = XMFLOAT2(0.0f, 0.0f);
@@ -145,6 +152,11 @@ void FireBallParticles::SetWayPoints(std::vector<PathNode*> wayP)
 		mTweenPoints[i].tweenTime = (float)mTweenPoints[i].distance / totalDistance;
 		mTweenPoints[i].endTween = mTweenPoints[i].startTween + mTweenPoints[i].tweenTime;
 	}
+
+	mCurrTweenPoint.x = mTweenPoints[0].startPosX;
+	mCurrTweenPoint.y = 0.0f;
+	mCurrTweenPoint.z = mTweenPoints[0].startPosZ;
+	mCurrTweenIndex = 0;
 }
 
 
@@ -169,6 +181,13 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 		return;
 	}
 
+	XMVECTOR nPos = newPos;
+	if (mTweenPoints.size() > 0)
+	{
+		nPos = XMLoadFloat3(&mCurrTweenPoint);
+		UpdateCurrentTweenPoint(dt);
+	}
+
 	XMFLOAT3 fVel3;
 	float pSize;
 	bool isParticleStillAlive = false;
@@ -190,7 +209,7 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 		{
 			isParticleStillAlive = true;
 			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), 0.0f)) * fireballRadius;
-			XMStoreFloat3(&mFireBallParticles[i].pos, newPos + vel);
+			XMStoreFloat3(&mFireBallParticles[i].pos, nPos + vel);
 			fVel3 = GetVelocity();
 			vel = XMVector3Normalize(XMVectorSet(fVel3.x, fVel3.y, fVel3.z, 0.0f));
 			float speedMult = GetSpeedMultiplier();
@@ -218,9 +237,9 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 			pos = XMLoadFloat3(&mFireBallParticles[i].pos);
 			vel = XMLoadFloat3(&mFireBallParticles[i].vel);
 		}
-		if (pos.m128_f32[1] < (newPos.m128_f32[1] + (fireballRadius * 0.60f)))
+		if (pos.m128_f32[1] < (nPos.m128_f32[1] + (fireballRadius * 0.60f)))
 		{
-			XMVECTOR s1Center = newPos;
+			XMVECTOR s1Center = nPos;
 			float s1Radius = fireballRadius;
 			float currOverLap = 0.0f;
 			XMVECTOR correction = XMVectorZero();
@@ -257,6 +276,57 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 	}
 }
 
+void FireBallParticles::UpdateCurrentTweenPoint(float dt)
+{
+	XMVECTOR pos = XMLoadFloat3(&mCurrTweenPoint);
+	UINT tIndex = mCurrTweenIndex;
+	XMFLOAT3 vector = mTweenPoints[tIndex].vector;
+	XMVECTOR vel = XMLoadFloat3(&vector);
+	pos = pos + (vel * dt * 5);
+	XMStoreFloat3(&mCurrTweenPoint, pos);
+	if (abs(vector.x) == 1.0f && vector.z == 0.0f)
+	{
+		if (mTweenPoints[tIndex].endPosX > mTweenPoints[tIndex].startPosX)
+		{
+			if (mCurrTweenPoint.x >= mTweenPoints[tIndex].endPosX)
+			{
+				++mCurrTweenIndex;
+			}
+		}
+		else
+		{
+			if (mCurrTweenPoint.x <= mTweenPoints[tIndex].endPosX)
+			{
+				++mCurrTweenIndex;
+			}
+		}
+	}
+	else  // vector.x == 0.0f && vector.z == 1.0f;
+	{
+		if (mTweenPoints[tIndex].endPosZ > mTweenPoints[tIndex].startPosZ)
+		{
+			if (mCurrTweenPoint.z >= mTweenPoints[tIndex].endPosZ)
+			{
+				++mCurrTweenIndex;
+			}
+		}
+		else
+		{
+			if (mCurrTweenPoint.z <= mTweenPoints[tIndex].endPosZ)
+			{
+				++mCurrTweenIndex;
+			}
+		}
+	}
+	if (mCurrTweenIndex >= mTweenPoints.size())
+	{
+		mCurrTweenIndex = 0;
+		mCurrTweenPoint.x = mTweenPoints[0].startPosX;
+		mCurrTweenPoint.z = mTweenPoints[0].startPosZ;
+		mProperties.isOneShot = true;
+	}
+}
+
 void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt, float ratio, ID3D11DeviceContext* context)
 {
 	if (!mProperties.isFire || mIsAllParticlesDead)
@@ -267,14 +337,6 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 	XMFLOAT3 fVel3;
 	float pSize;
 	bool isParticleStillAlive = false;
-
-	/*XMFLOAT3 nPos;
-	XMVECTOR oPos = XMLoadFloat3(&mOriginalPos);
-	XMVECTOR dPos = newPos - oPos;
-	float distance = sqrt((dPos.m128_f32[0] * dPos.m128_f32[0]) + (dPos.m128_f32[2] * dPos.m128_f32[2]));
-	float radius = distance * 0.5f;
-	XMVECTOR ndPos = XMVector3Normalize(dPos);
-	XMVECTOR centrePoint = ndPos * radius;*/
 
 	struct find_tween : std::unary_function<TweenPoint, bool>
 	{
@@ -357,6 +419,8 @@ void FireBallParticles::Update(FXMVECTOR newPos, float fireballRadius, float dt,
 		if (mFireBallParticles[i].tweenSegment >= mTweenPoints.size())
 		{
 			mFireBallParticles[i].tweenSegment = 0;
+			mFireBallParticles[i].pos.x = mTweenPoints[0].startPosX;
+			mFireBallParticles[i].pos.z = mTweenPoints[0].startPosZ;
 		}
 	}
 
