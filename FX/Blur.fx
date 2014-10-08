@@ -13,16 +13,16 @@ cbuffer cbSettings
 	};*/
 	
 	// Test use  gBlurRadius = 5
-	float gWeights[11] =
-	{
-		0.00f, 0.00f, 0.00f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.00f, 0.00f,
-	};
-
-	// After tweaking to get bloom, gBlurRadius = 5
 	/*float gWeights[11] =
 	{
-		0.01f, 0.01f, 0.02f, 0.07f, 0.25f, 0.50f, 0.25f, 0.07f, 0.02f, 0.01f, 0.01f
+		0.00f, 0.00f, 0.00f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.00f, 0.00f,
 	};*/
+
+	// After tweaking to get bloom, gBlurRadius = 5
+	float gWeights[11] =
+	{
+		0.01f, 0.01f, 0.02f, 0.07f, 0.25f, 0.50f, 0.25f, 0.07f, 0.02f, 0.01f, 0.01f
+	};
 
 	// To maybe use  gBlurRadius = 7
 	/*float gWeights[15] =

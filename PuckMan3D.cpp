@@ -26,7 +26,7 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
 	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), mGhostEatenCounter(0),
-	mHUDFruitGeometry2(0), mIsDisplayBlurred(false)
+	mHUDFruitGeometry2(0), mIsDisplayBlurred(false), mIsCRTShaderOn(false)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -1396,7 +1396,7 @@ void PuckMan3D::DrawWrapper()
 	MazeLoader::OffsetsCountsMazeElements oc = MazeLoader::GetOffsetsCounts();
 
 	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
-	mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+	mLitMatInstanceEffect->SetEffectTech(mIsCRTShaderOn ? "LitMatTechInstancedCRTShader" : "LitMatTechInstanced");
 
 	Material floorColour = Materials::GRID;
 	mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, floorColour);
@@ -1413,14 +1413,14 @@ void PuckMan3D::DrawWrapper()
 	if (mGameState == GameState::GS_PLAY)
 	{
 		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
-		mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+		mLitMatInstanceEffect->SetEffectTech(mIsCRTShaderOn ? "LitMatTechInstancedCRTShader" : "LitMatTechInstanced");
 		Material pelletColour = Materials::PELLET;
 		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, pelletColour);
 		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPellets(),
 			mCountPellets, oc.pellets.indexOffset, oc.pellets.indexCount);
 
 		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
-		mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+		mLitMatInstanceEffect->SetEffectTech(mIsCRTShaderOn ? "LitMatTechInstancedCRTShader" : "LitMatTechInstanced");
 		Material powerUpColour = Materials::POWERUP;
 		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, powerUpColour);
 		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(),
@@ -1630,9 +1630,13 @@ void PuckMan3D::DrawWrapper()
 	if (mGameState == GameState::GS_OPTIONS)
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Reset High Score - (0)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, "Bloom - (2)");
+		std::stringstream bloom;
+		bloom << "Bloom - (2) " << (mIsDisplayBlurred ? "On" : "Off");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, bloom.str());
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "Audio - (3)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, "CRT - (4)");
+		std::stringstream crt;
+		crt << "CRT - (4) " << (mIsCRTShaderOn ? "On" : "Off");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, crt.str());
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
 	}
 	if (mGameState == GameState::GS_SOUNDOPTIONS)
@@ -1841,7 +1845,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		if (mGameState == GS_OPTIONS)
 		{
-			//bloom
+			mIsDisplayBlurred = !mIsDisplayBlurred;
 		}
 		if (mGameState == GS_SOUNDOPTIONS)
 		{
@@ -1892,7 +1896,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		if (mGameState == GS_OPTIONS)
 		{
-			//CRT
+			mIsCRTShaderOn = !mIsCRTShaderOn;
 		}
 		if (mGameState == GS_MAINMENU)
 		{

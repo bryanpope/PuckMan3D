@@ -292,6 +292,7 @@ private:
 	int mGhostEatenPoints = 0;
 
 	bool mIsDisplayBlurred;
+	bool mIsCRTShaderOn;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;

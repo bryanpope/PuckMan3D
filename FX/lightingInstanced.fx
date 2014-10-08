@@ -113,7 +113,7 @@ VertexOut VS(VertexIn vin, uniform bool gUseInstanced)
     return vout;
 }
 
-float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) : SV_Target
+float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight, uniform bool gUseCRTShader) : SV_Target
 {
 
 	Material mat;
@@ -164,8 +164,11 @@ float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight) :
 	//float rat = saturate((dist - startFogDist) / maxFogDist);
 	//litColour = lerp(litColour, fogColour, rat);
 
-	float4 oC;
-	CRTshader(pin.PosH, litColour, oC);
+	float4 oC = litColour;
+	if (gUseCRTShader)
+	{
+		CRTshader(pin.PosH, litColour, oC);
+	}
 
 	//return litColour;
 	return oC;
@@ -177,9 +180,20 @@ technique11 TestTech
     {
         SetVertexShader( CompileShader( vs_5_0, VS(false) ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(true, true) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(true, true, false) ) );
 		
     }
+}
+
+technique11 TestTechCRTShader
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(false)));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS(true, true, true)));
+
+	}
 }
 
 technique11 LitMatTech
@@ -188,7 +202,18 @@ technique11 LitMatTech
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS(false)));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(false, true)));
+		SetPixelShader(CompileShader(ps_5_0, PS(false, true, false)));
+
+	}
+}
+
+technique11 LitMatTechCRTShader
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(false)));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS(false, true, true)));
 
 	}
 }
@@ -199,7 +224,18 @@ technique11 LitMatTechInstanced
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS(true)));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(false, true)));
+		SetPixelShader(CompileShader(ps_5_0, PS(false, true, false)));
+
+	}
+}
+
+technique11 LitMatTechInstancedCRTShader
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(true)));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS(false, true, true)));
 
 	}
 }
