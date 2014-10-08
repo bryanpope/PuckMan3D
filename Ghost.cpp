@@ -2,6 +2,7 @@
 
 Ghost::Ghost()
 {
+	LoadWaypoints();
 }
 
 Ghost::Ghost(FXMVECTOR pos, float radius)
@@ -11,6 +12,8 @@ Ghost::Ghost(FXMVECTOR pos, float radius)
 	mVel = XMFLOAT3(1000.0f, 0.0f, 1000.0f);
 	mRadius = radius;
 	mSpeed = 1.0f;
+	LoadWaypoints();
+	tempIterator = 0;
 }
 
 Ghost::~Ghost()
@@ -19,6 +22,62 @@ Ghost::~Ghost()
 
 void Ghost::Update()
 {}
+
+void Ghost::LoadWaypoints()
+{
+	tempWaypoints.push_back(XMFLOAT3(12.0f, 0.0f,  14.5f));
+	tempWaypoints.push_back(XMFLOAT3(12.0f, 0.0f, 10.5f));
+	tempWaypoints.push_back(XMFLOAT3(12.0f, 0.0f, 7.5f));
+	tempWaypoints.push_back(XMFLOAT3(12.0f, 0.0f, -4.5f));
+	tempWaypoints.push_back(XMFLOAT3(12.0f, 0.0f,  -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(12.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(12.0f, 0.0f, -13.5f));
+	tempWaypoints.push_back(XMFLOAT3(10.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(10.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(7.0f, 0.0f, 14.5f));
+	tempWaypoints.push_back(XMFLOAT3(7.0f, 0.0f, 10.5f));
+	tempWaypoints.push_back(XMFLOAT3(7.0f, 0.0f, 7.5f));
+	tempWaypoints.push_back(XMFLOAT3(7.0f, 0.0f, 1.5f));
+	tempWaypoints.push_back(XMFLOAT3(7.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(7.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(4.0f, 0.0f, 7.5f));
+	tempWaypoints.push_back(XMFLOAT3(4.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(4.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(1.0f, 0.0f, 14.5f));
+	tempWaypoints.push_back(XMFLOAT3(1.0f, 0.0f, 10.5f));
+	tempWaypoints.push_back(XMFLOAT3(1.0f, 0.0f, 7.5f));
+	tempWaypoints.push_back(XMFLOAT3(1.0f, 0.0f, -13.5f));
+	tempWaypoints.push_back(XMFLOAT3(1.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(1.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(1.0f, 0.0f, -4.5f));
+	tempWaypoints.push_back(XMFLOAT3(-2.0f, 0.0f, 14.5f));
+	tempWaypoints.push_back(XMFLOAT3(-2.0f, 0.0f, 10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-2.0f, 0.0f, 7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-2.0f, 0.0f, -4.5f));
+	tempWaypoints.push_back(XMFLOAT3(-2.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-2.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-2.0f, 0.0f, -13.5f));
+	tempWaypoints.push_back(XMFLOAT3(-5.0f, 0.0f, 10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-5.0f, 0.0f, 7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-5.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-5.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-8.0f, 0.0f, 14.5f));
+	tempWaypoints.push_back(XMFLOAT3(-8.0f, 0.0f, 10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-8.0f, 0.0f, 7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-8.0f, 0.0f, 1.5f));
+	tempWaypoints.push_back(XMFLOAT3(-8.0f, 0.0f, -4.5f));
+	tempWaypoints.push_back(XMFLOAT3(-8.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-8.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-11.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-11.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-13.0f, 0.0f, 14.5f));
+	tempWaypoints.push_back(XMFLOAT3(-13.0f, 0.0f, 10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-13.0f, 0.0f, 7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-13.0f, 0.0f, -13.5f));
+	tempWaypoints.push_back(XMFLOAT3(-13.0f, 0.0f, -10.5f));
+	tempWaypoints.push_back(XMFLOAT3(-13.0f, 0.0f, -7.5f));
+	tempWaypoints.push_back(XMFLOAT3(-13.0f, 0.0f, -4.5f));
+}
 
 void Ghost::SetSpeed(int levelCounter, GHOST_STATES ghostState)
 {

@@ -11,19 +11,16 @@ Pathfinding::~Pathfinding()
 
 std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 {
-	mOpenList.clear();
-	mClosedSet.clear();
-
 	std::vector<PathNode*> retPath;
 
 	PathNode* currentNode = new PathNode(*start);
 	currentNode->combineNode(currentNode, start);
-	int goalRow = (MazeLoader::GetMazeHeight()) - round(goal->zPos + 15.5f);
+	/*int goalRow = (MazeLoader::GetMazeHeight()) - round(goal->zPos + 15.5f);
 	int goalCol = (round(goal->xPos + 14.5f) - 1);
 	if ((goalCol >= 0 && goalRow >= 0) && ((UINT)goalCol <= MazeLoader::GetMazeWidth() && (UINT)goalRow <= MazeLoader::GetMazeHeight()))
 	{
 		if (!MazeLoader::IsBlocked(goalRow, goalCol))
-		{
+		{*/
 			while (!ArrivedAtEnd(currentNode, goal))
 			{
 				PathNode tempChildNode(*currentNode);
@@ -71,8 +68,8 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 			mOpenList.clear();
 			mClosedSet.clear();
 			return retPath;
-		}
-		else
+		//}
+		/*else
 		{
 			return retPath;
 		}
@@ -80,7 +77,7 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 	else
 	{
 		return retPath;
-	}
+	}*/
 }
 
 bool Pathfinding::ArrivedAtEnd(PathNode* currNode, PathNode* goal)

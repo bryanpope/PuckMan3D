@@ -26,39 +26,14 @@ Inky::~Inky()
 void Inky::LoadScatterWaypoints()
 {
 	mScatterWaypoints.push_back(new PathNode(12.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(11.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(10.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(9.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(8.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(7.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(6.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(5.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(4.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(3.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(2.0f, -14.5f));
 	mScatterWaypoints.push_back(new PathNode(1.0f, -14.5f));
-	mScatterWaypoints.push_back(new PathNode(1.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(1.0f, -12.5f));
 	mScatterWaypoints.push_back(new PathNode(1.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(2.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(3.0f, -11.5f));
 	mScatterWaypoints.push_back(new PathNode(4.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(4.0f, -10.5f));
-	mScatterWaypoints.push_back(new PathNode(4.0f, -9.5f));
 	mScatterWaypoints.push_back(new PathNode(4.0f, -8.5f));
-	mScatterWaypoints.push_back(new PathNode(5.0f, -8.5f));
-	mScatterWaypoints.push_back(new PathNode(6.0f, -8.5f));
 	mScatterWaypoints.push_back(new PathNode(7.0f, -8.5f));
-	mScatterWaypoints.push_back(new PathNode(7.0f, -9.5f));
-	mScatterWaypoints.push_back(new PathNode(7.0f, -10.5f));
 	mScatterWaypoints.push_back(new PathNode(7.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(8.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(9.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(10.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(11.0f, -11.5f));
 	mScatterWaypoints.push_back(new PathNode(12.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(12.0f, -12.5f));
-	mScatterWaypoints.push_back(new PathNode(12.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, -14.5f));
 }
 
 void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, XMFLOAT3 blinkyPos, int levelNumber, int pelletCounter)
@@ -88,7 +63,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 			if (!scatterPathDrawn)
 			{
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
-				mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
+				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
 				scatterPathDrawn = true;
