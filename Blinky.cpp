@@ -4,7 +4,7 @@ Blinky::Blinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 {
 	XMStoreFloat3(&mPos, pos);
 	LoadScatterWaypoints();
-	this->mGhostStates = GHOST_STATES::IDLE;
+	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTimer = 0.0f;
 	this->mChaseTimer = 0.0f;
 	mChaseTimer = 0.0f;
@@ -35,17 +35,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
 	switch (mGhostStates)
 	{
-	case SCATTER:
-		/*if (tempIterator != tempWaypoints.size())
-		{
-			setPos(XMVectorSet(tempWaypoints[tempIterator].x, 0.0f, tempWaypoints[tempIterator].z, 0.0f));
-			tempIterator++;
-		}
-		else if (tempIterator == tempWaypoints.size())
-		{
-			tempIterator = 0;
-		}*/
-		
+	case SCATTER:		
 		SetSpeed(levelNumber, GHOST_STATES::SCATTER);
 		if (!scatterPathDrawn)
 		{
@@ -53,14 +43,16 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 			mWaypoints = path.FindPath(mStart, mGoal);
 			this->SetWayPoints(mWaypoints);
+			this->UpdateCurrentTweenPoint(dt);
 			scatterPathDrawn = true;
 		}
 		if (mWaypoints.size() != 0)
 		{
 			if (!this->reachedEnd)
 			{
-				this->UpdateCurrentTweenPoint(dt);
 				this->mPos = this->mCurrTweenPoint;
+				this->UpdateCurrentTweenPoint(dt);
+				
 			}
 			else if (this->reachedEnd)
 			{
@@ -153,4 +145,5 @@ void Blinky::Reset()
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;
+	reachedEnd = false;
 }

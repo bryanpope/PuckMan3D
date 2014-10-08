@@ -90,6 +90,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
+				this->UpdateCurrentTweenPoint(dt);
 				scatterPathDrawn = true;
 				waypointIterator = 0;
 			}
@@ -97,8 +98,8 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 			{
 				if (!this->reachedEnd)
 				{
-					this->UpdateCurrentTweenPoint(dt);
 					this->mPos = this->mCurrTweenPoint;
+					this->UpdateCurrentTweenPoint(dt);
 				}
 				else if (this->reachedEnd)
 				{
@@ -186,4 +187,5 @@ void Clyde::Reset()
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;
+	reachedEnd = false;
 }

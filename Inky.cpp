@@ -4,7 +4,7 @@ Inky::Inky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 {
 	XMStoreFloat3(&mPos, pos);
 	LoadScatterWaypoints();
-	this->mGhostStates = GHOST_STATES::SCATTER;
+	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = 12;
 	this->mScatterTile.z = -14.5f;
 	this->waypointIterator = 0;
@@ -66,6 +66,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
+				this->UpdateCurrentTweenPoint(dt);
 				scatterPathDrawn = true;
 				waypointIterator = 0;
 			}
@@ -73,8 +74,8 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 			{
 				if (!this->reachedEnd)
 				{
-					this->UpdateCurrentTweenPoint(dt);
 					this->mPos = this->mCurrTweenPoint;
+					this->UpdateCurrentTweenPoint(dt);
 				}
 				else if (this->reachedEnd)
 				{
@@ -225,4 +226,5 @@ void Inky::Reset()
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;
+	reachedEnd = false;
 }
