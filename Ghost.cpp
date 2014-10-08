@@ -133,7 +133,10 @@ void Ghost::SnapTweenPoint()
 void Ghost::SetWayPoints(std::vector<PathNode*> wayP)
 {
 	//mWaypoints = wayP;
-
+	if (wayP.size() == 0)
+	{
+		return;
+	}
 	mTweenPoints.clear();
 	mTweenPoints.push_back({ wayP[0]->xPos, wayP[0]->zPos, 0, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f), 0.0f });
 	UINT lastAdd = 0;
