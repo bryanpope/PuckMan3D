@@ -87,6 +87,7 @@ public:
 	virtual void Update();
 	void SetWayPoints(std::vector<PathNode*> wayP);
 	void SetSpeed(int levelCounter, GHOST_STATES ghostState);
+	bool isDead = false;
 
 	XMFLOAT3 getPos()
 	{

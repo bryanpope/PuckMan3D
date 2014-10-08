@@ -757,7 +757,6 @@ void PuckMan3D::UpdateScene(float dt)
 	XMVECTOR pos = mPuckMan->GetPos();
 
 	mPuckMan->CalculateSpeed(mLevelCounter, powerUpActivated);
-	//std::cout << "velocity " << mPuckMan->GetVelocity().m128_f32[0] << ", " << mPuckMan->GetVelocity().m128_f32[2] << std::endl;
 
 	//PuckMans Light position
 	mPointLights[0].pos.x = pacMans[0].pos.x;
@@ -817,7 +816,6 @@ void PuckMan3D::UpdateScene(float dt)
 		}
 
 	}
-	std::cout << "puckman pos " << mPuckMan->GetPos().m128_f32[0] << ", " << mPuckMan->GetPos().m128_f32[2] << std::endl;
 
 	for (int i = 0; i < 4; ++i)
 	{

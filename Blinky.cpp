@@ -33,106 +33,111 @@ void Blinky::LoadScatterWaypoints()
 
 void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
-	switch (mGhostStates)
+	if (!isDead)
 	{
-	case SCATTER:		
-		SetSpeed(levelNumber, GHOST_STATES::SCATTER);
-		if (!scatterPathDrawn)
+		switch (mGhostStates)
 		{
-			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
-			mWaypoints = path.FindPath(mStart, mGoal);
-			this->SetWayPoints(mWaypoints);
-			this->UpdateCurrentTweenPoint(dt);
-			scatterPathDrawn = true;
-		}
-		if (mWaypoints.size() != 0)
-		{
-			if (!this->reachedEnd)
-			{
-				this->mPos = this->mCurrTweenPoint;
-				this->UpdateCurrentTweenPoint(dt);
-				
-			}
-			else if (this->reachedEnd)
-			{
-				if (!isLooping)
-				{
-					this->SetWayPoints(mScatterWaypoints);
-					this->isLooping = true;
-				}
-				if (isLooping == true && this->reachedEnd)
-				{
-					this->UpdateCurrentTweenPoint(dt);
-					this->mPos = this->mCurrTweenPoint;
-				}
-			}
-		}
-		/*if (!powerUpActivated)
-		{
-			mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
-			if (mScatterTimer >= 7.0f)
-			{
-				this->mGhostStates = GHOST_STATES::CHASE;
-				mScatterTimer = 0.0f;
-				scatterPathDrawn = false;
-				mWaypoints.clear();
-			}
-		}
-		else if (powerUpActivated)
-		{
-			mScatterTimer += 8.0f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 5.0f, 8 comes from 40 / 5 to get the number as accurate as possible.
-			if (mScatterTimer >= 5.0f)
-			{
-				this->mGhostStates = GHOST_STATES::FRIGHTENED;
-				mScatterTimer = 0.0f;
-				scatterPathDrawn = false;
-				mWaypoints.clear();
-			}
-		}*/
-		break;
+		case SCATTER:
 
-	case CHASE:
-		SetSpeed(levelNumber, GHOST_STATES::CHASE);
-		if (!firstChasePathDrawn)
-		{
-			mStart = new PathNode(this->mPos.x, this->mPos.z);
-			mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
-			mWaypoints = path.FindPath(mStart, mGoal);
-			this->SetWayPoints(mWaypoints);
-			firstChasePathDrawn = true;
-		}
-		else
-		{
-			int row = MazeLoader::GetMazeHeight() - round(this->mPos.x + 15.5f);
-			int col = round(this->mPos.z + 14.5f) - 1;
-			if (MazeLoader::IsDivergent(row, col))
+			if (!scatterPathDrawn)
+			{
+				mStart = new PathNode(this->mPos.x, this->mPos.z);
+				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+				mWaypoints = path.FindPath(mStart, mGoal);
+				this->SetWayPoints(mWaypoints);
+				this->UpdateCurrentTweenPoint(dt);
+				scatterPathDrawn = true;
+			}
+			if (mWaypoints.size() != 0)
+			{
+				if (!this->reachedEnd)
+				{
+					this->mPos = this->mCurrTweenPoint;
+					this->UpdateCurrentTweenPoint(dt);
+
+				}
+				else if (this->reachedEnd)
+				{
+					if (!isLooping)
+					{
+						this->SetWayPoints(mScatterWaypoints);
+						this->isLooping = true;
+					}
+					if (isLooping == true && this->reachedEnd)
+					{
+						this->UpdateCurrentTweenPoint(dt);
+						this->mPos = this->mCurrTweenPoint;
+					}
+				}
+			}
+			if (!powerUpActivated)
+			{
+				SetSpeed(levelNumber, GHOST_STATES::SCATTER);
+				mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				if (mScatterTimer >= 7.0f)
+				{
+					this->mGhostStates = GHOST_STATES::CHASE;
+					mScatterTimer = 0.0f;
+					scatterPathDrawn = false;
+					mWaypoints.clear();
+				}
+			}
+			else if (powerUpActivated)
+			{
+				SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
+				mScatterTimer += 8.0f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 5.0f, 8 comes from 40 / 5 to get the number as accurate as possible.
+				if (mScatterTimer >= 5.0f)
+				{
+					this->mGhostStates = GHOST_STATES::SCATTER;
+					mScatterTimer = 0.0f;
+					scatterPathDrawn = false;
+					mWaypoints.clear();
+				}
+			}
+			break;
+
+		case CHASE:
+			SetSpeed(levelNumber, GHOST_STATES::CHASE);
+			if (!firstChasePathDrawn)
 			{
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
+				firstChasePathDrawn = true;
 			}
-		}
-		if (mWaypoints.size() != 0)
-		{
-			this->UpdateCurrentTweenPoint(dt);
-			this->mPos = this->mCurrTweenPoint;
-		}
+			else
+			{
+				int row = MazeLoader::GetMazeHeight() - round(this->mPos.x + 15.5f);
+				int col = round(this->mPos.z + 14.5f) - 1;
+				if (MazeLoader::IsDivergent(row, col))
+				{
+					mStart = new PathNode(this->mPos.x, this->mPos.z);
+					mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+					mWaypoints = path.FindPath(mStart, mGoal);
+					this->SetWayPoints(mWaypoints);
+				}
+			}
+			if (mWaypoints.size() != 0)
+			{
+				this->UpdateCurrentTweenPoint(dt);
+				this->mPos = this->mCurrTweenPoint;
+			}
 
-		this->mChaseTimer += 5.7142 * dt;
-		if (mChaseTimer >= 20.0f)
-		{
-			this->mGhostStates = GHOST_STATES::SCATTER;
-			mChaseTimer = 0.0f;
-			waypointIterator = 0;
-			firstChasePathDrawn = false;
-		}
+			this->mChaseTimer += 5.7142 * dt;
+			if (mChaseTimer >= 20.0f)
+			{
+				this->mGhostStates = GHOST_STATES::SCATTER;
+				mChaseTimer = 0.0f;
+				waypointIterator = 0;
+				firstChasePathDrawn = false;
+			}
 
-		break;
-	case FRIGHTENED:
-		SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
-		break;
+			break;
+		case FRIGHTENED:
+			//SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
+			break;
+		}
 	}
 }
 
