@@ -946,11 +946,13 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 	if (mGameState == GS_PLAY)
 	{
+		mNotPlayingBeginning = false;
 		mIsBeginningPlaying = true;
 		playBeginningSFX();
 	}
 	if (mBeginningTime >= 4.3f)
 	{
+		mNotPlayingBeginning = true;
 		mIsBeginningPlaying = false;
 	}
 
@@ -991,6 +993,8 @@ void PuckMan3D::UpdateScene(float dt)
 	//reset board if all pellets are gone
 	if (mPelletCounter == MazeLoader::GetEatableCount())
 	{
+		mNotPlayingBeginning = false;
+		playBeginningSFX();
 		resetGame();
 		mLevelCounter++;
 		mIsPaused = true;
@@ -1621,6 +1625,7 @@ void PuckMan3D::DrawWrapper()
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Reset High Score - (0)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, "Bloom - (2)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "Audio - (3)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, "CRT - (4)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
 	}
 	if (mGameState == GameState::GS_SOUNDOPTIONS)
@@ -1877,6 +1882,10 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			{
 				mMuteEatingSFX = true;
 			}
+		}
+		if (mGameState == GS_OPTIONS)
+		{
+			//CRT
 		}
 		if (mGameState == GS_MAINMENU)
 		{
@@ -2461,14 +2470,14 @@ void PuckMan3D::loadBeginningSFX()
 
 void PuckMan3D::playBeginningSFX()
 {
-	bool isPlaying = false;
+	//bool isPlaying = false;
 
 	if (channel[5] != NULL)
 	{
-		channel[5]->isPlaying(&isPlaying);
+		channel[5]->isPlaying(&mNotPlayingBeginning);
 	}
 
-	if (!isPlaying && !mMuteAll)
+	if (!mNotPlayingBeginning && !mMuteAll)
 	{
 		result = sys->playSound(sound[5], 0, false, &channel[5]);
 		result = channel[5]->setChannelGroup(soundGroup);
