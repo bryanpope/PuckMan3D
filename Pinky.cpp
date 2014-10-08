@@ -4,7 +4,7 @@ Pinky::Pinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 {
 	XMStoreFloat3(&mPos, pos);
 	LoadScatterWaypoints();
-	this->mGhostStates = GHOST_STATES::SCATTER;
+	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = -13.0f;
 	this->mScatterTile.z = 14.5f;
 	this->waypointIterator = 0;
@@ -15,7 +15,7 @@ Pinky::Pinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	mStart = new PathNode(this->mPos.x, this->mPos.z);
 	mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 	mWaypoints = path.FindPath(mStart, mGoal);
-	scatterPathDrawn = false;
+	scatterPathDrawn = true;
 }
 
 Pinky::~Pinky()

@@ -15,8 +15,8 @@ Inky::Inky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	mStart = new PathNode(this->mPos.x, this->mPos.z);
 	mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 	mWaypoints = path.FindPath(mStart, mGoal);
-	scatterPathDrawn = false;
-	firstChasePathDrawn = true;
+	scatterPathDrawn = true;
+	firstChasePathDrawn = false;
 }
 
 Inky::~Inky()

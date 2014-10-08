@@ -4,18 +4,20 @@ Blinky::Blinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 {
 	XMStoreFloat3(&mPos, pos);
 	LoadScatterWaypoints();
-	this->mGhostStates = GHOST_STATES::SCATTER;
+	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = 12.0f;
 	this->mScatterTile.z = 14.5f;
-	this->waypointIterator = 0;
 	this->mScatterTimer = 0.0f;
 	this->mChaseTimer = 0.0f;
+	mChaseTimer = 0.0f;
+	firstChasePathDrawn = false;
+	isLooping = false;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode(this->mPos.x, this->mPos.z);
 	mGoal = new PathNode(this->mScatterTile.x, this->mScatterTile.z);
 	mWaypoints = path.FindPath(mStart, mGoal);
-	scatterPathDrawn = false;
+	scatterPathDrawn = true;
 }
 
 Blinky::~Blinky()
@@ -79,7 +81,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				}
 			}
 		}
-		if (!powerUpActivated)
+		/*if (!powerUpActivated)
 		{
 			mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 			if (mScatterTimer >= 7.0f)
@@ -92,7 +94,6 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 		}
 		else if (powerUpActivated)
 		{
-			std::cout << mScatterTimer << std::endl;
 			mScatterTimer += 8.0f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 5.0f, 8 comes from 40 / 5 to get the number as accurate as possible.
 			if (mScatterTimer >= 5.0f)
 			{
@@ -101,15 +102,6 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				scatterPathDrawn = false;
 				mWaypoints.clear();
 			}
-		}
-		//mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
-		/*if (mScatterTimer >= 7.0f)
-		{
-			this->mGhostStates = GHOST_STATES::CHASE;
-			mScatterTimer = 0.0f;
-			scatterPathDrawn = false;
-			this->isLooping = false;
-			this->reachedEnd = false;
 		}*/
 		break;
 

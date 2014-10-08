@@ -817,6 +817,7 @@ void PuckMan3D::UpdateScene(float dt)
 		}
 
 	}
+	std::cout << "puckman pos " << mPuckMan->GetPos().m128_f32[0] << ", " << mPuckMan->GetPos().m128_f32[2] << std::endl;
 
 	for (int i = 0; i < 4; ++i)
 	{
