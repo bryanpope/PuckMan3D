@@ -2312,6 +2312,7 @@ void PuckMan3D::resetGame()
 	mGhostEatenCounter = 0;
 	mFruitCounter = 0;
 	mFruitTime = 0.0f;
+	mBeginningTime = 0.0f;
 	mCanDrawFruit = true;
 	mCanDrawHUDFruit = false;
 	powerUpActivated = false;
@@ -2412,6 +2413,7 @@ void PuckMan3D::loadFruitSFX()
 void PuckMan3D::playFruitSFX()
 {
 	bool isPlaying = false;
+	float volume = 1.0f;
 
 	if (channel[4] != NULL)
 	{
@@ -2421,6 +2423,7 @@ void PuckMan3D::playFruitSFX()
 	if (!mMuteAll)
 	{
 		result = sys->playSound(sound[3], 0, false, &channel[4]);
+		result = channel[5]->setVolume(volume);
 		result = channel[4]->setChannelGroup(soundGroup);
 		result = channel[4]->setPaused(false);
 	}
