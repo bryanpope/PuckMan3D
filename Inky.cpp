@@ -25,40 +25,40 @@ Inky::~Inky()
 
 void Inky::LoadScatterWaypoints()
 {
-	mScatterWaypoints.push_back(new PathNode(12.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(11.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(10.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(9.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(8.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(7.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(6.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(5.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(4.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(3.0f, -13.5f));
-	mScatterWaypoints.push_back(new PathNode(2.0f, -13.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(11.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(10.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(9.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(8.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(6.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(5.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(4.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(3.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(2.0f, -14.5f));
+	mScatterWaypoints.push_back(new PathNode(1.0f, -14.5f));
 	mScatterWaypoints.push_back(new PathNode(1.0f, -13.5f));
 	mScatterWaypoints.push_back(new PathNode(1.0f, -12.5f));
 	mScatterWaypoints.push_back(new PathNode(1.0f, -11.5f));
-	mScatterWaypoints.push_back(new PathNode(1.0f, -10.5f));
-	mScatterWaypoints.push_back(new PathNode(2.0f, -10.5f));
-	mScatterWaypoints.push_back(new PathNode(3.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(2.0f, -11.5f));
+	mScatterWaypoints.push_back(new PathNode(3.0f, -11.5f));
+	mScatterWaypoints.push_back(new PathNode(4.0f, -11.5f));
 	mScatterWaypoints.push_back(new PathNode(4.0f, -10.5f));
 	mScatterWaypoints.push_back(new PathNode(4.0f, -9.5f));
 	mScatterWaypoints.push_back(new PathNode(4.0f, -8.5f));
-	mScatterWaypoints.push_back(new PathNode(4.0f, -7.5f));
-	mScatterWaypoints.push_back(new PathNode(5.0f, -7.5f));
-	mScatterWaypoints.push_back(new PathNode(6.0f, -7.5f));
-	mScatterWaypoints.push_back(new PathNode(7.0f, -7.5f));
+	mScatterWaypoints.push_back(new PathNode(5.0f, -8.5f));
+	mScatterWaypoints.push_back(new PathNode(6.0f, -8.5f));
 	mScatterWaypoints.push_back(new PathNode(7.0f, -8.5f));
 	mScatterWaypoints.push_back(new PathNode(7.0f, -9.5f));
 	mScatterWaypoints.push_back(new PathNode(7.0f, -10.5f));
-	mScatterWaypoints.push_back(new PathNode(8.0f, -10.5f));
-	mScatterWaypoints.push_back(new PathNode(9.0f, -10.5f));
-	mScatterWaypoints.push_back(new PathNode(10.0f, -10.5f));
-	mScatterWaypoints.push_back(new PathNode(11.0f, -10.5f));
-	mScatterWaypoints.push_back(new PathNode(12.0f, -10.5f));
+	mScatterWaypoints.push_back(new PathNode(7.0f, -11.5f));
+	mScatterWaypoints.push_back(new PathNode(8.0f, -11.5f));
+	mScatterWaypoints.push_back(new PathNode(9.0f, -11.5f));
+	mScatterWaypoints.push_back(new PathNode(10.0f, -11.5f));
+	mScatterWaypoints.push_back(new PathNode(11.0f, -11.5f));
 	mScatterWaypoints.push_back(new PathNode(12.0f, -11.5f));
 	mScatterWaypoints.push_back(new PathNode(12.0f, -12.5f));
+	mScatterWaypoints.push_back(new PathNode(12.0f, -13.5f));
 }
 
 void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, XMFLOAT3 blinkyPos, int levelNumber, int pelletCounter)
@@ -115,7 +115,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				}
 			}
 
-			/*mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+			//mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 			if (mScatterTimer >= 7.0f)
 			{
 				this->mGhostStates = GHOST_STATES::CHASE;
@@ -128,30 +128,9 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				mWaypoints = path.FindPath(mStart, mGoal);
-			}*/
+			}
 			break;
 
-			/*if (levelNumber == 1)
-			{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.75f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-			}
-			else if (levelNumber >= 2 || levelNumber <= 4)
-			{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.85f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-			}
-			else if (levelNumber >= 5)
-			{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.95f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-			}*/
 		case CHASE:
 			PathNode* offsetTile;
 			if (!firstChasePathDrawn)
@@ -254,27 +233,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 			break;
 
 		case FRIGHTENED:
-			if (levelNumber == 1)
-			{
-				XMVECTOR vel = XMLoadFloat3(&mVel);
-				vel = vel * 0.50f;
-				XMStoreFloat3(&mVel, vel);
-				break;
-			}
-			else if (levelNumber >= 2 || levelNumber <= 4)
-			{
-				XMVECTOR vel = XMLoadFloat3(&mVel);
-				vel = vel * 0.55f;
-				XMStoreFloat3(&mVel, vel);
-				break;
-			}
-			else if (levelNumber >= 5)
-			{
-				XMVECTOR vel = XMLoadFloat3(&mVel);
-				vel = vel * 0.60f;
-				XMStoreFloat3(&mVel, vel);
-				break;
-			}
+			break;
 		}
 	}
 }

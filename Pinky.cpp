@@ -118,29 +118,6 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			}
 		}*/
 		break;
-
-
-/*if (levelNumber == 1)
-{
-	XMVECTOR vel = XMLoadFloat3(&mVel);
-	vel = vel * 0.75f;
-	XMStoreFloat3(&mVel, vel);
-	break;
-}
-else if (levelNumber >= 2 || levelNumber <= 4)
-{
-	XMVECTOR vel = XMLoadFloat3(&mVel);
-	vel = vel * 0.85f;
-	XMStoreFloat3(&mVel, vel);
-	break;
-}
-else if (levelNumber >= 5)
-{
-	XMVECTOR vel = XMLoadFloat3(&mVel);
-	vel = vel * 0.95f;
-	XMStoreFloat3(&mVel, vel);
-	break;
-}*/
 	case CHASE:
 		if (powerUpActivated)
 		{
@@ -238,49 +215,7 @@ else if (levelNumber >= 5)
 
 		break;
 	case FRIGHTENED:
-		if (levelNumber == 1)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if (levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.55f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if (levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.60f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-	/*case IN_TUNNEL:
-		if (levelNumber == 1)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.40f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if(levelNumber >= 2 || levelNumber <= 4)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.45f;
-			XMStoreFloat3(&mVel, vel);
-			break;
-		}
-		else if(levelNumber >= 5)
-		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
 		break;
-		}*/
 	}
 }
 

@@ -46,7 +46,7 @@ void Blinky::LoadScatterWaypoints()
 
 void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
-	std::cout << "blinky pos " << mPos.x << ", " << mPos.z << std::endl;
+	//std::cout << "blinky pos " << mPos.x << ", " << mPos.z << std::endl;
 	switch (mGhostStates)
 	{
 	case SCATTER:
