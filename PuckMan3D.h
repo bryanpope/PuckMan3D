@@ -289,6 +289,8 @@ private:
 	int mGhostEatenCounter = 0;
 	int mGhostEatenPoints = 0;
 
+	bool mIsDisplayBlurred;
+
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
 	int mPelletVertexOffset;

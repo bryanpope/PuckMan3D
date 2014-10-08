@@ -26,7 +26,7 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
 	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
 	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), mGhostEatenCounter(0),
-	mHUDFruitGeometry2(0)
+	mHUDFruitGeometry2(0), mIsDisplayBlurred(false)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -1312,39 +1312,48 @@ void PuckMan3D::DrawScene()
 	//md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	//md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	/*// Render to our offscreen texture.  Note that we can use the same depth/stencil buffer
-	// we normally use since our offscreen texture matches the dimensions.  
 	ID3D11RenderTargetView* renderTargets[1] = { mOffscreenRTV };
-	md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
+	if (mIsDisplayBlurred)
+	{
+		// Render to our offscreen texture.  Note that we can use the same depth/stencil buffer
+		// we normally use since our offscreen texture matches the dimensions.
+		md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
 
-	md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Black));
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);*/
+		md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Black));
+		md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
+	else
+	{
+		md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+		md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
 
-	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//
 	// Draw the scene to the offscreen texture
 	//
 	DrawWrapper();
 
-	/*//
-	// Restore the back buffer.  The offscreen render target will serve as an input into
-	// the compute shader for blurring, so we must unbind it from the OM stage before we
-	// can use it as an input into the compute shader.
-	//
-	renderTargets[0] = mRenderTargetView;
-	md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
+	if (mIsDisplayBlurred)
+	{
+		//
+		// Restore the back buffer.  The offscreen render target will serve as an input into
+		// the compute shader for blurring, so we must unbind it from the OM stage before we
+		// can use it as an input into the compute shader.
+		//
+		renderTargets[0] = mRenderTargetView;
+		md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
 
-	//mBlur.SetGaussianWeights(4.0f);
-	mBlur.BlurInPlace(md3dImmediateContext, mOffscreenSRV, mOffscreenUAV, 4);
+		//mBlur.SetGaussianWeights(4.0f);
+		mBlur.BlurInPlace(md3dImmediateContext, mOffscreenSRV, mOffscreenUAV, 4);
 
-	//
-	// Draw fullscreen quad with texture of blurred scene on it.
-	//
-	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		//
+		// Draw fullscreen quad with texture of blurred scene on it.
+		//
+		md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+		md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	DrawScreenQuad();*/
+		DrawScreenQuad();
+	}
 
 	HR(mSwapChain->Present(1, 0));
 }
