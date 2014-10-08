@@ -265,8 +265,6 @@ private:
 	bool mIsMoving = false;
 	bool mIsPlayerDead = false;
 	bool mIsBeginningPlaying = false;
-	bool mPlayingBeginning = false;
-	bool mNotPlayingBeginning = false;
 	bool mCanMove = true;
 	bool mIsPaused = false;
 	bool mMuteAll = false;

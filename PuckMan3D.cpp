@@ -944,13 +944,10 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 	if (mGameState == GS_PLAY)
 	{
-		mNotPlayingBeginning = false;
-		mIsBeginningPlaying = true;
-		playBeginningSFX();
+		
 	}
 	if (mBeginningTime >= 4.3f)
 	{
-		mNotPlayingBeginning = true;
 		mIsBeginningPlaying = false;
 	}
 
@@ -991,9 +988,8 @@ void PuckMan3D::UpdateScene(float dt)
 	//reset board if all pellets are gone
 	if (mPelletCounter == MazeLoader::GetEatableCount())
 	{
-		mNotPlayingBeginning = false;
-		playBeginningSFX();
 		resetGame();
+		playBeginningSFX();
 		mLevelCounter++;
 		mIsPaused = true;
 	}
@@ -1931,6 +1927,8 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		if (mGameState == GameState::GS_ATTRACT)
 		{
 			mGameState = GameState::GS_PLAY;
+			mIsBeginningPlaying = true;
+			playBeginningSFX();
 		}
 		else if (mGameState == GameState::GS_PLAY)
 		{
@@ -2316,9 +2314,7 @@ void PuckMan3D::updateGhosts(float dt)
 
 void PuckMan3D::resetGame()
 {
-	
-	//result = channel[6]->setPaused(true);
-	
+	result = channel[6]->setPaused(true);
 	ghostState = GhostState::GS_NORMAL;
 	soundStates = SoundsState::SS_KA;
 	fruitState = FruitState::FS_DEFAULT;
@@ -2330,17 +2326,16 @@ void PuckMan3D::resetGame()
 	}
 	mFruit.clear();
 	mPelletCounter = 0;
+	mBeginningTime = 0.0f;
 	mGhostEatenCounter = 0;
 	mFruitCounter = 0;
 	mFruitTime = 0.0f;
-	mBeginningTime = 0.0f;
 	mCanDrawFruit = true;
 	mCanDrawHUDFruit = false;
 	powerUpActivated = false;
 	mIsBlue = false;
 	mIsMoving = false;
 	mIsPlayerDead = true;
-	mIsBeginningPlaying = false;
 	ResetGhosts();
 	MazeLoader::ResetPellets();
 	MazeLoader::ResetPowerUps();
@@ -2444,7 +2439,7 @@ void PuckMan3D::playFruitSFX()
 	if (!mMuteAll)
 	{
 		result = sys->playSound(sound[3], 0, false, &channel[4]);
-		result = channel[5]->setVolume(volume);
+		result = channel[4]->setVolume(volume);
 		result = channel[4]->setChannelGroup(soundGroup);
 		result = channel[4]->setPaused(false);
 	}
@@ -2481,18 +2476,9 @@ void PuckMan3D::loadBeginningSFX()
 
 void PuckMan3D::playBeginningSFX()
 {
-	//bool isPlaying = false;
-
-	if (channel[5] != NULL)
-	{
-		channel[5]->isPlaying(&mNotPlayingBeginning);
-	}
-
-	if (!mNotPlayingBeginning && !mMuteAll)
+	if (!mMuteAll)
 	{
 		result = sys->playSound(sound[5], 0, false, &channel[5]);
-		result = channel[5]->setChannelGroup(soundGroup);
-		result = channel[5]->setPaused(false);		
 	}
 }
 
