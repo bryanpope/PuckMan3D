@@ -22,8 +22,9 @@ void Ghost::Update()
 
 void Ghost::SetSpeed(int levelCounter, GHOST_STATES ghostState)
 {
-	if (ghostState == GHOST_STATES::CHASE || ghostState == GHOST_STATES::SCATTER)
+	switch (ghostState)
 	{
+	case CHASE:
 		if (levelCounter == 1)
 		{
 			mSpeed = GHOST_SPEED * 0.75f;
@@ -36,9 +37,22 @@ void Ghost::SetSpeed(int levelCounter, GHOST_STATES ghostState)
 		{
 			mSpeed = GHOST_SPEED * 0.95f;
 		}
-	}
-	else if (ghostState == GHOST_STATES::FRIGHTENED)
-	{
+		break;
+	case SCATTER:
+		if (levelCounter == 1)
+		{
+			mSpeed = GHOST_SPEED * 0.75f;
+		}
+		else if (levelCounter >= 2 || levelCounter <= 4)
+		{
+			mSpeed = GHOST_SPEED * 0.85f;
+		}
+		else if (levelCounter >= 5)
+		{
+			mSpeed = GHOST_SPEED * 0.95f;
+		}
+		break;
+	case FRIGHTENED:
 		if (levelCounter == 1)
 		{
 			mSpeed = GHOST_SPEED * 0.50f;
@@ -51,6 +65,7 @@ void Ghost::SetSpeed(int levelCounter, GHOST_STATES ghostState)
 		{
 			mSpeed = GHOST_SPEED * 0.60f;
 		}
+		break;
 	}
 }
 

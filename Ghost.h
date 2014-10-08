@@ -25,7 +25,7 @@ protected:
 		WEST = 4
 	};
 
-	const float GHOST_SPEED = 100.0f;
+	const float GHOST_SPEED = 90.0f;
 	XMFLOAT3 mPos;
 	XMFLOAT3 mVel; //Originally set as XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)
 	XMFLOAT3 mScatterTile;

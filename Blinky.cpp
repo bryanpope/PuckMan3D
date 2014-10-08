@@ -96,7 +96,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			mScatterTimer += 8.0f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 5.0f, 8 comes from 40 / 5 to get the number as accurate as possible.
 			if (mScatterTimer >= 5.0f)
 			{
-				this->mGhostStates = GHOST_STATES::CHASE;
+				this->mGhostStates = GHOST_STATES::FRIGHTENED;
 				mScatterTimer = 0.0f;
 				scatterPathDrawn = false;
 				mWaypoints.clear();
@@ -110,7 +110,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			scatterPathDrawn = false;
 			this->isLooping = false;
 			this->reachedEnd = false;
-		}		*/	
+		}*/
 		break;
 
 	case CHASE:
