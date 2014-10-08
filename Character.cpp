@@ -67,7 +67,7 @@ void Character::Update(float dt)
 		vel = vel * 0.97f;
 	}
 
-	mVelocityApplied = vel * dt;
+//	mVelocityApplied = vel * dt;
 	pos = pos + (vel * dt);
 	mWorldUpdated = true;
 

@@ -84,6 +84,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 		switch (mGhostStates)
 		{
 		case SCATTER:
+			SetSpeed(levelNumber, GHOST_STATES::SCATTER);
 			if (!scatterPathDrawn)
 			{
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
@@ -132,6 +133,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 			break;
 
 		case CHASE:
+			SetSpeed(levelNumber, GHOST_STATES::CHASE);
 			PathNode* offsetTile;
 			if (!firstChasePathDrawn)
 			{
@@ -233,6 +235,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 			break;
 
 		case FRIGHTENED:
+			SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 			break;
 		}
 	}
@@ -241,9 +244,10 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 void Inky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::IDLE;
-	waypointIterator = 0;
-	mCurrWaypointIndex = 0;
+	mWaypoints.clear();
+	mChaseTimer = 0.0f;
+	mScatterTimer = 0.0f;
+	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;
-	isIdle = true;
 }

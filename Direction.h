@@ -17,6 +17,7 @@ public:
 	~Direction(){}
 	static const DIRECTION turnRight(DIRECTION dir);
 	static const DIRECTION turnLeft(DIRECTION dir);
+	static const DIRECTION turnAround(DIRECTION dir);
 	static const XMVECTOR getDirecitonVector(DIRECTION dir);
 };
 

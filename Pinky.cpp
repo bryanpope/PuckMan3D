@@ -60,6 +60,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 	switch (mGhostStates)
 	{
 	case SCATTER:
+		SetSpeed(levelNumber, GHOST_STATES::SCATTER);
 		if (!scatterPathDrawn)
 		{
 			mStart = new PathNode(this->mPos.x, this->mPos.z);
@@ -119,6 +120,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 		}*/
 		break;
 	case CHASE:
+		SetSpeed(levelNumber, GHOST_STATES::CHASE);
 		if (powerUpActivated)
 		{
 			this->mGhostStates = GHOST_STATES::SCATTER;
@@ -215,6 +217,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 
 		break;
 	case FRIGHTENED:
+		SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 		break;
 	}
 }
@@ -222,8 +225,10 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 void Pinky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::SCATTER;
-	waypointIterator = 0;
-	mCurrWaypointIndex = 0;
+	mWaypoints.clear();
+	mChaseTimer = 0.0f;
+	mScatterTimer = 0.0f;
+	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;
 }

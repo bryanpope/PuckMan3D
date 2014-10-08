@@ -20,49 +20,36 @@ Ghost::~Ghost()
 void Ghost::Update()
 {}
 
-void Ghost::SetVelocity(int levelCounter, GHOST_STATES ghostState)
+void Ghost::SetSpeed(int levelCounter, GHOST_STATES ghostState)
 {
 	if (ghostState == GHOST_STATES::CHASE || ghostState == GHOST_STATES::SCATTER)
 	{
 		if (levelCounter == 1)
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.75f;
-			XMStoreFloat3(&mVel, vel);// hello from Gumby.
-									  // Hey babe
+			mSpeed = GHOST_SPEED * 0.75f;
 		}
 		else if (levelCounter >= 2 || levelCounter <= 4)
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.85f;
-			XMStoreFloat3(&mVel, vel);
+			mSpeed = GHOST_SPEED * 0.85f;
 		}
 		else if (levelCounter >= 5)
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.95f;
-			XMStoreFloat3(&mVel, vel);
+			mSpeed = GHOST_SPEED * 0.95f;
 		}
 	}
 	else if (ghostState == GHOST_STATES::FRIGHTENED)
 	{
 		if (levelCounter == 1)
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.50f;
-			XMStoreFloat3(&mVel, vel);
+			mSpeed = GHOST_SPEED * 0.50f;
 		}
 		else if (levelCounter >= 2 || levelCounter <= 4)
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.55f;
-			XMStoreFloat3(&mVel, vel);
+			mSpeed = GHOST_SPEED * 0.55f;
 		}
 		else if (levelCounter >= 5)
 		{
-			XMVECTOR vel = XMLoadFloat3(&mVel);
-			vel = vel * 0.60f;
-			XMStoreFloat3(&mVel, vel);
+			mSpeed = GHOST_SPEED * 0.60f;
 		}
 	}
 }
@@ -73,7 +60,7 @@ void Ghost::UpdateCurrentTweenPoint(float dt)
 	UINT tIndex = mCurrTweenIndex;
 	XMFLOAT3 vector = mTweenPoints[tIndex].vector;
 	XMVECTOR vel = XMLoadFloat3(&vector);
-	pos = pos + (vel * dt * 50);
+	pos = pos + (vel * dt * mSpeed);
 	XMStoreFloat3(&mCurrTweenPoint, pos);
 	if (abs(vector.x) == 1.0f && vector.z == 0.0f)
 	{

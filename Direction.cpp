@@ -46,6 +46,29 @@ const Direction::DIRECTION Direction::turnLeft(DIRECTION dir)
 	}
 }
 
+const Direction::DIRECTION Direction::turnAround(DIRECTION dir)
+{
+	if (dir == NORTH)
+	{
+		return SOUTH;
+	}
+
+	if (dir == EAST)
+	{
+		return WEST;
+	}
+
+	if (dir == SOUTH)
+	{
+		return NORTH;
+	}
+
+	if (dir == WEST)
+	{
+		return EAST;
+	}
+}
+
 const XMVECTOR Direction::getDirecitonVector(DIRECTION dir)
 {
 	XMVECTOR vectorDirection = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);

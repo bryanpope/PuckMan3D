@@ -25,6 +25,7 @@ protected:
 		WEST = 4
 	};
 
+	const float GHOST_SPEED = 100.0f;
 	XMFLOAT3 mPos;
 	XMFLOAT3 mVel; //Originally set as XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)
 	XMFLOAT3 mScatterTile;
@@ -81,7 +82,7 @@ public:
 	~Ghost();
 	virtual void Update();
 	void SetWayPoints(std::vector<PathNode*> wayP);
-	void SetVelocity(int levelCounter, GHOST_STATES ghostState);
+	void SetSpeed(int levelCounter, GHOST_STATES ghostState);
 
 	XMFLOAT3 getPos()
 	{

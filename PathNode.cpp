@@ -54,6 +54,7 @@ int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 {
 	auto directionLeft = Direction::turnLeft(parent->facing);
 	auto directionRight = Direction::turnRight(parent->facing);
+	auto behind = Direction::turnAround(parent->facing);
 
 	if (child.facing != parent->facing)
 	{
@@ -61,11 +62,11 @@ int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 		{
 			return 1;//abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
 		}
-		else
+		else if (child.facing == behind)
 		{
-			return 500;
+			return 1;
 		}
 	}
-	return 1;
+	return 500;
 	//return sqrt((child.zPos - parent->zPos) * (child.zPos - parent->zPos) + (child.xPos - parent->xPos) * (child.xPos - parent->xPos));*/
 }

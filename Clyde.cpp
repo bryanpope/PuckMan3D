@@ -81,8 +81,8 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 
 	if (!isIdle)
 	{
-		//Get clyde's position in row/col space
-		/*int clydePos = ((MazeLoader::GetMazeHeight()) - round(this->getPos().z + 15.5f)) +
+		/*//Get clyde's position in row/col space
+		int clydePos = ((MazeLoader::GetMazeHeight()) - round(this->getPos().z + 15.5f)) +
 			((MazeLoader::GetMazeWidth()) - round(this->getPos().x + 15.5f));
 		//Get puckman's position in row/col space
 		int puckmanPos = ((MazeLoader::GetMazeHeight()) - round(MazeLoader::GetPacManData().at(0).pos.x + 15.5f)) +
@@ -110,7 +110,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 		switch (mGhostStates)
 		{
 		case SCATTER:
-			std::cout << "Clyde pos " << mPos.x << ", " << mPos.z << std::endl;
+			SetSpeed(levelNumber, GHOST_STATES::SCATTER);
 			if (!scatterPathDrawn)
 			{
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
@@ -153,6 +153,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 			}
 			break;
 		case CHASE:
+			SetSpeed(levelNumber, GHOST_STATES::CHASE);
 			if (!firstChasePathDrawn)
 			{
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
@@ -197,6 +198,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 
 			break;
 		case FRIGHTENED:
+			SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 			break;
 		}
 	}
@@ -205,9 +207,10 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 void Clyde::Reset()
 {
 	this->mGhostStates = GHOST_STATES::IDLE;
-	waypointIterator = 0;
-	mCurrWaypointIndex = 0;
+	mWaypoints.clear();
+	mChaseTimer = 0.0f;
+	mScatterTimer = 0.0f;
+	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;
-	isIdle = true;
 }
