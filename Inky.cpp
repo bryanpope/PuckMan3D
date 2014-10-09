@@ -94,7 +94,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				if (!powerUpActivated)
 				{
 					this->mGhostStates = GHOST_STATES::SCATTER;
-					mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+					mScatterTimer += 5.7142f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 					if (mScatterTimer >= 7.0f)
 					{
 						this->mGhostStates = GHOST_STATES::CHASE;
@@ -217,7 +217,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				if (!powerUpActivated)
 				{
 					mGhostStates = GHOST_STATES::CHASE;
-					mChaseTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+					mChaseTimer += 5.7142f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 					if (mChaseTimer >= 7.0f) //Chase time is over, time to scatter
 					{
 						this->mGhostStates = GHOST_STATES::SCATTER;
