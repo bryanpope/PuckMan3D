@@ -9,8 +9,6 @@ Blinky::Blinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mScatterTile.z = 14.5f;
 	this->mScatterTimer = 0.0f;
 	this->mChaseTimer = 0.0f;
-	this->mFrightenedTimer = 0.0f;
-	mChaseTimer = 0.0f;
 	firstChasePathDrawn = false;
 	isLooping = false;
 
@@ -45,9 +43,6 @@ void Blinky::LoadScatterWaypoints()
 
 void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
-	std::cout << "Blinky chase timer " << mChaseTimer << std::endl;
-	std::cout << "Blinky scatter timer " << mScatterTimer << std::endl;
-	//isDead = true;
 	if (!isDead)
 	{
 		switch (mGhostStates)
@@ -88,7 +83,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			if (!powerUpActivated)
 			{
 				this->mGhostStates = GHOST_STATES::SCATTER;
-				mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				mScatterTimer += 5.7142f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 				//When the timer has reached 7.0f switch to the CHASE state
 				if (mScatterTimer >= 7.0f)
 				{
@@ -145,7 +140,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			if (!powerUpActivated)
 			{
 				mGhostStates = GHOST_STATES::CHASE;
-				mChaseTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				mChaseTimer += 5.7142f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 				//When the timer has reached 7.0f switch to the CHASE state
 				if (mChaseTimer >= 7.0f)
 				{

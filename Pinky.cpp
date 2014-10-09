@@ -7,8 +7,8 @@ Pinky::Pinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = -13.0f;
 	this->mScatterTile.z = 14.5f;
-	this->mScatterTimer = 0;
-	this->mChaseTimer = 0;
+	this->mScatterTimer = 0.0f;
+	this->mChaseTimer = 0.0f;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode(this->mPos.x, this->mPos.z);
@@ -41,7 +41,6 @@ void Pinky::LoadScatterWaypoints()
 
 void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, int levelNumber)
 {
-	//isDead = true;
 	if (!isDead)
 	{
 		switch (mGhostStates)
@@ -82,7 +81,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			if (!powerUpActivated)
 			{
 				this->mGhostStates = GHOST_STATES::SCATTER;
-				mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				mScatterTimer += 5.7142f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 				//When the timer has reached 7.0f switch to the CHASE state
 				if (mScatterTimer >= 7.0f)
 				{
@@ -182,7 +181,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			if (!powerUpActivated)
 			{
 				mGhostStates = GHOST_STATES::CHASE;
-				mChaseTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				mChaseTimer += 5.7142f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
 				if (mChaseTimer >= 7.0f) //Chase time is over, time to scatter
 				{
 					this->mGhostStates = GHOST_STATES::SCATTER;

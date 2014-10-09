@@ -24,9 +24,6 @@ protected:
 		SOUTH = 3,
 		WEST = 4
 	};
-	std::vector<XMFLOAT3> tempWaypoints;
-	void LoadWaypoints();
-	int tempIterator;
 
 	const float GHOST_SPEED = 90.0f;
 	XMFLOAT3 mPos;
