@@ -333,7 +333,11 @@ bool PuckMan3D::Init()
 	loadSirenSFX();
 	loadWaSFX();
 	loadKaSFX();
-
+	
+	for (int i = 0; i < 6; ++i)
+	{
+		mHighScore.push_back(0);
+	}
 	readFromTxtFile();
 
 	if(!D3DApp::Init())
@@ -967,10 +971,14 @@ void PuckMan3D::UpdateScene(float dt)
 	if (!pacMans[0].isShown)
 	{
 		mGameState = GameState::GS_GAMEOVER;
-		if (mHighScore <= mScore)
+
+		for (int i = 0; i < mHighScore.size(); ++i)
 		{
-			writeToTxtFile();
-			readFromTxtFile();
+			if (mHighScore[0] <= mScore)
+			{
+				writeToTxtFile();
+				readFromTxtFile();
+			}
 		}
 	}
 
@@ -2740,7 +2748,11 @@ void PuckMan3D::readFromTxtFile()
 		HighScore.clear();
 		HighScore.str("");
 		HighScore.str(mTemp);
-		HighScore >> mHighScore;
+		for (int i = 0; i < mHighScore.size(); ++i)
+		{
+			HighScore >> mHighScore[i];
+		}
+		
 		mTemp = HighScore.str();
 	}
 	readTxtFile.close();
@@ -2748,11 +2760,14 @@ void PuckMan3D::readFromTxtFile()
 
 void PuckMan3D::writeToTxtFile()
 {
-	mHighScore = mScore;
-	writeTxtFile.open("highscores.txt");
-	HighScore << mHighScore;
-	writeTxtFile << mHighScore;
-	writeTxtFile.close();
+	for (int i = 0; i < mHighScore.size(); ++i)
+	{
+		mHighScore[i] = mScore;
+		writeTxtFile.open("highscores.txt");
+		HighScore << mHighScore[i];
+		writeTxtFile << std::endl << mHighScore[i];
+		writeTxtFile.close();
+	}
 }
 
 void PuckMan3D::resetHighScore()
