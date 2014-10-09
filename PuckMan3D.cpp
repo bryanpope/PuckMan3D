@@ -334,11 +334,11 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 	
-	//for (int i = 0; i < 6; ++i)
-	//{
+	for (int i = 0; i < 6; ++i)
+	{
 		//push 6 score values into the vector of high scores to initialize it.
 		mHighScore.push_back(mScore);
-	//}
+	}
 	readFromTxtFile();
 
 	if(!D3DApp::Init())
@@ -2753,9 +2753,10 @@ void PuckMan3D::readFromTxtFile()
 		HighScore.clear();
 		HighScore.str("");
 		HighScore.str(mTemp);
+		std::sort(mHighScore.begin(), mHighScore.end());
 		for (int i = 0; i < mHighScore.size(); ++i)
 		{
-			HighScore >> mHighScore[i];
+			HighScore >> mHighScore[0];
 		}
 		
 		mTemp = HighScore.str();
@@ -2767,16 +2768,15 @@ void PuckMan3D::writeToTxtFile()
 {
 	//HighScore is a stringstream object
 	//mHighScore is a vector of ints
-	//mHighScore.push_back(mScore);
+	writeTxtFile.open("highscores.txt");
+	std::sort(mHighScore.begin(), mHighScore.end());
 	for (int i = 0; i < mHighScore.size(); ++i)
 	{
 		mHighScore[i] = mScore;
-		writeTxtFile.open("highscores.txt");
-		//push a new high score to the next line
 		HighScore << mHighScore[i];
-		writeTxtFile << mHighScore[i];
-		writeTxtFile.close();
+		writeTxtFile << std::endl << mHighScore[i];
 	}
+	writeTxtFile.close();
 }
 
 void PuckMan3D::resetHighScore()

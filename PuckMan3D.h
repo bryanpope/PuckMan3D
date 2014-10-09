@@ -33,9 +33,9 @@
 #include<fstream>
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
-
+#include <iomanip>
 #include "xnacollision.h"
-
+#include <algorithm>
 struct TestParticle
 {
 	XMFLOAT3 pos;
