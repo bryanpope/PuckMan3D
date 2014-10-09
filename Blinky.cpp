@@ -78,7 +78,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				this->UpdateCurrentTweenPoint(dt);
 				scatterPathDrawn = true;*/
 			}
-			if (mWaypoints.size() != 0)
+			if (mTweenPoints.size() != 0)
 			{
 				if (!this->reachedEnd)
 				{
@@ -145,9 +145,9 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				if (PostPathFinding())
 				{
+					this->UpdateCurrentTweenPoint(dt);
 					firstChasePathDrawn = true;
 				}
-				
 				//firstChasePathDrawn = true;
 			}
 			else
@@ -163,6 +163,8 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 					PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 					if (PostPathFinding())
 					{
+						this->UpdateCurrentTweenPoint(dt);
+						mPathNext += (1.0f / 10.0f);
 					}
 
 					CleanUpNodesWaypoints();

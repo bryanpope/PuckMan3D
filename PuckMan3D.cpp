@@ -760,9 +760,9 @@ void PuckMan3D::UpdateScene(float dt)
 		if (mGameState == GameState::GS_PLAY && mCanMove && !mIsPaused && !mIsBeginningPlaying)
 		{
 			mBlinky->Update(dt, powerUpActivated, mLevelCounter);
-			mPinky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mLevelCounter);
-			mInky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mBlinky->getPos(), mLevelCounter, mPelletCounter);
-			mClyde->Update(dt, powerUpActivated, mLevelCounter, mPelletCounter);
+			//mPinky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mLevelCounter);
+			//mInky->Update(dt, powerUpActivated, mPuckMan->GetFacing(), mBlinky->getPos(), mLevelCounter, mPelletCounter);
+			//mClyde->Update(dt, powerUpActivated, mLevelCounter, mPelletCounter);
 		}
 		MazeLoader::SetGhostPos(XMVectorSet(mBlinky->getPos().x, mBlinky->getPos().y, mBlinky->getPos().z + 0.5f, 0.0f), 0);
 		MazeLoader::SetGhostPos(XMVectorSet(mInky->getPos().x, mInky->getPos().y, mInky->getPos().z + 0.5f, 0.0f), 1);
@@ -2789,6 +2789,16 @@ void PuckMan3D::writeToTxtFile()
 {
 	//HighScore is a stringstream object
 	//mHighScore is a vector of ints
+<<<<<<< HEAD
+	//mHighScore.push_back(mScore);
+	writeTxtFile.open("highscores.txt");
+	for (int i = 0; i < mHighScore.size(); ++i)
+	{
+		mHighScore[i] = mScore;
+		//push a new high score to the next line
+		HighScore << mHighScore[i];
+		writeTxtFile << mHighScore[i];
+=======
 	writeTxtFile.open("highscores.txt");
 	std::sort(mHighScore.begin(), mHighScore.end());
 	for (int i = 0; i < mHighScore.size(); ++i)
@@ -2796,6 +2806,7 @@ void PuckMan3D::writeToTxtFile()
 		mHighScore[i] = mScore;
 		HighScore << mHighScore[i];
 		writeTxtFile << std::endl << mHighScore[i];
+>>>>>>> origin/master
 	}
 	writeTxtFile.close();
 }

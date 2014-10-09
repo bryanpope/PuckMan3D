@@ -100,7 +100,6 @@ bool Ghost::PostPathFinding()
 		{
 			//this->SetWayPoints(mWaypoints);
 			this->SetWayPoints(mpfData->waypoints);
-			scatterPathDrawn = true;
 			mhThreadPathFinding = NULL;
 			mIsFindPathRunning = false;
 			return true;
