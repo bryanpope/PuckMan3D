@@ -997,6 +997,7 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 	if (mIsDead)
 	{
+		mIsDead = false;
 		for (int i = 0; i < mHighScore.size(); ++i)
 		{
 			if (mHighScore[i] < mScore)
@@ -1979,7 +1980,6 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		else if (mGameState == GameState::GS_GAMEOVER)
 		{
-			mIsDead = false;
 			resetGame();
 			mLevelCounter = 1;
 			mGameState = GameState::GS_MAINMENU;
