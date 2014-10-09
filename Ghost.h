@@ -54,6 +54,8 @@ protected:
 
 	void UpdateCurrentTweenPoint(float dt);
 	void SnapTweenPoint();
+	void CleanUpNodes();
+	void CleanUpWaypoints();
 	void CleanUpNodesWaypoints();
 
 	typedef struct PathFindingData
@@ -67,6 +69,8 @@ protected:
 	HANDLE mhThreadPathFinding;
 	DWORD mdwThreadIdPathFinding;
 	PathFindingData *mpfData;
+	void PrePathFinding(float startX, float startZ, float endX, float endZ);
+	bool PostPathFinding();
 
 	GHOST_FACING GetFacing() const
 	{
