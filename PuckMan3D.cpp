@@ -996,11 +996,12 @@ void PuckMan3D::UpdateScene(float dt)
 
 		for (int i = 0; i < mHighScore.size(); ++i)
 		{
-			if (mHighScore[i] <= mScore)
+			if (mHighScore[i] < mScore)
 			{
-				writeToTxtFile();
-				readFromTxtFile();
+				mHighScore[i] = mScore;
 			}
+			writeToTxtFile();
+			readFromTxtFile();
 		}
 	}
 
@@ -2793,8 +2794,8 @@ void PuckMan3D::writeToTxtFile()
 	std::sort(mHighScore.begin(), mHighScore.end());
 	for (int i = 0; i < mHighScore.size(); ++i)
 	{
-		mHighScore[i] = mScore;
-		HighScore << mHighScore[i];
+		//mHighScore[i] = mScore;
+		//HighScore << mHighScore[i];
 		writeTxtFile << std::endl << mHighScore[i];
 	}
 	writeTxtFile.close();
