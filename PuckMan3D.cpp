@@ -336,7 +336,8 @@ bool PuckMan3D::Init()
 	
 	for (int i = 0; i < 6; ++i)
 	{
-		mHighScore.push_back(0);
+		//push 6 score values into the vector of high scores to initialize it.
+		mHighScore.push_back(mScore);
 	}
 	readFromTxtFile();
 
@@ -974,7 +975,7 @@ void PuckMan3D::UpdateScene(float dt)
 
 		for (int i = 0; i < mHighScore.size(); ++i)
 		{
-			if (mHighScore[0] <= mScore)
+			if (mHighScore[i] <= mScore)
 			{
 				writeToTxtFile();
 				readFromTxtFile();
@@ -1706,6 +1707,10 @@ void PuckMan3D::DrawWrapper()
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 30, "D/Right Arrow - Move Right");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 30, 75, 30, "Escape - Close Game");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
+	}
+	if (mGameState == GameState::GS_HIGHSCORE)
+	{
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Highscores");
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
@@ -2760,10 +2765,14 @@ void PuckMan3D::readFromTxtFile()
 
 void PuckMan3D::writeToTxtFile()
 {
+	//HighScore is a stringstream object
+	//mHighScore is a vector of ints
+
 	for (int i = 0; i < mHighScore.size(); ++i)
 	{
-		mHighScore[i] = mScore;
+		mHighScore[i + 1] = mScore;	
 		writeTxtFile.open("highscores.txt");
+		//push a new high score to the next line
 		HighScore << mHighScore[i];
 		writeTxtFile << std::endl << mHighScore[i];
 		writeTxtFile.close();
