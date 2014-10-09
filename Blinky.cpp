@@ -20,6 +20,15 @@ Blinky::Blinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 
 Blinky::~Blinky()
 {
+	for (int i = 0; i < mScatterWaypoints.size(); ++i)
+	{
+		if (mScatterWaypoints[i])
+		{
+			delete mScatterWaypoints[i];
+			mScatterWaypoints[i] = NULL;
+		}
+	}
+	CleanUpNodesWaypoints();
 }
 
 void Blinky::LoadScatterWaypoints()
@@ -41,6 +50,27 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 
 			if (!scatterPathDrawn)
 			{
+				// This all should allow Blinky to not break right now.. 
+
+				/*if (mIsFindPathRunning)
+				{
+					DWORD waitPFState = WaitForSingleObject(mhThreadPathFinding, 0);
+					if (waitPFState == WAIT_OBJECT_0)
+					{
+						this->SetWayPoints(mWaypoints);
+						this->UpdateCurrentTweenPoint(dt);
+						scatterPathDrawn = true;
+						mhThreadPathFinding = NULL;
+					}
+				}
+				else
+				{
+					CleanUpNodesWaypoints();
+					mStart = new PathNode(this->mPos.x, this->mPos.z);
+					mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+					mWaypoints = path.FindPath(mStart, mGoal);
+				}*/
+				CleanUpNodesWaypoints();
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 				mWaypoints = path.FindPath(mStart, mGoal);
@@ -100,6 +130,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			SetSpeed(levelNumber, GHOST_STATES::CHASE);
 			if (!firstChasePathDrawn)
 			{
+				CleanUpNodesWaypoints();
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				mWaypoints = path.FindPath(mStart, mGoal);
@@ -112,6 +143,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				int col = round(this->mPos.z + 14.5f) - 1;
 				if (MazeLoader::IsDivergent(row, col))
 				{
+					CleanUpNodesWaypoints();
 					mStart = new PathNode(this->mPos.x, this->mPos.z);
 					mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 					mWaypoints = path.FindPath(mStart, mGoal);
