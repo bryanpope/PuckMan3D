@@ -9,8 +9,6 @@ Blinky::Blinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mScatterTile.z = 14.5f;
 	this->mScatterTimer = 0.0f;
 	this->mChaseTimer = 0.0f;
-	this->mFrightenedTimer = 0.0f;
-	mChaseTimer = 0.0f;
 	firstChasePathDrawn = false;
 	isLooping = false;
 
@@ -45,9 +43,6 @@ void Blinky::LoadScatterWaypoints()
 
 void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
-	std::cout << "Blinky chase timer " << mChaseTimer << std::endl;
-	std::cout << "Blinky scatter timer " << mScatterTimer << std::endl;
-	//isDead = true;
 	if (!isDead)
 	{
 		switch (mGhostStates)

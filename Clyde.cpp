@@ -7,8 +7,8 @@ Clyde::Clyde(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = -13.0f;
 	this->mScatterTile.z = -14.5f;
-	this->mScatterTimer = 0;
-	this->mChaseTimer = 0;
+	this->mScatterTimer = 0.0f;
+	this->mChaseTimer = 0.0f;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode(this->mPos.x, this->mPos.z);
@@ -45,7 +45,6 @@ void Clyde::LoadScatterWaypoints()
 
 void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletCounter)
 {
-	//isDead = true;
 	if (!isDead)
 	{
 		if (pelletCounter >= 90 && isIdle)

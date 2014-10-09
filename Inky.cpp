@@ -7,8 +7,8 @@ Inky::Inky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mGhostStates = GHOST_STATES::IDLE;
 	this->mScatterTile.x = 12;
 	this->mScatterTile.z = -14.5f;
-	this->mScatterTimer = 0;
-	this->mChaseTimer = 0;
+	this->mScatterTimer = 0.0f;
+	this->mChaseTimer = 0.0f;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode(this->mPos.x, this->mPos.z);
@@ -46,7 +46,6 @@ void Inky::LoadScatterWaypoints()
 
 void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, XMFLOAT3 blinkyPos, int levelNumber, int pelletCounter)
 {
-	//isDead = true;
 	if (!isDead)
 	{
 		if (pelletCounter >= 30 && isIdle)

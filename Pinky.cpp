@@ -7,8 +7,8 @@ Pinky::Pinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	this->mGhostStates = GHOST_STATES::SCATTER;
 	this->mScatterTile.x = -13.0f;
 	this->mScatterTile.z = 14.5f;
-	this->mScatterTimer = 0;
-	this->mChaseTimer = 0;
+	this->mScatterTimer = 0.0f;
+	this->mChaseTimer = 0.0f;
 
 	//Draw the path to his scatter area prior to the start of the game to prevent bottlenecks
 	mStart = new PathNode(this->mPos.x, this->mPos.z);
@@ -41,7 +41,6 @@ void Pinky::LoadScatterWaypoints()
 
 void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, int levelNumber)
 {
-	//isDead = true;
 	if (!isDead)
 	{
 		switch (mGhostStates)
