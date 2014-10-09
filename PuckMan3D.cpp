@@ -110,6 +110,19 @@ PuckMan3D::~PuckMan3D()
 			delete mFBBlueGhost[i];
 	}
 
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < mpfData[i]->waypoints.size(); ++j)
+		{
+			if (mpfData[i]->waypoints[j])
+			{
+				delete mpfData[i]->waypoints[j];
+				mpfData[i]->waypoints[j] = NULL;
+			}
+		}
+		HeapFree(GetProcessHeap(), 0, mpfData[i]);
+	}
+
 	if (mFBBlinky)
 		delete mFBBlinky;
 
@@ -807,6 +820,14 @@ void PuckMan3D::UpdateScene(float dt)
 					mpfData[i]->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
 					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
 					mpfData[i]->thisThing = this;
+					for (int i = 0; i < mpfData[i]->waypoints.size(); ++i)
+					{
+						if (mpfData[i]->waypoints[i])
+						{
+							delete mpfData[i]->waypoints[i];
+							mpfData[i]->waypoints[i] = NULL;
+						}
+					}
 					mpfData[i]->waypoints.clear();
 
 					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);

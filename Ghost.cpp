@@ -18,13 +18,23 @@ Ghost::Ghost(FXMVECTOR pos, float radius)
 	tempIterator = 0;
 	mIsFindPathRunning = false;
 	mhThreadPathFinding = NULL;
+
+	mpfData = (PPATHFINDINGDATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(PATHFINDINGDATA));
+	if (mpfData == NULL)
+	{
+		// If the array allocation fails, the system is out of memory
+		// so there is no point in trying to print an error message.
+		// Just terminate execution.
+		ExitProcess(2);
+	}
 }
 
 Ghost::~Ghost()
 {
+	HeapFree(GetProcessHeap(), 0, mpfData);
 }
 
-void Ghost::CleanUpNodesWaypoints()
+void Ghost::CleanUpNodes()
 {
 	if (mStart)
 	{
@@ -36,6 +46,10 @@ void Ghost::CleanUpNodesWaypoints()
 		delete mGoal;
 		mGoal = NULL;
 	}
+}
+
+void Ghost::CleanUpWaypoints()
+{
 	for (int i = 0; i < mWaypoints.size(); ++i)
 	{
 		if (mWaypoints[i])
@@ -46,18 +60,64 @@ void Ghost::CleanUpNodesWaypoints()
 	}
 }
 
+void Ghost::CleanUpNodesWaypoints()
+{
+	CleanUpNodes();
+	CleanUpWaypoints();
+}
+
 void Ghost::Update()
 {}
+
+void Ghost::PrePathFinding(float startX, float startZ, float endX, float endZ)
+{
+	if (!mIsFindPathRunning)
+	{
+		mIsFindPathRunning = true;
+		mpfData->posStart = XMFLOAT2(startX, startZ);
+		mpfData->posEnd = XMFLOAT2(endX, endZ);
+		mpfData->thisThing = this;
+		for (int i = 0; i < mpfData->waypoints.size(); ++i)
+		{
+			if (mpfData->waypoints[i])
+			{
+				delete mpfData->waypoints[i];
+				mpfData->waypoints[i] = NULL;
+			}
+		}
+		mpfData->waypoints.clear();
+
+		mhThreadPathFinding = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData, 0, &mdwThreadIdPathFinding);
+	}
+}
+
+bool Ghost::PostPathFinding()
+{
+	if (mIsFindPathRunning)
+	{
+		DWORD waitPFState = WaitForSingleObject(mhThreadPathFinding, 0);
+		if (waitPFState == WAIT_OBJECT_0)
+		{
+			//this->SetWayPoints(mWaypoints);
+			this->SetWayPoints(mpfData->waypoints);
+			scatterPathDrawn = true;
+			mhThreadPathFinding = NULL;
+			mIsFindPathRunning = false;
+			return true;
+		}
+	}
+	return false;
+}
 
 DWORD WINAPI Ghost::PathFindingStaticThreadStart(LPVOID lpParam)
 {
 	PPATHFINDINGDATA pData = (PPATHFINDINGDATA)lpParam;
 
-	PathNode mPNDeadGhostStart(pData->posStart.x, pData->posStart.y);
-	PathNode mPNDeadGhostEnd(pData->posEnd.x, pData->posEnd.y);
-	Pathfinding pfDeadGhost;
+	PathNode start(pData->posStart.x, pData->posStart.y);
+	PathNode end(pData->posEnd.x, pData->posEnd.y);
+	Pathfinding pf;
 
-	pData->waypoints = pfDeadGhost.FindPath(&mPNDeadGhostStart, &mPNDeadGhostEnd);
+	pData->waypoints = pf.FindPath(&start, &end);
 	return 0;
 }
 
