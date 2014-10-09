@@ -2789,16 +2789,6 @@ void PuckMan3D::writeToTxtFile()
 {
 	//HighScore is a stringstream object
 	//mHighScore is a vector of ints
-<<<<<<< HEAD
-	//mHighScore.push_back(mScore);
-	writeTxtFile.open("highscores.txt");
-	for (int i = 0; i < mHighScore.size(); ++i)
-	{
-		mHighScore[i] = mScore;
-		//push a new high score to the next line
-		HighScore << mHighScore[i];
-		writeTxtFile << mHighScore[i];
-=======
 	writeTxtFile.open("highscores.txt");
 	std::sort(mHighScore.begin(), mHighScore.end());
 	for (int i = 0; i < mHighScore.size(); ++i)
@@ -2806,7 +2796,6 @@ void PuckMan3D::writeToTxtFile()
 		mHighScore[i] = mScore;
 		HighScore << mHighScore[i];
 		writeTxtFile << std::endl << mHighScore[i];
->>>>>>> origin/master
 	}
 	writeTxtFile.close();
 }
