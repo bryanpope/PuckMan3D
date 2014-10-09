@@ -56,32 +56,27 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			SetSpeed(levelNumber, GHOST_STATES::SCATTER);
 			if (!scatterPathDrawn)
 			{
-				// This all should allow Blinky to not break right now.. 
-
-				/*if (mIsFindPathRunning)
+				PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+				if (PostPathFinding())
 				{
-					DWORD waitPFState = WaitForSingleObject(mhThreadPathFinding, 0);
-					if (waitPFState == WAIT_OBJECT_0)
-					{
-						this->SetWayPoints(mWaypoints);
-						this->UpdateCurrentTweenPoint(dt);
-						scatterPathDrawn = true;
-						mhThreadPathFinding = NULL;
-					}
+					this->UpdateCurrentTweenPoint(dt);
+					scatterPathDrawn = true;
 				}
-				else
+				/*else
 				{
 					CleanUpNodesWaypoints();
 					mStart = new PathNode(this->mPos.x, this->mPos.z);
 					mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 					mWaypoints = path.FindPath(mStart, mGoal);
 				}*/
+				
+				/*CleanUpNodesWaypoints();
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
 				this->UpdateCurrentTweenPoint(dt);
-				scatterPathDrawn = true;
+				scatterPathDrawn = true;*/
 			}
 			if (mWaypoints.size() != 0)
 			{
@@ -136,18 +131,40 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			SetSpeed(levelNumber, GHOST_STATES::CHASE);
 			if (!firstChasePathDrawn)
 			{
-				mStart = new PathNode(this->mPos.x, this->mPos.z);
+				/*mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
 				this->UpdateCurrentTweenPoint(dt);
-				firstChasePathDrawn = true;
+				firstChasePathDrawn = true;*/
+				//CleanUpNodesWaypoints();
+				//mStart = new PathNode(this->mPos.x, this->mPos.z);
+				//mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+				//mWaypoints = path.FindPath(mStart, mGoal);
+				//this->SetWayPoints(mWaypoints);
+				PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+				if (PostPathFinding())
+				{
+					firstChasePathDrawn = true;
+				}
+				
+				//firstChasePathDrawn = true;
 			}
 			else
 			{
 				mPathCurrent += dt * 2;
 				if (mPathCurrent >= mPathNext)
 				{
+					//CleanUpNodesWaypoints();
+					//mStart = new PathNode(this->mPos.x, this->mPos.z);
+					//mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+					//mWaypoints = path.FindPath(mStart, mGoal);
+					//this->SetWayPoints(mWaypoints);
+					PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+					if (PostPathFinding())
+					{
+					}
+
 					CleanUpNodesWaypoints();
 					mStart = new PathNode(this->mPos.x, this->mPos.z);
 					mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));

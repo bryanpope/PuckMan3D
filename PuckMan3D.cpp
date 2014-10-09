@@ -110,6 +110,19 @@ PuckMan3D::~PuckMan3D()
 			delete mFBBlueGhost[i];
 	}
 
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < mpfData[i]->waypoints.size(); ++j)
+		{
+			if (mpfData[i]->waypoints[j])
+			{
+				delete mpfData[i]->waypoints[j];
+				mpfData[i]->waypoints[j] = NULL;
+			}
+		}
+		HeapFree(GetProcessHeap(), 0, mpfData[i]);
+	}
+
 	if (mFBBlinky)
 		delete mFBBlinky;
 
@@ -334,11 +347,11 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 	
-	//for (int i = 0; i < 6; ++i)
-	//{
+	for (int i = 0; i < 6; ++i)
+	{
 		//push 6 score values into the vector of high scores to initialize it.
 		mHighScore.push_back(mScore);
-	//}
+	}
 	readFromTxtFile();
 
 	if(!D3DApp::Init())
@@ -812,6 +825,14 @@ void PuckMan3D::UpdateScene(float dt)
 					mpfData[i]->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
 					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
 					mpfData[i]->thisThing = this;
+					for (int i = 0; i < mpfData[i]->waypoints.size(); ++i)
+					{
+						if (mpfData[i]->waypoints[i])
+						{
+							delete mpfData[i]->waypoints[i];
+							mpfData[i]->waypoints[i] = NULL;
+						}
+					}
 					mpfData[i]->waypoints.clear();
 
 					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);
@@ -2753,9 +2774,10 @@ void PuckMan3D::readFromTxtFile()
 		HighScore.clear();
 		HighScore.str("");
 		HighScore.str(mTemp);
+		std::sort(mHighScore.begin(), mHighScore.end());
 		for (int i = 0; i < mHighScore.size(); ++i)
 		{
-			HighScore >> mHighScore[i];
+			HighScore >> mHighScore[0];
 		}
 		
 		mTemp = HighScore.str();
@@ -2767,16 +2789,15 @@ void PuckMan3D::writeToTxtFile()
 {
 	//HighScore is a stringstream object
 	//mHighScore is a vector of ints
-	//mHighScore.push_back(mScore);
+	writeTxtFile.open("highscores.txt");
+	std::sort(mHighScore.begin(), mHighScore.end());
 	for (int i = 0; i < mHighScore.size(); ++i)
 	{
 		mHighScore[i] = mScore;
-		writeTxtFile.open("highscores.txt");
-		//push a new high score to the next line
 		HighScore << mHighScore[i];
-		writeTxtFile << mHighScore[i];
-		writeTxtFile.close();
+		writeTxtFile << std::endl << mHighScore[i];
 	}
+	writeTxtFile.close();
 }
 
 void PuckMan3D::resetHighScore()
