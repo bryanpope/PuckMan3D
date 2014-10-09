@@ -5,7 +5,8 @@ Pinky::Pinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	XMStoreFloat3(&mPos, pos);
 	LoadScatterWaypoints();
 	this->mGhostStates = GHOST_STATES::SCATTER;
-	this->waypointIterator = 0;
+	this->mScatterTile.x = -13.0f;
+	this->mScatterTile.z = 14.5f;
 	this->mScatterTimer = 0;
 	this->mChaseTimer = 0;
 
@@ -18,6 +19,15 @@ Pinky::Pinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 
 Pinky::~Pinky()
 {
+	for (int i = 0; i < mScatterWaypoints.size(); ++i)
+	{
+		if (mScatterWaypoints[i])
+		{
+			delete mScatterWaypoints[i];
+			mScatterWaypoints[i] = NULL;
+		}
+	}
+	CleanUpNodesWaypoints();
 }
 
 void Pinky::LoadScatterWaypoints()
@@ -46,7 +56,6 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 				this->SetWayPoints(mWaypoints);
 				this->UpdateCurrentTweenPoint(dt);
 				scatterPathDrawn = true;
-				waypointIterator = 0;
 			}
 			if (mWaypoints.size() != 0)
 			{
@@ -69,50 +78,42 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 					}
 				}
 			}
+			//If the powerup is not activated, proceed as normal
 			if (!powerUpActivated)
 			{
+				this->mGhostStates = GHOST_STATES::SCATTER;
 				mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				//When the timer has reached 7.0f switch to the CHASE state
 				if (mScatterTimer >= 7.0f)
 				{
 					this->mGhostStates = GHOST_STATES::CHASE;
 					mScatterTimer = 0.0f;
-					scatterPathDrawn = false;
-					this->mCurrWaypointIndex = 0;
-					this->waypointIterator = 0;
-					mWaypoints.clear();
+					reachedEnd = false;
+					isLooping = false;
+					CleanUpNodesWaypoints();
 				}
 			}
+			//If the powerup is activated, switch to the FRIGHTENED state
 			else if (powerUpActivated)
 			{
-				mScatterTimer += 8.0f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 5.0f, 8 comes from 40 / 5 to get the number as accurate as possible.
-				if (mScatterTimer >= 5.0f)
-				{
-					this->mGhostStates = GHOST_STATES::CHASE;
-					mScatterTimer = 0.0f;
-					scatterPathDrawn = false;
-					this->mCurrWaypointIndex = 0;
-					this->waypointIterator = 0;
-					mWaypoints.clear();
-				}
+				SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
+				CleanUpNodesWaypoints();
+				scatterPathDrawn = false;
+				reachedEnd = false;
+				isLooping = false;
+				mPrevState = mGhostStates;
+				this->mGhostStates = GHOST_STATES::FRIGHTENED;
 			}
 			break;
 		case CHASE:
 			SetSpeed(levelNumber, GHOST_STATES::CHASE);
-			if (powerUpActivated)
-			{
-				this->mGhostStates = GHOST_STATES::SCATTER;
-				mChaseTimer = 0.0f;
-				waypointIterator = 0;
-				firstChasePathDrawn = false;
-				scatterPathDrawn = false;
-				mWaypoints.clear();
-			}
 			if (!firstChasePathDrawn)
 			{
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				mWaypoints = path.FindPath(mStart, mGoal);
-				waypointIterator = 0;
+				this->SetWayPoints(mScatterWaypoints);
+				this->UpdateCurrentTweenPoint(dt);
 				firstChasePathDrawn = true;
 			}
 			else
@@ -141,6 +142,8 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 						mStart = new PathNode(this->mPos.x, this->mPos.z);
 						mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), clampedZ);
 						mWaypoints = path.FindPath(mStart, mGoal);
+						this->SetWayPoints(mWaypoints);
+						this->UpdateCurrentTweenPoint(dt);
 					}
 
 					else if (facingState == Direction::DIRECTION::WEST || facingState == Direction::DIRECTION::EAST)
@@ -163,6 +166,8 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 						mStart = new PathNode(this->mPos.x, this->mPos.z);
 						mGoal = new PathNode(clampedX, round(MazeLoader::GetPacManData().at(0).pos.z));
 						mWaypoints = path.FindPath(mStart, mGoal);
+						this->SetWayPoints(mWaypoints);
+						this->UpdateCurrentTweenPoint(dt);
 					}
 					mPathNext += (1.0f / 10.0f);
 				}
@@ -170,33 +175,73 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 
 			if (mWaypoints.size() != 0)
 			{
-				if (waypointIterator < mWaypoints.size())
-				{
-					this->setPos(XMVectorSet(this->mWaypoints.at(waypointIterator)->xPos, mPos.y, this->mWaypoints.at(waypointIterator)->zPos, 0.0f));
-					waypointIterator++;
-				}
-				else if (waypointIterator >= mWaypoints.size())
-				{
-					waypointIterator = 0;
-				}
+				this->mPos = this->mCurrTweenPoint;
+				this->UpdateCurrentTweenPoint(dt);
 			}
 
-			this->mChaseTimer += 5.7142 * dt;
-			if (mChaseTimer >= 20.0f)
+			if (!powerUpActivated)
 			{
-				this->mGhostStates = GHOST_STATES::SCATTER;
-				mChaseTimer = 0.0f;
-				waypointIterator = 0;
-				firstChasePathDrawn = false;
-				scatterPathDrawn = false;
-				mWaypoints.clear();
-				mPathNext = 0.0f;
-				mPathCurrent = 0.0f;
+				mGhostStates = GHOST_STATES::CHASE;
+				mChaseTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				if (mChaseTimer >= 7.0f) //Chase time is over, time to scatter
+				{
+					this->mGhostStates = GHOST_STATES::SCATTER;
+					mChaseTimer = 0.0f;
+					scatterPathDrawn = false;
+					reachedEnd = false;
+					isLooping = false;
+					CleanUpNodesWaypoints();
+				}
 			}
-
+			//If the powerup is activated, switch to the FRIGHTENED state
+			else if (powerUpActivated)
+			{
+				SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
+				CleanUpNodesWaypoints();
+				mPrevState = mGhostStates;
+				this->mGhostStates = GHOST_STATES::FRIGHTENED;
+				scatterPathDrawn = false;
+				firstChasePathDrawn = false;
+			}
 			break;
+
 		case FRIGHTENED:
 			SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
+			if (!scatterPathDrawn)
+			{
+				mStart = new PathNode(this->mPos.x, this->mPos.z);
+				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+				mWaypoints = path.FindPath(mStart, mGoal);
+				this->SetWayPoints(mWaypoints);
+				this->UpdateCurrentTweenPoint(dt);
+				scatterPathDrawn = true;
+			}
+			if (mWaypoints.size() != 0)
+			{
+				if (!this->reachedEnd)
+				{
+					this->mPos = this->mCurrTweenPoint;
+					this->UpdateCurrentTweenPoint(dt);
+
+				}
+				else if (this->reachedEnd)
+				{
+					if (!isLooping)
+					{
+						this->SetWayPoints(mScatterWaypoints);
+						this->isLooping = true;
+					}
+					if (isLooping == true && this->reachedEnd)
+					{
+						this->UpdateCurrentTweenPoint(dt);
+						this->mPos = this->mCurrTweenPoint;
+					}
+				}
+			}
+			if (!powerUpActivated)
+			{
+				mGhostStates = mPrevState;
+			}
 			break;
 		}
 	}
@@ -212,4 +257,5 @@ void Pinky::Reset()
 	scatterPathDrawn = false;
 	isLooping = false;
 	reachedEnd = false;
+	CleanUpNodesWaypoints();
 }

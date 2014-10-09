@@ -26,7 +26,6 @@ protected:
 	};
 	std::vector<XMFLOAT3> tempWaypoints;
 	void LoadWaypoints();
-	//std::vector<XMFLOAT3>::iterator tempIterator;
 	int tempIterator;
 
 	const float GHOST_SPEED = 90.0f;
@@ -37,6 +36,7 @@ protected:
 	float mRadius; //Originally set as 0.75f
 	float mScatterTimer;
 	float mChaseTimer;
+	float mFrightenedTimer;
 	float mPathCurrent = 0.0f;
 	float mPathNext = 0.0f;
 	int mCurrWaypointIndex = 0;
@@ -45,6 +45,7 @@ protected:
 	bool firstChasePathDrawn = false; //This is to determine whether or not the INITIAL path has been drawn for the chase state
 	bool isIdle = true;
 	bool reachedEnd = false;
+	GHOST_STATES mPrevState;
 	GHOST_FACING mFacing = GHOST_FACING::NORTH;
 
 	Pathfinding path;
@@ -99,7 +100,7 @@ protected:
 public:
 	Ghost();
 	Ghost(FXMVECTOR pos, float radius);
-	~Ghost();
+	virtual ~Ghost();
 	virtual void Update();
 	void SetWayPoints(std::vector<PathNode*> wayP);
 	void SetSpeed(int levelCounter, GHOST_STATES ghostState);

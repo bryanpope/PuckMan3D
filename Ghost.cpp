@@ -2,7 +2,7 @@
 
 Ghost::Ghost()
 {
-	LoadWaypoints();
+	//LoadWaypoints();
 	mIsFindPathRunning = false;
 	mhThreadPathFinding = NULL;
 }
@@ -10,8 +10,7 @@ Ghost::Ghost()
 Ghost::Ghost(FXMVECTOR pos, float radius)
 {
 	XMStoreFloat3(&mPos, pos);
-	//XMStoreFloat3(&mVel, vel);
-	mVel = XMFLOAT3(1000.0f, 0.0f, 1000.0f);
+	mVel = XMFLOAT3(100.0f, 0.0f, 100.0f);
 	mRadius = radius;
 	mSpeed = 1.0f;
 	LoadWaypoints();
@@ -22,6 +21,7 @@ Ghost::Ghost(FXMVECTOR pos, float radius)
 
 Ghost::~Ghost()
 {
+	CleanUpNodesWaypoints();
 }
 
 void Ghost::CleanUpNodesWaypoints()

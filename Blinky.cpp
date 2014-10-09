@@ -5,8 +5,11 @@ Blinky::Blinky(FXMVECTOR pos, float radius) : Ghost(pos, radius)
 	XMStoreFloat3(&mPos, pos);
 	LoadScatterWaypoints();
 	this->mGhostStates = GHOST_STATES::SCATTER;
+	this->mScatterTile.x = 7.0f;
+	this->mScatterTile.z = 14.5f;
 	this->mScatterTimer = 0.0f;
 	this->mChaseTimer = 0.0f;
+	this->mFrightenedTimer = 0.0f;
 	mChaseTimer = 0.0f;
 	firstChasePathDrawn = false;
 	isLooping = false;
@@ -42,12 +45,15 @@ void Blinky::LoadScatterWaypoints()
 
 void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 {
+	std::cout << "Blinky chase timer " << mChaseTimer << std::endl;
+	std::cout << "Blinky scatter timer " << mScatterTimer << std::endl;
+	//isDead = true;
 	if (!isDead)
 	{
 		switch (mGhostStates)
 		{
 		case SCATTER:
-
+			SetSpeed(levelNumber, GHOST_STATES::SCATTER);
 			if (!scatterPathDrawn)
 			{
 				// This all should allow Blinky to not break right now.. 
@@ -70,7 +76,6 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 					mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 					mWaypoints = path.FindPath(mStart, mGoal);
 				}*/
-				CleanUpNodesWaypoints();
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
 				mWaypoints = path.FindPath(mStart, mGoal);
@@ -102,27 +107,28 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			}
 			if (!powerUpActivated)
 			{
-				SetSpeed(levelNumber, GHOST_STATES::SCATTER);
+				this->mGhostStates = GHOST_STATES::SCATTER;
 				mScatterTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				//When the timer has reached 7.0f switch to the CHASE state
 				if (mScatterTimer >= 7.0f)
 				{
 					this->mGhostStates = GHOST_STATES::CHASE;
 					mScatterTimer = 0.0f;
-					scatterPathDrawn = false;
-					mWaypoints.clear();
+					reachedEnd = false;
+					isLooping = false;
+					CleanUpNodesWaypoints();
 				}
 			}
+			//If the powerup is activated, switch to the FRIGHTENED state
 			else if (powerUpActivated)
 			{
 				SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
-				mScatterTimer += 8.0f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 5.0f, 8 comes from 40 / 5 to get the number as accurate as possible.
-				if (mScatterTimer >= 5.0f)
-				{
-					mScatterTimer = 0.0f;
-					scatterPathDrawn = false;
-					mWaypoints.clear();
-					this->mGhostStates = GHOST_STATES::SCATTER;
-				}
+				scatterPathDrawn = false;
+				reachedEnd = false;
+				isLooping = false;
+				mPrevState = mGhostStates;
+				this->mGhostStates = GHOST_STATES::FRIGHTENED;
+				CleanUpNodesWaypoints();
 			}
 			break;
 
@@ -130,11 +136,11 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			SetSpeed(levelNumber, GHOST_STATES::CHASE);
 			if (!firstChasePathDrawn)
 			{
-				CleanUpNodesWaypoints();
 				mStart = new PathNode(this->mPos.x, this->mPos.z);
 				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 				mWaypoints = path.FindPath(mStart, mGoal);
 				this->SetWayPoints(mWaypoints);
+				this->UpdateCurrentTweenPoint(dt);
 				firstChasePathDrawn = true;
 			}
 			else
@@ -147,42 +153,94 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 					mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 					mWaypoints = path.FindPath(mStart, mGoal);
 					this->SetWayPoints(mWaypoints);
+					this->UpdateCurrentTweenPoint(dt);
 					mPathNext += (1.0f / 10.0f);
 				}
 			}
-			if (mWaypoints.size() != 0)
+			if (mTweenPoints.size() != 0)
 			{
-				this->UpdateCurrentTweenPoint(dt);
 				this->mPos = this->mCurrTweenPoint;
+				this->UpdateCurrentTweenPoint(dt);
 			}
 
-			this->mChaseTimer += 5.7142 * dt;
-			if (mChaseTimer >= 20.0f)
+			if (!powerUpActivated)
 			{
-				this->mGhostStates = GHOST_STATES::SCATTER;
-				mChaseTimer = 0.0f;
-				waypointIterator = 0;
-				firstChasePathDrawn = false;
-				mPathNext = 0.0f;
-				mPathCurrent = 0.0f;
+				mGhostStates = GHOST_STATES::CHASE;
+				mChaseTimer += 5.7142 * dt; //dt currently takes (without mutliplying) 40 seconds to reach 7.0f, 5.7142 comes from 40 / 7 to get the number as accurate as possible.
+				//When the timer has reached 7.0f switch to the CHASE state
+				if (mChaseTimer >= 7.0f)
+				{
+					this->mGhostStates = GHOST_STATES::SCATTER;
+					mChaseTimer = 0.0f;
+					scatterPathDrawn = false;
+					reachedEnd = false;
+					isLooping = false;
+					CleanUpNodesWaypoints();
+				}
 			}
-
+			//If the powerup is activated, switch to the FRIGHTENED state
+			else if (powerUpActivated)
+			{
+				SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
+				CleanUpNodesWaypoints();
+				mPrevState = mGhostStates;
+				this->mGhostStates = GHOST_STATES::FRIGHTENED;
+				scatterPathDrawn = false;
+				firstChasePathDrawn = false;
+			}
 			break;
 		case FRIGHTENED:
-			//SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
+			SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
+			if (!scatterPathDrawn)
+			{
+				mStart = new PathNode(this->mPos.x, this->mPos.z);
+				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+				mWaypoints = path.FindPath(mStart, mGoal);
+				this->SetWayPoints(mWaypoints);
+				this->UpdateCurrentTweenPoint(dt);
+				scatterPathDrawn = true;
+			}
+			if (mWaypoints.size() != 0)
+			{
+				if (!this->reachedEnd)
+				{
+					this->mPos = this->mCurrTweenPoint;
+					this->UpdateCurrentTweenPoint(dt);
+
+				}
+				else if (this->reachedEnd)
+				{
+					if (!isLooping)
+					{
+						this->SetWayPoints(mScatterWaypoints);
+						this->isLooping = true;
+					}
+					if (isLooping == true && this->reachedEnd)
+					{
+						this->UpdateCurrentTweenPoint(dt);
+						this->mPos = this->mCurrTweenPoint;
+					}
+				}
+			}
+			if (!powerUpActivated)
+			{
+				mGhostStates = mPrevState;
+			}
 			break;
 		}
+		
+
 	}
 }
 
 void Blinky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::SCATTER;
-	mWaypoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;
 	reachedEnd = false;
+	CleanUpNodesWaypoints();
 }
