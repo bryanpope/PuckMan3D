@@ -992,17 +992,21 @@ void PuckMan3D::UpdateScene(float dt)
 
 	if (!pacMans[0].isShown)
 	{
+		mIsDead = true;
 		mGameState = GameState::GS_GAMEOVER;
-
+	}
+	if (mIsDead)
+	{
 		for (int i = 0; i < mHighScore.size(); ++i)
 		{
 			if (mHighScore[i] < mScore)
 			{
 				mHighScore[i] = mScore;
+				break;
 			}
-			writeToTxtFile();
-			readFromTxtFile();
 		}
+		writeToTxtFile();
+		readFromTxtFile();
 	}
 
 	if (mCanDrawFruit)
@@ -1975,6 +1979,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		else if (mGameState == GameState::GS_GAMEOVER)
 		{
+			mIsDead = false;
 			resetGame();
 			mLevelCounter = 1;
 			mGameState = GameState::GS_MAINMENU;
