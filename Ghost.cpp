@@ -3,6 +3,8 @@
 Ghost::Ghost()
 {
 	LoadWaypoints();
+	mIsFindPathRunning = false;
+	mhThreadPathFinding = NULL;
 }
 
 Ghost::Ghost(FXMVECTOR pos, float radius)
@@ -14,14 +16,50 @@ Ghost::Ghost(FXMVECTOR pos, float radius)
 	mSpeed = 1.0f;
 	LoadWaypoints();
 	tempIterator = 0;
+	mIsFindPathRunning = false;
+	mhThreadPathFinding = NULL;
 }
 
 Ghost::~Ghost()
 {
 }
 
+void Ghost::CleanUpNodesWaypoints()
+{
+	if (mStart)
+	{
+		delete mStart;
+		mStart = NULL;
+	}
+	if (mGoal)
+	{
+		delete mGoal;
+		mGoal = NULL;
+	}
+	for (int i = 0; i < mWaypoints.size(); ++i)
+	{
+		if (mWaypoints[i])
+		{
+			delete mWaypoints[i];
+			mWaypoints[i] = NULL;
+		}
+	}
+}
+
 void Ghost::Update()
 {}
+
+DWORD WINAPI Ghost::PathFindingStaticThreadStart(LPVOID lpParam)
+{
+	PPATHFINDINGDATA pData = (PPATHFINDINGDATA)lpParam;
+
+	PathNode mPNDeadGhostStart(pData->posStart.x, pData->posStart.y);
+	PathNode mPNDeadGhostEnd(pData->posEnd.x, pData->posEnd.y);
+	Pathfinding pfDeadGhost;
+
+	pData->waypoints = pfDeadGhost.FindPath(&mPNDeadGhostStart, &mPNDeadGhostEnd);
+	return 0;
+}
 
 void Ghost::LoadWaypoints()
 {
