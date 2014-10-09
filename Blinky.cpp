@@ -88,10 +88,10 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				mScatterTimer += 8.0f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 5.0f, 8 comes from 40 / 5 to get the number as accurate as possible.
 				if (mScatterTimer >= 5.0f)
 				{
-					this->mGhostStates = GHOST_STATES::SCATTER;
 					mScatterTimer = 0.0f;
 					scatterPathDrawn = false;
 					mWaypoints.clear();
+					this->mGhostStates = GHOST_STATES::SCATTER;
 				}
 			}
 			break;
@@ -108,14 +108,14 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			}
 			else
 			{
-				int row = MazeLoader::GetMazeHeight() - round(this->mPos.x + 15.5f);
-				int col = round(this->mPos.z + 14.5f) - 1;
-				if (MazeLoader::IsDivergent(row, col))
+				mPathCurrent += dt * 2;
+				if (mPathCurrent >= mPathNext)
 				{
 					mStart = new PathNode(this->mPos.x, this->mPos.z);
 					mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 					mWaypoints = path.FindPath(mStart, mGoal);
 					this->SetWayPoints(mWaypoints);
+					mPathNext += (1.0f / 10.0f);
 				}
 			}
 			if (mWaypoints.size() != 0)
@@ -131,6 +131,8 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				mChaseTimer = 0.0f;
 				waypointIterator = 0;
 				firstChasePathDrawn = false;
+				mPathNext = 0.0f;
+				mPathCurrent = 0.0f;
 			}
 
 			break;
