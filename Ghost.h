@@ -37,6 +37,8 @@ protected:
 	float mRadius; //Originally set as 0.75f
 	float mScatterTimer;
 	float mChaseTimer;
+	float mPathCurrent = 0.0f;
+	float mPathNext = 0.0f;
 	int mCurrWaypointIndex = 0;
 	bool isLooping = false; //This is to determine whether or not the ghost is in their scatter loop, false = not looping
 	bool scatterPathDrawn = false; //This is to determine whether or not the path has been drawn for the scatter path to prevent multiple calculations
@@ -52,6 +54,19 @@ protected:
 
 	void UpdateCurrentTweenPoint(float dt);
 	void SnapTweenPoint();
+	void CleanUpNodesWaypoints();
+
+	typedef struct PathFindingData
+	{
+		XMFLOAT2 posStart;
+		XMFLOAT2 posEnd;
+		Ghost *thisThing;
+		std::vector<PathNode*> waypoints;
+	} PATHFINDINGDATA, *PPATHFINDINGDATA;
+	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
+	HANDLE mhThreadPathFinding;
+	DWORD mdwThreadIdPathFinding;
+	PathFindingData *mpfData;
 
 	GHOST_FACING GetFacing() const
 	{
@@ -75,6 +90,7 @@ protected:
 	int waypointIterator;
 	PathNode* mStart;
 	PathNode* mGoal;
+	bool mIsFindPathRunning;
 
 	std::vector<TweenPoint> mTweenPoints;
 	XMFLOAT3 mCurrTweenPoint;

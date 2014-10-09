@@ -31,6 +31,7 @@ void Pinky::LoadScatterWaypoints()
 
 void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, int levelNumber)
 {
+	//isDead = true;
 	if (!isDead)
 	{
 		switch (mGhostStates)
@@ -83,7 +84,6 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			}
 			else if (powerUpActivated)
 			{
-				std::cout << mScatterTimer << std::endl;
 				mScatterTimer += 8.0f * dt; //dt currently takes (without mutliplying) 40 seconds to reach 5.0f, 8 comes from 40 / 5 to get the number as accurate as possible.
 				if (mScatterTimer >= 5.0f)
 				{
@@ -117,9 +117,8 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			}
 			else
 			{
-				int row = MazeLoader::GetMazeHeight() - round(this->mPos.x + 15.5f);
-				int col = round(this->mPos.z + 14.5f) - 1;
-				if (MazeLoader::IsDivergent(row, col))
+				mPathCurrent += dt;
+				if (mPathCurrent >= mPathNext)
 				{
 					//Target 4 tiles in front of PuckMan's facing
 					if (facingState == Direction::DIRECTION::NORTH || facingState == Direction::DIRECTION::SOUTH)
@@ -165,6 +164,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 						mGoal = new PathNode(clampedX, round(MazeLoader::GetPacManData().at(0).pos.z));
 						mWaypoints = path.FindPath(mStart, mGoal);
 					}
+					mPathNext += (1.0f / 10.0f);
 				}
 			}
 
@@ -190,6 +190,8 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 				firstChasePathDrawn = false;
 				scatterPathDrawn = false;
 				mWaypoints.clear();
+				mPathNext = 0.0f;
+				mPathCurrent = 0.0f;
 			}
 
 			break;

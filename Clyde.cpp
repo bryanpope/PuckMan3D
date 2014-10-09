@@ -35,6 +35,7 @@ void Clyde::LoadScatterWaypoints()
 
 void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletCounter)
 {
+	//isDead = true;
 	if (!isDead)
 	{
 		if (pelletCounter >= 90 && isIdle)
@@ -54,21 +55,27 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 			//Determine the euclidean distance between clyde and puckman
 			int euclidDistance = abs(clydePos - puckmanPos);
 			//If the distance between Clyde and PuckMan is 8 tiles or more in Euclidean space, target PuckMan and chase like Blinky does
-			if (euclidDistance >= 8)
+				//For the sake of less bouncing, we'll only check this every second
+			mPathCurrent += dt * 2;
+			if (mPathCurrent >= mPathNext)
 			{
-				mGhostStates = GHOST_STATES::CHASE;
-				mChaseTimer = 0.0f;
-				waypointIterator = 0;
-				firstChasePathDrawn = false;
-			}
-			//If the distance between Clyde and Puckman is less than 8 tiles, go back to Scatter mode
-			else
-			{
-				mGhostStates = GHOST_STATES::SCATTER;
-				mScatterTimer = 0.0f;
-				scatterPathDrawn = false;
-				this->mCurrWaypointIndex = 0;
-				this->waypointIterator = 0;
+				if (euclidDistance >= 8)
+				{
+					mGhostStates = GHOST_STATES::CHASE;
+					mChaseTimer = 0.0f;
+					waypointIterator = 0;
+					firstChasePathDrawn = false;
+				}
+				//If the distance between Clyde and Puckman is less than 8 tiles, go back to Scatter mode
+				else
+				{
+					mGhostStates = GHOST_STATES::SCATTER;
+					mScatterTimer = 0.0f;
+					scatterPathDrawn = false;
+					this->mCurrWaypointIndex = 0;
+					this->waypointIterator = 0;
+				}
+				mPathNext += 1.0f;
 			}
 
 			switch (mGhostStates)
@@ -129,14 +136,14 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 				}
 				else
 				{
-					int row = MazeLoader::GetMazeHeight() - round(this->mPos.x + 15.5f);
-					int col = round(this->mPos.z + 14.5f) - 1;
-					if (MazeLoader::IsDivergent(row, col))
+					mPathCurrent += dt;
+					if (mPathCurrent >= mPathNext)
 					{
 						mStart = new PathNode(this->mPos.x, this->mPos.z);
 						mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 						mWaypoints = path.FindPath(mStart, mGoal);
 						waypointIterator = 0;
+						mPathNext += (1.0f / 10.0f);
 					}
 				}
 				if (mWaypoints.size() != 0)
@@ -159,6 +166,8 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 					mChaseTimer = 0.0f;
 					waypointIterator = 0;
 					firstChasePathDrawn = false;
+					mPathNext = 0.0f;
+					mPathCurrent = 0.0f;
 				}
 
 				break;
