@@ -62,14 +62,14 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				SetSpeed(levelNumber, GHOST_STATES::SCATTER);
 				if (!scatterPathDrawn)
 				{
-					mStart = new PathNode(this->mPos.x, this->mPos.z);
-					mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
-					mWaypoints = path.FindPath(mStart, mGoal);
-					this->SetWayPoints(mWaypoints);
-					this->UpdateCurrentTweenPoint(dt);
-					scatterPathDrawn = true;
+					PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+					if (PostPathFinding())
+					{
+						this->UpdateCurrentTweenPoint(dt);
+						scatterPathDrawn = true;
+					}
 				}
-				if (mWaypoints.size() != 0)
+				if (mTweenPoints.size() != 0)
 				{
 					if (!this->reachedEnd)
 					{
@@ -122,6 +122,15 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				PathNode* offsetTile;
 				if (!firstChasePathDrawn)
 				{
+					PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+					if (PostPathFinding())
+					{
+						this->UpdateCurrentTweenPoint(dt);
+						firstChasePathDrawn = true;
+					}
+				}
+				else
+				{
 					mPathCurrent += dt;
 					if (mPathCurrent >= mPathNext)
 					{
@@ -154,11 +163,11 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 								//goalCol = round(clampedX + 13.5f);
 							}
 
-							mStart = new PathNode(this->mPos.x, this->mPos.z);
-							mGoal = new PathNode(clampedX, clampedZ);
-							mWaypoints = path.FindPath(mStart, mGoal);
-							this->SetWayPoints(mScatterWaypoints);
-							this->UpdateCurrentTweenPoint(dt);
+							PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+							if (PostPathFinding())
+							{
+								this->UpdateCurrentTweenPoint(dt);
+							}
 						}
 
 						else if (facingState == Direction::DIRECTION::WEST || facingState == Direction::DIRECTION::EAST)
@@ -190,19 +199,19 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 								//goalCol = round(clampedX + 13.5f);
 							}
 
-							mStart = new PathNode(this->mPos.x, this->mPos.z);
-							mGoal = new PathNode(clampedX, clampedZ);
-							mWaypoints = path.FindPath(mStart, mGoal);
-							this->SetWayPoints(mScatterWaypoints);
-							this->UpdateCurrentTweenPoint(dt);
+							PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+							if (PostPathFinding())
+							{
+								this->UpdateCurrentTweenPoint(dt);
+							}
 						}
 						mPathNext += (1.0f / 10.0f);
 					}
-					if (mWaypoints.size() != 0)
-					{
-						this->mPos = this->mCurrTweenPoint;
-						this->UpdateCurrentTweenPoint(dt);
-					}
+				}
+				if (mTweenPoints.size() != 0)
+				{
+					this->mPos = this->mCurrTweenPoint;
+					this->UpdateCurrentTweenPoint(dt);
 				}
 
 				if (!powerUpActivated)
@@ -235,14 +244,14 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 					SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 					if (!scatterPathDrawn)
 					{
-						mStart = new PathNode(this->mPos.x, this->mPos.z);
-						mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
-						mWaypoints = path.FindPath(mStart, mGoal);
-						this->SetWayPoints(mWaypoints);
-						this->UpdateCurrentTweenPoint(dt);
-						scatterPathDrawn = true;
+						PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+						if (PostPathFinding())
+						{
+							this->UpdateCurrentTweenPoint(dt);
+							scatterPathDrawn = true;
+						}
 					}
-					if (mWaypoints.size() != 0)
+					if (mTweenPoints.size() != 0)
 					{
 						if (!this->reachedEnd)
 						{
