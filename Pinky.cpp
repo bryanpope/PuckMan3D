@@ -50,14 +50,14 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			SetSpeed(levelNumber, GHOST_STATES::SCATTER);
 			if (!scatterPathDrawn)
 			{
-				mStart = new PathNode(this->mPos.x, this->mPos.z);
-				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
-				mWaypoints = path.FindPath(mStart, mGoal);
-				this->SetWayPoints(mWaypoints);
-				this->UpdateCurrentTweenPoint(dt);
-				scatterPathDrawn = true;
+				PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+				if (PostPathFinding())
+				{
+					this->UpdateCurrentTweenPoint(dt);
+					scatterPathDrawn = true;
+				}
 			}
-			if (mWaypoints.size() != 0)
+			if (mTweenPoints.size() != 0)
 			{
 				if (!this->reachedEnd)
 				{
@@ -109,12 +109,12 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			SetSpeed(levelNumber, GHOST_STATES::CHASE);
 			if (!firstChasePathDrawn)
 			{
-				mStart = new PathNode(this->mPos.x, this->mPos.z);
-				mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
-				mWaypoints = path.FindPath(mStart, mGoal);
-				this->SetWayPoints(mScatterWaypoints);
-				this->UpdateCurrentTweenPoint(dt);
-				firstChasePathDrawn = true;
+				PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+				if (PostPathFinding())
+				{
+					this->UpdateCurrentTweenPoint(dt);
+					firstChasePathDrawn = true;
+				}
 			}
 			else
 			{
@@ -139,11 +139,11 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 							goalCol = (round(MazeLoader::GetPacManData().at(0).pos.x + 14.5f) - 1);
 						}
 
-						mStart = new PathNode(this->mPos.x, this->mPos.z);
-						mGoal = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x), clampedZ);
-						mWaypoints = path.FindPath(mStart, mGoal);
-						this->SetWayPoints(mWaypoints);
-						this->UpdateCurrentTweenPoint(dt);
+						PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+						if (PostPathFinding())
+						{
+							this->UpdateCurrentTweenPoint(dt);
+						}
 					}
 
 					else if (facingState == Direction::DIRECTION::WEST || facingState == Direction::DIRECTION::EAST)
@@ -163,17 +163,17 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 							goalCol = (round(clampedX + 14.5f) - 1);
 						}
 
-						mStart = new PathNode(this->mPos.x, this->mPos.z);
-						mGoal = new PathNode(clampedX, round(MazeLoader::GetPacManData().at(0).pos.z));
-						mWaypoints = path.FindPath(mStart, mGoal);
-						this->SetWayPoints(mWaypoints);
-						this->UpdateCurrentTweenPoint(dt);
+						PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
+						if (PostPathFinding())
+						{
+							this->UpdateCurrentTweenPoint(dt);
+						}
 					}
 					mPathNext += (1.0f / 10.0f);
 				}
 			}
 
-			if (mWaypoints.size() != 0)
+			if (mTweenPoints.size() != 0)
 			{
 				this->mPos = this->mCurrTweenPoint;
 				this->UpdateCurrentTweenPoint(dt);
@@ -209,14 +209,14 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 			if (!scatterPathDrawn)
 			{
-				mStart = new PathNode(this->mPos.x, this->mPos.z);
-				mGoal = new PathNode(this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
-				mWaypoints = path.FindPath(mStart, mGoal);
-				this->SetWayPoints(mWaypoints);
-				this->UpdateCurrentTweenPoint(dt);
-				scatterPathDrawn = true;
+				PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
+				if (PostPathFinding())
+				{
+					this->UpdateCurrentTweenPoint(dt);
+					scatterPathDrawn = true;
+				}
 			}
-			if (mWaypoints.size() != 0)
+			if (mTweenPoints.size() != 0)
 			{
 				if (!this->reachedEnd)
 				{
