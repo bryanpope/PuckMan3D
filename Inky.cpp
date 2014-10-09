@@ -38,6 +38,7 @@ void Inky::LoadScatterWaypoints()
 
 void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingState, XMFLOAT3 blinkyPos, int levelNumber, int pelletCounter)
 {
+	//isDead = true;
 	if (!isDead)
 	{
 		if (pelletCounter >= 30 && isIdle)
@@ -104,9 +105,8 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				PathNode* offsetTile;
 				if (!firstChasePathDrawn)
 				{
-					int row = MazeLoader::GetMazeHeight() - round(this->mPos.z + 15.5f);
-					int col = round(this->mPos.x + 14.5f) - 1;
-					if (MazeLoader::IsDivergent(row, col))
+					mPathCurrent += dt;
+					if (mPathCurrent >= mPathNext)
 					{
 						if (facingState == Direction::DIRECTION::NORTH || facingState == Direction::DIRECTION::SOUTH)
 						{
@@ -175,8 +175,8 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 							mGoal = new PathNode(clampedX, clampedZ);
 							mWaypoints = path.FindPath(mStart, mGoal);
 						}
+						mPathNext += (1.0f / 10.0f);
 					}
-
 					if (mWaypoints.size() != 0)
 					{
 						if (waypointIterator < mWaypoints.size())
@@ -198,6 +198,8 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 					mChaseTimer = 0.0f;
 					waypointIterator = 0;
 					firstChasePathDrawn = false;
+					mPathNext = 0.0f;
+					mPathCurrent = 0.0f;
 				}
 				break;
 

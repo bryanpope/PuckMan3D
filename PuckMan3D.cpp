@@ -346,7 +346,12 @@ bool PuckMan3D::Init()
 	loadSirenSFX();
 	loadWaSFX();
 	loadKaSFX();
-
+	
+	//for (int i = 0; i < 6; ++i)
+	//{
+		//push 6 score values into the vector of high scores to initialize it.
+		mHighScore.push_back(mScore);
+	//}
 	readFromTxtFile();
 
 	if(!D3DApp::Init())
@@ -988,10 +993,14 @@ void PuckMan3D::UpdateScene(float dt)
 	if (!pacMans[0].isShown)
 	{
 		mGameState = GameState::GS_GAMEOVER;
-		if (mHighScore <= mScore)
+
+		for (int i = 0; i < mHighScore.size(); ++i)
 		{
-			writeToTxtFile();
-			readFromTxtFile();
+			if (mHighScore[i] <= mScore)
+			{
+				writeToTxtFile();
+				readFromTxtFile();
+			}
 		}
 	}
 
@@ -1719,6 +1728,10 @@ void PuckMan3D::DrawWrapper()
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 30, "D/Right Arrow - Move Right");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 30, 75, 30, "Escape - Close Game");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
+	}
+	if (mGameState == GameState::GS_HIGHSCORE)
+	{
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Highscores");
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
@@ -2761,7 +2774,11 @@ void PuckMan3D::readFromTxtFile()
 		HighScore.clear();
 		HighScore.str("");
 		HighScore.str(mTemp);
-		HighScore >> mHighScore;
+		for (int i = 0; i < mHighScore.size(); ++i)
+		{
+			HighScore >> mHighScore[i];
+		}
+		
 		mTemp = HighScore.str();
 	}
 	readTxtFile.close();
@@ -2769,11 +2786,18 @@ void PuckMan3D::readFromTxtFile()
 
 void PuckMan3D::writeToTxtFile()
 {
-	mHighScore = mScore;
-	writeTxtFile.open("highscores.txt");
-	HighScore << mHighScore;
-	writeTxtFile << mHighScore;
-	writeTxtFile.close();
+	//HighScore is a stringstream object
+	//mHighScore is a vector of ints
+	//mHighScore.push_back(mScore);
+	for (int i = 0; i < mHighScore.size(); ++i)
+	{
+		mHighScore[i] = mScore;
+		writeTxtFile.open("highscores.txt");
+		//push a new high score to the next line
+		HighScore << mHighScore[i];
+		writeTxtFile << mHighScore[i];
+		writeTxtFile.close();
+	}
 }
 
 void PuckMan3D::resetHighScore()

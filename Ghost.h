@@ -37,6 +37,8 @@ protected:
 	float mRadius; //Originally set as 0.75f
 	float mScatterTimer;
 	float mChaseTimer;
+	float mPathCurrent = 0.0f;
+	float mPathNext = 0.0f;
 	int mCurrWaypointIndex = 0;
 	bool isLooping = false; //This is to determine whether or not the ghost is in their scatter loop, false = not looping
 	bool scatterPathDrawn = false; //This is to determine whether or not the path has been drawn for the scatter path to prevent multiple calculations

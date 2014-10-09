@@ -31,7 +31,6 @@
 #include "Character.h"
 #include "FireBallParticles.h"
 #include<fstream>
-
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
 
@@ -392,8 +391,8 @@ private:
 	RandGen rg;
 	int randNumber;
 	int mScore = 0;
-	int mHighScore = 0;
-
+	//int mHighScore = 0;
+	std::vector<int> mHighScore;
 	float mTimeGhostCurrent;
 	float mTimeGhostNext;
 
