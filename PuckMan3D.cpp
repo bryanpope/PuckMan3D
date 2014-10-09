@@ -992,23 +992,23 @@ void PuckMan3D::UpdateScene(float dt)
 
 	if (!pacMans[0].isShown)
 	{
-		
+		if (mIsGameOver)
+		{
+			mIsGameOver = false;
+			for (int i = 0; i < mHighScore.size(); ++i)
+			{
+				if (mHighScore[i] < mScore)
+				{
+					mHighScore[i] = mScore;
+					break;
+				}
+			}
+			writeToTxtFile();
+			readFromTxtFile();
+		}
 		mGameState = GameState::GS_GAMEOVER;
 	}
-	if (mIsGameOver)
-	{
-		mIsGameOver = false;
-		for (int i = 0; i < mHighScore.size(); ++i)
-		{
-			if (mHighScore[i] < mScore)
-			{
-				mHighScore[i] = mScore;
-				break;
-			}
-		}
-		writeToTxtFile();
-		readFromTxtFile();
-	}
+	
 
 	if (mCanDrawFruit)
 	{

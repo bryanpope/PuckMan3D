@@ -267,7 +267,7 @@ private:
 	bool mCanMove = true;
 	bool mIsPaused = false;
 	bool mMuteAll = false;
-	bool mIsGameOver = false;
+	bool mIsGameOver = true;
 	//float mSpeed;
 	bool mMuteEatingSFX = false;
 	bool mMuteBackGroundSFX = false;
