@@ -1627,12 +1627,12 @@ void PuckMan3D::DrawWrapper()
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Reset High Score - (0)");
 		std::stringstream bloom;
-		bloom << "Bloom - (2) " << (mIsDisplayBlurred ? "On" : "Off");
+		bloom << "Bloom - (3) " << (mIsDisplayBlurred ? "On" : "Off");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, bloom.str());
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "Audio - (3)");
 		std::stringstream crt;
 		crt << "CRT - (4) " << (mIsCRTShaderOn ? "On" : "Off");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, crt.str());
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, crt.str());
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, "Audio - (5)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
 	}
 	if (mGameState == GameState::GS_SOUNDOPTIONS)
@@ -1841,7 +1841,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		if (mGameState == GS_OPTIONS)
 		{
-			mIsDisplayBlurred = !mIsDisplayBlurred;
+			
 		}
 		if (mGameState == GS_SOUNDOPTIONS)
 		{
@@ -1863,7 +1863,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		}
 		if (mGameState == GS_OPTIONS)
 		{
-			mGameState = GS_SOUNDOPTIONS;
+			mIsDisplayBlurred = !mIsDisplayBlurred;
 		}
 		if (mGameState == GS_SOUNDOPTIONS)
 		{
@@ -1911,6 +1911,10 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			{
 				mMuteGhostSFX = true;
 			}	
+		}
+		if (mGameState == GS_OPTIONS)
+		{
+			mGameState = GS_SOUNDOPTIONS;
 		}
 	}
 	if (GetAsyncKeyState('0') & 0x0001)
