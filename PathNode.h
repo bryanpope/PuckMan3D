@@ -18,13 +18,11 @@ public:
 	int zPos;
 	int gCost;
 	int fCost;
-	bool isWalkable;
 	Direction::DIRECTION facing;
 
 	PathNode* parent;
 
 	PathNode(float x, float z, int g, int f, PathNode* parent, Direction::DIRECTION facing);
-	PathNode(float x, float z, Direction::DIRECTION facing);
 	PathNode(float x, float z);
 	~PathNode(){}
 

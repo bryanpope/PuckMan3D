@@ -158,8 +158,6 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 								{
 									break;
 								}
-								//goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
-								//goalCol = round(clampedX + 13.5f);
 							}
 
 							PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
@@ -194,8 +192,6 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 								{
 									break;
 								}
-								//goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
-								//goalCol = round(clampedX + 13.5f);
 							}
 
 							PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));

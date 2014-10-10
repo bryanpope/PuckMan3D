@@ -11,7 +11,6 @@ public:
 	BasicModel() :
 		mSubsetCount(0){}
 
-	BasicModel(ID3D11Device* device, LitTexEffect* effect, std::string filename, bool isRHS, bool isVFlipped);
 	BasicModel(ID3D11Device* device, LitMatEffect* effect, std::string filename);
 
 	virtual ~BasicModel(void);

@@ -15,69 +15,52 @@ std::vector<PathNode*> Pathfinding::FindPath(PathNode* start, PathNode* goal)
 
 	PathNode* currentNode = new PathNode(*start);
 	currentNode->combineNode(currentNode, start);
-	/*int goalRow = (MazeLoader::GetMazeHeight()) - round(goal->zPos + 15.5f);
-	int goalCol = (round(goal->xPos + 14.5f) - 1);
-	if ((goalCol >= 0 && goalRow >= 0) && ((UINT)goalCol <= MazeLoader::GetMazeWidth() && (UINT)goalRow <= MazeLoader::GetMazeHeight()))
+	while (!ArrivedAtEnd(currentNode, goal))
 	{
-		if (!MazeLoader::IsBlocked(goalRow, goalCol))
-		{*/
-			while (!ArrivedAtEnd(currentNode, goal))
-			{
-				PathNode tempChildNode(*currentNode);
+		PathNode tempChildNode(*currentNode);
 
-				//Get adjacent walkable tiles
-				//Move the child node one node to the right to get the node to the right of currentNode
-				tempChildNode.xPos++;
-				AddChild(tempChildNode, currentNode, goal, Direction::DIRECTION::EAST);
+		//Get adjacent walkable tiles
+		//Move the child node one node to the right to get the node to the right of currentNode
+		tempChildNode.xPos++;
+		AddChild(tempChildNode, currentNode, goal, Direction::DIRECTION::EAST);
 
-				//Move the child node to the left to get the node to the left of currentNode
-				tempChildNode.xPos -= 2;
-				AddChild(tempChildNode, currentNode, goal, Direction::DIRECTION::WEST);
+		//Move the child node to the left to get the node to the left of currentNode
+		tempChildNode.xPos -= 2;
+		AddChild(tempChildNode, currentNode, goal, Direction::DIRECTION::WEST);
 
-				//Move the child node up one row to get the node above currentNode
-				tempChildNode.xPos++;
-				tempChildNode.zPos++;
-				AddChild(tempChildNode, currentNode, goal, Direction::DIRECTION::NORTH);
+		//Move the child node up one row to get the node above currentNode
+		tempChildNode.xPos++;
+		tempChildNode.zPos++;
+		AddChild(tempChildNode, currentNode, goal, Direction::DIRECTION::NORTH);
 
-				//Finally, move the child node to the bottom, to get the node one below currentNode
-				tempChildNode.zPos -= 2;
-				AddChild(tempChildNode, currentNode, goal, Direction::DIRECTION::SOUTH);
+		//Finally, move the child node to the bottom, to get the node one below currentNode
+		tempChildNode.zPos -= 2;
+		AddChild(tempChildNode, currentNode, goal, Direction::DIRECTION::SOUTH);
 
-				mClosedSet.insert(currentNode);
+		mClosedSet.insert(currentNode);
 
-				mOpenList.sort(PathNode::FCostSort());
+		mOpenList.sort(PathNode::FCostSort());
 
-				if (mOpenList.size() > 0)
-				{
-					currentNode = mOpenList.back();
-					mOpenList.remove(currentNode);
-				}
-				else
-				{
-					break;
-				}
-			}
-			//Populate and create the path vector
-			while (currentNode->parent != NULL && currentNode != start)
-			{
-				retPath.push_back(currentNode);
-				currentNode = currentNode->getParent();
-			}
-			//retPath.reverse();
-			std::reverse(retPath.begin(), retPath.end());
-			mOpenList.clear();
-			mClosedSet.clear();
-			return retPath;
-		//}
-		/*else
+		if (mOpenList.size() > 0)
 		{
-			return retPath;
+			currentNode = mOpenList.back();
+			mOpenList.remove(currentNode);
+		}
+		else
+		{
+			break;
 		}
 	}
-	else
+	//Populate and create the path vector
+	while (currentNode->parent != NULL && currentNode != start)
 	{
-		return retPath;
-	}*/
+		retPath.push_back(currentNode);
+		currentNode = currentNode->getParent();
+	}
+	std::reverse(retPath.begin(), retPath.end());
+	mOpenList.clear();
+	mClosedSet.clear();
+	return retPath;
 }
 
 bool Pathfinding::ArrivedAtEnd(PathNode* currNode, PathNode* goal)

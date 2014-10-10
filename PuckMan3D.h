@@ -25,14 +25,12 @@
 #include "BlurFilter.h"
 #include "Character.h"
 #include "FireBallParticles.h"
-#include<fstream>
-//#include "BasicMeshGeometry.h"
+#include <fstream>
 #include "MazeLoader.h"
 #include <iomanip>
 #include <functional>
 #include "xnacollision.h"
 #include <algorithm>
-//using namespace std;
 
 struct TestParticle
 {
@@ -98,7 +96,6 @@ public:
 
 	void OnKeyUp(WPARAM btnState);
 private:
-	//const float PUCKMAN_SPEED = 1000.0f;
 	void BuildTestPyramid();
 	void BuildVertexLayout();
 	void BuildSceneLights();
@@ -142,10 +139,6 @@ private:
 	XMVECTOR CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height, FXMVECTOR c2Pos, float c2Rad, float c2Height);
 
 	void DrawParticles();
-
-	//void BuildFireBallParticleVB();
-	//void UpdateFireBallParticleVB();
-	//void DrawFireBall();
 
 	XNA::OrientedBox* GetOrientedBox(FXMVECTOR extents, const GraphicalObject* obj);
 	XNA::Sphere* GetBoundingSphere(const GraphicalObject* obj, float radius);
@@ -214,10 +207,6 @@ private:
 	bool mTouchedGhost[4];
 	static PathFindingData *mpfData[4];
 
-	//ParticleEffect* mFireBallEffect;
-	//std::vector<TestParticle> mFireBallParticles;
-	//ID3D11Buffer* mFireBallParticleVB;
-
 	ThirdPersonCam* mCam;
 	BaseCamera* m2DCam;
 
@@ -232,9 +221,6 @@ private:
 	SpotLightOptimized mSpotLights[9];
 
 	PuckMan* mPuckMan;
-	BasicModel* mBarnProjectile;
-	BasicModel* mFarmModel;
-	BasicModel* mMonsterModel;
 
 	BasicModel* mMazeModel;
 	Character* mMazeCharacter;
@@ -273,7 +259,6 @@ private:
 	bool mIsPaused = false;
 	bool mMuteAll = false;
 	bool mIsGameOver = true;
-	//float mSpeed;
 	bool mMuteEatingSFX = false;
 	bool mMuteBackGroundSFX = false;
 	bool mMuteGhostSFX = false;
@@ -314,7 +299,6 @@ private:
 	int mGhostVertexOffset;
 	int mTriggerVertexOffset;
 	int mTrapVertexOffset;
-	//int mFruitVertexOffset;
 
 	UINT mBoxIndexOffset;
 	UINT mGridIndexOffset;
@@ -324,7 +308,6 @@ private:
 	UINT mGhostIndexOffset;
 	UINT mTriggerIndexOffset;
 	UINT mTrapIndexOffset;
-	//UINT mFruitIndexOffset;
 
 	UINT mBoxIndexCount;
 	UINT mGridIndexCount;
@@ -416,7 +399,6 @@ private:
 	RandGen rg;
 	int randNumber;
 	int mScore = 0;
-	//int mHighScore = 0;
 	std::vector<int> mHighScore;
 	float mTimeGhostCurrent;
 	float mTimeGhostNext;
@@ -437,7 +419,6 @@ private:
 	BasicMeshGeometry *mPeachGeometry;
 	BasicMeshGeometry *mHUDFruitGeometry;
 	BasicMeshGeometry *mHUDFruitGeometry2;
-	//BlurEffect* mBlurEffect;
 
 	float mPowerUpTimeCurr;
 	float mPowerUpTimeNext;

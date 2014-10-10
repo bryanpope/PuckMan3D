@@ -10,16 +10,6 @@ PathNode::PathNode(float x, float z, int g, int fC, PathNode* p, Direction::DIRE
 	facing = f;
 }
 
-PathNode::PathNode(float x, float z, Direction::DIRECTION f)
-{
-	xPos = x;
-	zPos = z;
-	gCost = 0;
-	fCost = 0;
-	parent = NULL;
-	facing = f;
-}
-
 PathNode::PathNode(float x, float z)
 {
 	xPos = x;
@@ -29,7 +19,6 @@ PathNode::PathNode(float x, float z)
 	parent = NULL;
 	facing = Direction::DIRECTION::NORTH;
 }
-
 
 //initial is the node you are feeding the data INTO
 //target is the node you are taking the data FROM
@@ -47,7 +36,6 @@ PathNode* PathNode::combineNode(PathNode* initial, PathNode* target)
 int PathNode::getDistance(PathNode* goal, int x, int z)
 {
 	return abs(x - goal->xPos) + abs(z - goal->zPos);
-	//return sqrt((goal->zPos - z) * (goal->zPos - z) + (goal->xPos - x) * (goal->xPos - x));
 }
 
 int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
@@ -60,7 +48,7 @@ int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 	{
 		if (child.facing == directionLeft || child.facing == directionRight)
 		{
-			return 1;//abs(child.xPos - parent->xPos) + abs(child.zPos - parent->zPos);
+			return 1;
 		}
 		else if (child.facing == behind)
 		{
@@ -68,5 +56,4 @@ int PathNode::getDistanceFromParent(PathNode child, PathNode* parent)
 		}
 	}
 	return 500;
-	//return sqrt((child.zPos - parent->zPos) * (child.zPos - parent->zPos) + (child.xPos - parent->xPos) * (child.xPos - parent->xPos));*/
 }
