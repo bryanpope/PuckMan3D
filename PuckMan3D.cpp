@@ -332,12 +332,7 @@ bool PuckMan3D::Init()
 	loadWaSFX();
 	loadKaSFX();
 	LoadTriggers();
-	
-	for (int i = 0; i < 6; ++i)
-	{
-		//push 6 score values into the vector of high scores to initialize it.
-		mHighScore.push_back(mScore);
-	}
+
 	readFromTxtFile();
 
 	if(!D3DApp::Init())
@@ -1019,7 +1014,7 @@ void PuckMan3D::UpdateScene(float dt)
 				}
 			}
 			writeToTxtFile();
-			readFromTxtFile();
+			//readFromTxtFile();
 		}
 		mGameState = GameState::GS_GAMEOVER;
 	}
@@ -1742,11 +1737,11 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_MAINMENU)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 40, 75, 25, "Play Game - (1)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 40, 75, 25, "Options - (2)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Credits - (3)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 40, 75, 25, "Controls - (4)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 40, 75, 25, "HighScores - (5)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 40, 75, 25, "Play Game - (1)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 40, 75, 25, "Options - (2)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 40, 75, 25, "Credits - (3)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Controls - (4)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 40, 75, 25, "HighScores - (5)");
 	}
 	if (mGameState == GameState::GS_CREDITS)
 	{
@@ -1768,7 +1763,6 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_HIGHSCORE)
 	{
-		std::vector<std::string> display;
 		std::stringstream displayScores;
 		copy(mHighScore.begin(), mHighScore.end(), std::ostream_iterator<int>(displayScores, "\n"));
 
@@ -2003,7 +1997,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			//reset highscore
 			resetHighScore();
-			readFromTxtFile();
+			//readFromTxtFile();
 		}
 	}
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
@@ -2926,42 +2920,38 @@ void PuckMan3D::BuildFruit()
 
 void PuckMan3D::readFromTxtFile()
 {
+	std::stringstream highScore;
 	std::string temp;
-	int highScoreCounter = 0;
-
+	int pusBackZero = 0;
 	readTxtFile.open("highscores.txt");
+	mHighScore.clear();
 	while (std::getline(readTxtFile, temp))
 	{
-		if (highScoreCounter < mHighScore.size())
-		{
-			HighScore.clear();
-			HighScore.str("");
-			HighScore >> mHighScore[highScoreCounter];
-			highScoreCounter++;
-		}
+		highScore.clear();
+		highScore.str(temp);
+		highScore >> pusBackZero;
+		mHighScore.push_back(pusBackZero);
 	}
 	readTxtFile.close();
 }
 
 void PuckMan3D::writeToTxtFile()
 {
-	//HighScore is a stringstream object
-	//mHighScore is a vector of ints
 	writeTxtFile.open("highscores.txt");
 	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
 	for (int i = 0; i < mHighScore.size(); ++i)
 	{
-		writeTxtFile << std::endl << mHighScore[i];
+		writeTxtFile << mHighScore[i] << std::endl;
 	}
 	writeTxtFile.close();
 }
 
 void PuckMan3D::resetHighScore()
 {
-	writeTxtFile.open("highscores.txt");
+	/*writeTxtFile.open("highscores.txt");
 	HighScore << 0;
 	writeTxtFile << 0;
-	writeTxtFile.close();
+	writeTxtFile.close();*/
 }
 
 void PuckMan3D::calcGhostScore()

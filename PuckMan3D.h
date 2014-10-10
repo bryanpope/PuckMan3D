@@ -408,7 +408,6 @@ private:
 	float mTimeGhostCurrent;
 	float mTimeGhostNext;
 
-	std::stringstream HighScore;
 	std::stringstream CurrScore;
 	std::ofstream writeTxtFile;
 	std::ifstream readTxtFile;
