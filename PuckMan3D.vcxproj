@@ -45,6 +45,7 @@
     <ExecutablePath>$(ExecutablePath);$(DXSDK_DIR)Utilities\bin\x86</ExecutablePath>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include;.\RobsCommon;.\Common;.\inc</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86;.\Common</LibraryPath>
+    <CodeAnalysisRuleSet>DeadCodeRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -102,12 +103,10 @@
     <ClInclude Include="Common\MathHelper.h" />
     <ClInclude Include="Common\TextureMgr.h" />
     <ClInclude Include="Common\Waves.h" />
-    <ClInclude Include="Cube.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="FireBallParticles.h" />
     <ClInclude Include="FontRasterizer.h" />
-    <ClInclude Include="FPSCamera.h" />
     <ClInclude Include="Ghost.h" />
     <ClInclude Include="GraphicalGeometry.h" />
     <ClInclude Include="GraphicalObject.h" />
@@ -120,15 +119,11 @@
     <ClInclude Include="PathNode.h" />
     <ClInclude Include="Pinky.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Projectile.h" />
     <ClInclude Include="PuckMan3D.h" />
-    <ClInclude Include="Quad.h" />
     <ClInclude Include="randgen.h" />
     <ClInclude Include="RobsCommon\LightHelper.h" />
     <ClInclude Include="RobsCommon\Vertex.h" />
     <ClInclude Include="RobsCommon\xnacollision.h" />
-    <ClInclude Include="SkyBox.h" />
-    <ClInclude Include="Terrain.h" />
     <ClInclude Include="ThirdPersonCam.h" />
   </ItemGroup>
   <ItemGroup>
@@ -147,12 +142,10 @@
     <ClCompile Include="Common\MathHelper.cpp" />
     <ClCompile Include="Common\TextureMgr.cpp" />
     <ClCompile Include="Common\Waves.cpp" />
-    <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Direction.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="FireBallParticles.cpp" />
     <ClCompile Include="FontRasterizer.cpp" />
-    <ClCompile Include="FPSCamera.cpp" />
     <ClCompile Include="Ghost.cpp" />
     <ClCompile Include="GraphicalGeometry.cpp" />
     <ClCompile Include="GraphicalObject.cpp" />
@@ -166,13 +159,9 @@
     <ClCompile Include="MeshGeometry.cpp" />
     <ClCompile Include="OBJLoader.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Projectile.cpp" />
-    <ClCompile Include="Quad.cpp" />
     <ClCompile Include="randgen.cpp" />
     <ClCompile Include="RobsCommon\Vertex.cpp" />
     <ClCompile Include="RobsCommon\xnacollision.cpp" />
-    <ClCompile Include="SkyBox.cpp" />
-    <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="ThirdPersonCam.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -199,24 +188,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <CustomBuild Include="FX\ParticleEffect.fx">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Tfx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for release: %(FullPath)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FX\Sky.fx">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Tfx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for release: %(FullPath)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FX\terrain.fx">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Tfx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
