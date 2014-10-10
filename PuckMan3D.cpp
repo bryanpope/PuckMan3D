@@ -2775,16 +2775,17 @@ void PuckMan3D::readFromTxtFile()
 {
 	//read in text file to the stringstream object CurrScore
 	readTxtFile.open("highscores.txt");
+	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
 	while (std::getline(readTxtFile, mTemp))
 	{
 		//string to int
 		HighScore.clear();
 		HighScore.str("");
 		HighScore.str(mTemp);
-		std::sort(mHighScore.begin(), mHighScore.end());
+		
 		for (int i = 0; i < mHighScore.size(); ++i)
 		{
-			HighScore >> mHighScore[0];
+			HighScore >> mHighScore[i];
 		}
 		
 		mTemp = HighScore.str();
@@ -2797,11 +2798,9 @@ void PuckMan3D::writeToTxtFile()
 	//HighScore is a stringstream object
 	//mHighScore is a vector of ints
 	writeTxtFile.open("highscores.txt");
-	std::sort(mHighScore.begin(), mHighScore.end());
+	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
 	for (int i = 0; i < mHighScore.size(); ++i)
 	{
-		//mHighScore[i] = mScore;
-		//HighScore << mHighScore[i];
 		writeTxtFile << std::endl << mHighScore[i];
 	}
 	writeTxtFile.close();

@@ -34,6 +34,7 @@
 //#include "BasicMeshGeometry.h"
 #include "MazeLoader.h"
 #include <iomanip>
+#include <functional>
 #include "xnacollision.h"
 #include <algorithm>
 struct TestParticle
