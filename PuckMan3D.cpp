@@ -162,6 +162,12 @@ PuckMan3D::~PuckMan3D()
 	if (mHUDFruitGeometry2)
 		delete(mHUDFruitGeometry2);
 
+	for (int i = 0; i < 4; ++i)
+	{
+		if (mFBBlueGhost[i])
+			delete mFBBlueGhost[i];
+	}
+
 	ReleaseCOM(mOffscreenSRV);
 	ReleaseCOM(mOffscreenUAV);
 	ReleaseCOM(mOffscreenRTV);
