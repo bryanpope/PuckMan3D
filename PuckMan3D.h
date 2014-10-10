@@ -51,6 +51,20 @@ public:
 	PuckMan3D(HINSTANCE hInstance);
 	~PuckMan3D();
 
+	struct Trigger
+	{
+		MazeLoader::AABox collisionData;
+		bool isOn;
+		bool isCollided;
+
+		Trigger(MazeLoader::AABox aaBox)
+			: collisionData(XMLoadFloat3(&aaBox.pos), aaBox.width, aaBox.depth)
+		{
+			isOn = false;
+			isCollided = false;
+		}
+	};
+
 	enum FacingState
 	{
 		FCS_FORWARD,
@@ -267,7 +281,8 @@ private:
 	bool mMuteDeathSFX = false;
 	bool mCanDrawFruit = true;
 	bool mCanDrawHUDFruit = false;
-	std::vector<bool> mTriggerPressed;
+	std::vector<Trigger> mTriggers;
+	//std::vector<bool> mTriggerPressed;
 	std::vector<bool> mTrapSet;
 	bool mPMInCollision = false;
 	bool mG1InCollision = false;

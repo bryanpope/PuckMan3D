@@ -331,8 +331,7 @@ bool PuckMan3D::Init()
 	loadSirenSFX();
 	loadWaSFX();
 	loadKaSFX();
-	LoadTriggers();
-
+	
 	readFromTxtFile();
 
 	if(!D3DApp::Init())
@@ -536,6 +535,13 @@ bool PuckMan3D::Init()
 	mTimeGhostNext = mTimeGhostCurrent + (1.0f/30.0f);
 	mPowerUpTimeCurr = 0.0f;
 	mPowerUpTimeNext = (1.0f / 5.0f);
+
+
+	std::vector<MazeLoader::AABox> triggerData = MazeLoader::GetTriggerCollisionData();
+	for (int i = 0; i < triggerData.size(); ++i)
+	{
+		mTriggers.push_back(Trigger(triggerData[i]));
+	}
 
 	return true;
 }
@@ -815,9 +821,9 @@ void PuckMan3D::UpdateScene(float dt)
 	XMVECTOR clydePos = XMLoadFloat3(&ghosts[3].pos);
 
 	AABoxTriggerPuckManGhostsOverLap(mPuckMan->GetPos(), blinkyPos, inkyPos, pinkyPos, clydePos);
-	for (int i = 0; i < traps.size(); ++i)
+	for (int i = 0; i < mTriggers.size(); ++i)
 	{
-		if (mTrapSet[i])
+		if (mTriggers[i].isOn)
 		{
 			//change color of trap to TRAPACTIVE
 			traps[i].colour = XMFLOAT4(0.9f, 0.0f, 0.0f, 1.0f);//Materials::TRAPACTIVE;
@@ -2006,7 +2012,7 @@ void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s
 {
 	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
 	float s2Radius = MazeLoader::RADIUS_GHOST;
-	std::vector<MazeLoader::AABox> triggerData = MazeLoader::GetTriggerCollisionData();
+	//std::vector<MazeLoader::AABox> triggerData = MazeLoader::GetTriggerCollisionData();
 	std::vector<MazeLoader::AABox> trapData = MazeLoader::GetTrapCollisionData();
 	float pmCurrOverLap = 0.0f;
 	float g1CurrOverLap = 0.0f;
@@ -2014,10 +2020,10 @@ void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s
 	float g3CurrOverLap = 0.0f;
 	float g4CurrOverLap = 0.0f;
 
-	for (int i = 0; i < triggerData.size(); ++i)
+	for (int i = 0; i < mTriggers.size(); ++i)
 	{
-		XMVECTOR min = XMLoadFloat3(&triggerData[i].min);
-		XMVECTOR max = XMLoadFloat3(&triggerData[i].max);
+		XMVECTOR min = XMLoadFloat3(&mTriggers[i].collisionData.min);
+		XMVECTOR max = XMLoadFloat3(&mTriggers[i].collisionData.max);
 
 		XMVECTOR A = XMVectorClamp(s1Center, min, max);
 		XMVECTOR B = XMVectorClamp(s2Center, min, max);
@@ -2037,13 +2043,13 @@ void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s
 		float g3Distance = sqrt((g3d.m128_f32[0] * g3d.m128_f32[0]) /*+ (g3d.m128_f32[1] * g3d.m128_f32[1])*/ + (g3d.m128_f32[2] * g3d.m128_f32[2]));
 		float g4Distance = sqrt((g4d.m128_f32[0] * g4d.m128_f32[0]) /*+ (g4d.m128_f32[1] * g4d.m128_f32[1])*/ + (g4d.m128_f32[2] * g4d.m128_f32[2]));
 
-		float pmOverLap = s1Radius - pmDistance;
+		float overlap = s1Radius - pmDistance;
 		float g1OverLap = s2Radius - g1Distance;
 		float g2OverLap = s2Radius - g2Distance;
 		float g3OverLap = s2Radius - g3Distance;
 		float g4OverLap = s2Radius - g4Distance;
-
-		if ((pmOverLap < pmCurrOverLap && mPMInCollision)) // no collision with Trigger and PuckMan
+		/*
+		if ((pmOverLap < pmCurrOverLap && mTriggers[i].isCollided)) // no collision with Trigger and PuckMan
 		{
 			mPMInCollision = false;
 		}
@@ -2062,78 +2068,67 @@ void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s
 		if ((g4OverLap < g4CurrOverLap && mG4InCollision)) // no collision with Trigger and Ghost 4
 		{
 			mG4InCollision = false;
+		}*/
+
+		bool hasCollided = false;
+
+		if (overlap > 0.0f)
+		{
+			if (!mTriggers[i].isCollided)
+			{
+				mTriggers[i].isOn = !mTriggers[i].isOn;
+				mTriggers[i].isCollided = true;
+			}
+			hasCollided = true;
 		}
 
-		if ((pmOverLap > pmCurrOverLap) && !mTriggerPressed[i] && !mPMInCollision) // Have Collision with unpressed Trigger and PuckMan
+		overlap = s2Radius - g1Distance;
+		if (overlap > 0.0f)
 		{
-			mPMInCollision = true;
-			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
-			mTrapSet[i] = true; // Change bool mTrapSet to true
-			break;
-		}
-		if ((g1OverLap > g1CurrOverLap) && !mTriggerPressed[i] && !mG1InCollision) // Have Collision with unpressed Trigger and Ghost 1
-		{
-			mG1InCollision = true;
-			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
-			mTrapSet[i] = true; // Change bool mTrapSet to true
-			break;
-		}
-		if ((g2OverLap > g2CurrOverLap) && !mTriggerPressed[i] && !mG2InCollision) // Have Collision with unpressed Trigger and Ghost 2
-		{
-			mG2InCollision = true;
-			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
-			mTrapSet[i] = true; // Change bool mTrapSet to true
-			break;
-		}
-		if ((g3OverLap > g3CurrOverLap) && !mTriggerPressed[i] && !mG3InCollision) // Have Collision with unpressed Trigger and Ghost 3
-		{
-			mG3InCollision = true;
-			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
-			mTrapSet[i] = true; // Change bool mTrapSet to true
-			break;
-		}
-		if ((g4OverLap > g4CurrOverLap) && !mTriggerPressed[i] && !mG4InCollision) // Have Collision with unpressed Trigger and Ghost 4
-		{
-			mG4InCollision = true;
-			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
-			mTrapSet[i] = true; // Change bool mTrapSet to true
-			break;
+			if (!mTriggers[i].isCollided)
+			{
+				mTriggers[i].isOn = !mTriggers[i].isOn;
+				mTriggers[i].isCollided = true;
+			}
+			hasCollided = true;
 		}
 
-		if ((pmOverLap > pmCurrOverLap) && mTriggerPressed[i] && !mPMInCollision) // Have Collision with pressed Trigger and PuckMan
+		overlap = s2Radius - g2Distance;
+		if (overlap > 0.0f)
 		{
-			mPMInCollision = true;
-			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
-			mTrapSet[i] = false; // Change bool mTrapSet to False
-			break;
+			if (!mTriggers[i].isCollided)
+			{
+				mTriggers[i].isOn = !mTriggers[i].isOn;
+				mTriggers[i].isCollided = true;
+			}
+			hasCollided = true;
 		}
-		if ((g1OverLap > g1CurrOverLap) && mTriggerPressed[i] && !mG1InCollision) // Have Collision with pressed Trigger and Ghost 1
+
+		overlap = s2Radius - g3Distance;
+		if (overlap > 0.0f)
 		{
-			mG1InCollision = true;
-			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
-			mTrapSet[i] = false; // Change bool mTrapSet to False
-			break;
+			if (!mTriggers[i].isCollided)
+			{
+				mTriggers[i].isOn = !mTriggers[i].isOn;
+				mTriggers[i].isCollided = true;
+			}
+			hasCollided = true;
 		}
-		if ((g2OverLap > g2CurrOverLap) && mTriggerPressed[i] && !mG2InCollision) // Have Collision with pressed Trigger and Ghost 2
+
+		overlap = s2Radius - g4Distance;
+		if (overlap > 0.0f)
 		{
-			mG2InCollision = true;
-			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
-			mTrapSet[i] = false; // Change bool mTrapSet to False
-			break;
+			if (!mTriggers[i].isCollided)
+			{
+				mTriggers[i].isOn = !mTriggers[i].isOn;
+				mTriggers[i].isCollided = true;
+			}
+			hasCollided = true;
 		}
-		if ((g3OverLap > g3CurrOverLap) && mTriggerPressed[i] && !mG3InCollision) // Have Collision with pressed Trigger and Ghost 3
+
+		if (!hasCollided)
 		{
-			mG3InCollision = true;
-			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
-			mTrapSet[i] = false; // Change bool mTrapSet to False
-			break;
-		}
-		if ((g4OverLap > g4CurrOverLap) && mTriggerPressed[i] && !mG4InCollision) // Have Collision with pressed Trigger and Ghost 4
-		{
-			mG4InCollision = true;
-			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
-			mTrapSet[i] = false; // Change bool mTrapSet to False
-			break;
+			mTriggers[i].isCollided = false;
 		}
 
 	}
@@ -2957,11 +2952,3 @@ void PuckMan3D::calcGhostScore()
 	}
 }
 
-void PuckMan3D::LoadTriggers()
-{
-	for (int i = 0; i < 4; ++i)
-	{
-		mTriggerPressed.push_back(false);
-		mTrapSet.push_back(false);
-	}
-}
