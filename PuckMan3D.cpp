@@ -684,18 +684,6 @@ void PuckMan3D::OnResize()
 	XMStoreFloat4x4(&m2DProj, P);
 }
 
-void PuckMan3D::UpdateCollision()
-{
-	return;
-	/*for (int i = 0; i < mPuckMen.size(); ++i)
-	{
-		XMVECTOR playerPos = mPuckMan->GetPos();
-		XMVECTOR correct = CylToCyl(playerPos, 1, 5, mPuckMen[i]->GetPos(),
-			1, 5);
-		playerPos -= correct;
-		mPuckMan->SetPos(playerPos);
-	}*/
-}
 float angle = 0.0f;
 float timer = 0.0f;
 void PuckMan3D::UpdateScene(float dt)
@@ -1310,24 +1298,6 @@ void PuckMan3D::UpdateScene(float dt)
 	}
 
 	UpdateFireBallParticleVB();*/
-
-	return;
-
-	m2DCam->Update();
-
-	XMStoreFloat3(&mSpotLights[0].pos, mCam->GetPos());
-	XMStoreFloat3(&mSpotLights[0].direction, mCam->GetLook());
-
-	for (int i = 0; i < mParticles.size(); ++i)
-	{
-		XMVECTOR vel = XMLoadFloat3(&mParticles[i].vel) * 2.5f;
-		XMVECTOR pos = XMLoadFloat3(&mParticles[i].pos);
-		pos = pos + vel;
-		XMStoreFloat3(&mParticles[i].pos, pos);
-	}
-	
-	UpdateParticleVB();
-	UpdateCollision();
 }
 
 DWORD WINAPI PuckMan3D::PathFindingStaticThreadStart(LPVOID lpParam)
