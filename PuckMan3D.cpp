@@ -221,9 +221,6 @@ void PuckMan3D::BuildSceneLights()
 	mSpotLights[0].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
 	mSpotLights[0].range = 1000.0f;
 	mSpotLights[0].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
-	//XMVECTOR temp = XMVectorSet(-mSpotLights[0].pos.x, -((mSpotLights[0].pos.y) - 0.6f), -mSpotLights[0].pos.z, 0.0f);
-	//temp = XMVector3Normalize(temp);
-	//XMStoreFloat3(&mSpotLights[0].direction, temp);
 	mSpotLights[0].spot = 3.0f;
 	mSpotLights[0].pad = 0.0f;
 
@@ -234,9 +231,6 @@ void PuckMan3D::BuildSceneLights()
 	mSpotLights[1].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
 	mSpotLights[1].range = 1000.0f;
 	mSpotLights[1].att = XMFLOAT3(0.0f, 0.05f, 0.0f);
-	//XMVECTOR temp = XMVectorSet(-mSpotLights[0].pos.x, -((mSpotLights[0].pos.y) - 0.6f), -mSpotLights[0].pos.z, 0.0f);
-	//temp = XMVector3Normalize(temp);
-	//XMStoreFloat3(&mSpotLights[0].direction, temp);
 	mSpotLights[1].spot = 3.0f;
 	mSpotLights[1].pad = 0.0f;
 
@@ -341,7 +335,6 @@ bool PuckMan3D::Init()
 	mLitMatInstanceEffect->LoadEffect(L"FX/lightingInstanced.fx", md3dDevice);
 	Vertex::InitLitMatInstanceLayout(md3dDevice, mLitMatInstanceEffect->GetTech());
 
-	//mMazeModel = new BasicModel(md3dDevice, mCherry, "Mazes/mainLevel.txt");
 	mMazeModelInstanced = new BasicModel(md3dDevice, mLitMatInstanceEffect, "Mazes/mainLevelNewD.txt");
 
 	BuildPuckMan();
@@ -372,8 +365,6 @@ bool PuckMan3D::Init()
 	mHUDFruit2 = new LitMatEffect();
 	mHUDFruit2->LoadEffect(L"FX/lighting.fx", md3dDevice);
 
-	//mBlurEffect = new BlurEffect();
-	//mBlurEffect->LoadEffect(L"FX/Blur.fx", md3dDevice);
 	mGeometryQuadFullScreen = new BasicMeshGeometry(mLitTexEffect);
 	mCherryGeometry = new BasicMeshGeometry(mCherry);
 	mAppleGeometry = new BasicMeshGeometry(mApple);
@@ -409,9 +400,6 @@ bool PuckMan3D::Init()
 	fbProperties.isFire = true;
 
 	mFireBallPac->Init(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, L"Textures/TestAdditive.png", md3dDevice, fbProperties);
-	//mFireBallPac->SetFireBallTexture(mParticleTexture);
-	//mFireBallEffect = new ParticleEffect();
-	//mFireBallEffect->LoadEffect(L"FX/ParticleEffect.fx", md3dDevice);
 
 	mFBBlueGhost[0] = new FireBallParticles();
 	mFBBlueGhost[1] = new FireBallParticles();
@@ -501,32 +489,15 @@ bool PuckMan3D::Init()
 	BuildSceneLights();
 
 	Vertex::InitParticleVertLayout(md3dDevice, mParticleEffect->GetTech());
-	//Vertex::InitParticleVertLayout(md3dDevice, mFireBallEffect->GetTech());
 
 	BuildParticleVB();
 
 	Vertex::InitLitTexLayout(md3dDevice, mLitTexEffect->GetTech());
 	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"Textures/TestAdditive.png", 0, 0, &mParticleTexture, 0);
 
-	/*BuildFireBallParticleVB();
-	XMVECTOR vel;
-	for (int i = 0; i < 10000; ++i)
-	{
-		TestParticle newParticle;
-		XMStoreFloat3(&newParticle.pos, mPuckMan->GetPos());
-		vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-0.5f, 0.5f), 0.5 + MathHelper::RandF(0.0f, 0.2f), MathHelper::RandF(-0.5f, 0.5f), 0.0f));
-		XMStoreFloat3(&newParticle.vel, vel * MathHelper::RandF(0.05f, 0.2f));
-		newParticle.size.x = 0.1f;
-		newParticle.size.y = 0.1f;
-		newParticle.age = 0.0f;
-		newParticle.lifetime = MathHelper::RandF(0.5f, 1.0f);
-		mFireBallParticles.push_back(newParticle);
-	}*/
-
 	BuildBlendStates();
 	BuildDSStates();
 
-	//ID3D11ShaderResourceView* font;
 	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"Textures/font2.png", 0, 0, &mFontTexture, 0);
 
 	mFont = new FontRasterizer(m2DCam, XMLoadFloat4x4(&m2DProj), mLitTexEffect, 10, 10, mFontTexture, md3dDevice);
@@ -644,37 +615,6 @@ void PuckMan3D::UpdateParticleVB()
 
 	md3dImmediateContext->Unmap(mParticleVB, 0);
 }
-
-/*void PuckMan3D::BuildFireBallParticleVB()
-{
-	std::vector<Vertex::ParticleVertex> vertices(MAX_PARTICLES);
-
-	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(Vertex::ParticleVertex) * MAX_PARTICLES;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	vbd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;
-	vinitData.pSysMem = &vertices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mFireBallParticleVB));
-
-}
-
-void PuckMan3D::UpdateFireBallParticleVB()
-{
-	D3D11_MAPPED_SUBRESOURCE mappedData;
-	HR(md3dImmediateContext->Map(mFireBallParticleVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
-	Vertex::ParticleVertex* v = reinterpret_cast<Vertex::ParticleVertex*> (mappedData.pData);
-
-	for (UINT i = 0; i < mFireBallParticles.size(); ++i)
-	{
-		v[i].pos = mFireBallParticles[i].pos;
-		v[i].size = mFireBallParticles[i].size;
-	}
-
-	md3dImmediateContext->Unmap(mFireBallParticleVB, 0);
-}*/
 
 void PuckMan3D::OnResize()
 {
@@ -1021,7 +961,6 @@ void PuckMan3D::UpdateScene(float dt)
 				}
 			}
 			writeToTxtFile();
-			//readFromTxtFile();
 		}
 		mGameState = GameState::GS_GAMEOVER;
 	}
@@ -1243,80 +1182,11 @@ void PuckMan3D::UpdateScene(float dt)
 		}
 	}
 
-	//mOrigPos.m128_f32[0] = -12.5f;
-	//mFBBlueGhost->Update(mOrigPos, MazeLoader::RADIUS_PAC_MAN, dt, mCurrRatio, md3dImmediateContext);
 	mCurrRatio += dt;
 	if (mCurrRatio > 1.0f)
 	{
 		mCurrRatio = 0.0f;
 	}
-	//mFBBlinky->Update(XMLoadFloat3(&(mBlinky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
-	//mFBInky->Update(XMLoadFloat3(&(mInky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
-	//mFBPinky->Update(XMLoadFloat3(&(mPinky->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
-	//mFBClyde->Update(XMLoadFloat3(&(mClyde->getPos())), MazeLoader::RADIUS_GHOST, dt, md3dImmediateContext);
-
-	/*for (int i = 0; i < mFireBallParticles.size(); ++i)
-	{
-		XMVECTOR pos = XMLoadFloat3(&mFireBallParticles[i].pos);
-		XMVECTOR vel = XMLoadFloat3(&mFireBallParticles[i].vel);
-
-		mFireBallParticles[i].age += dt;
-		if (mFireBallParticles[i].age >= mFireBallParticles[i].lifetime)
-		{
-			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), MathHelper::RandF(-1.0f, 1.0f), 0.0f)) * MazeLoader::RADIUS_PAC_MAN;
-			XMStoreFloat3(&mFireBallParticles[i].pos, mPuckMan->GetPos() + vel);
-			//mFireBallParticles[i].pos.y -= 1.25f;
-			vel = XMVector3Normalize(XMVectorSet(MathHelper::RandF(-0.03f, 0.03f), 0.5 + MathHelper::RandF(0.0f, 0.2f), MathHelper::RandF(-0.03f, 0.03f), 0.0f));
-			float speedMult = MathHelper::RandF(0.01f, 0.06f);
-			if (MathHelper::RandF() > 0.50f)
-			{
-				if (MathHelper::RandF() > 0.50f)
-				{
-					vel.m128_f32[0] += MathHelper::RandF(-0.4f, 0.4f);
-					//vel.m128_f32[0] *= MathHelper::RandF(-0.06f, 0.06f);
-					//vel.m128_f32[2] *= MathHelper::RandF(-0.06f, 0.06f);
-				}
-				else
-				{
-					vel.m128_f32[2] += MathHelper::RandF(-0.4f, 0.4f);
-					//vel.m128_f32[0] *= MathHelper::RandF(-0.06f, 0.06f);
-					//vel.m128_f32[2] *= MathHelper::RandF(-0.06f, 0.06f);
-				}
-			}
-			XMStoreFloat3(&mFireBallParticles[i].vel, vel * speedMult);
-			mFireBallParticles[i].size.x = MathHelper::RandF(0.05f, 0.1f);
-			mFireBallParticles[i].size.y = MathHelper::RandF(0.05f, 0.1f);
-			mFireBallParticles[i].age = 0.0f;
-			mFireBallParticles[i].lifetime = MathHelper::RandF(0.25f, 2.25f);
-			pos = XMLoadFloat3(&mFireBallParticles[i].pos);
-			vel = XMLoadFloat3(&mFireBallParticles[i].vel);
-		}
-		if (pos.m128_f32[1] < (mPuckMan->GetPos().m128_f32[1] + (MazeLoader::RADIUS_PAC_MAN * 0.60f)))
-		{
-			XMVECTOR s1Center = mPuckMan->GetPos();
-			float s1Radius = MazeLoader::RADIUS_PAC_MAN;
-			float currOverLap = 0.0f;
-			XMVECTOR correction = XMVectorZero();
-
-			XMVECTOR d = s1Center - pos;
-
-			float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) + (d.m128_f32[2] * d.m128_f32[2])); //Magnitude of the difference
-
-			float overLap = s1Radius - distance;
-
-			if (overLap > currOverLap) // Have Collision
-			{
-				currOverLap = overLap;
-
-				correction = XMVector3Normalize(d) * currOverLap; //correct collision by moving sphere out of box
-			}
-			pos += correction;
-		}
-		pos = pos + vel;
-		XMStoreFloat3(&mFireBallParticles[i].pos, pos);
-	}
-
-	UpdateFireBallParticleVB();*/
 }
 
 DWORD WINAPI PuckMan3D::PathFindingStaticThreadStart(LPVOID lpParam)
@@ -1329,20 +1199,10 @@ DWORD WINAPI PuckMan3D::PathFindingStaticThreadStart(LPVOID lpParam)
 
 	pData->waypoints = pfDeadGhost.FindPath(&mPNDeadGhostStart, &mPNDeadGhostEnd);
 	return 0;
-	//return This->PathFindingThreadStart();
-}
-
-DWORD PuckMan3D::PathFindingThreadStart()
-{
-	mPFWaypoints = mPFDeadGhost.FindPath(mPNDeadGhostStart, mPNDeadGhostEnd);
-	return 0;
 }
 
 void PuckMan3D::DrawScene()
 {
-	//md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
-	//md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 	ID3D11RenderTargetView* renderTargets[1] = { mOffscreenRTV };
 	if (mIsDisplayBlurred)
 	{
@@ -1374,7 +1234,6 @@ void PuckMan3D::DrawScene()
 		renderTargets[0] = mRenderTargetView;
 		md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
 
-		//mBlur.SetGaussianWeights(4.0f);
 		mBlur.BlurInPlace(md3dImmediateContext, mOffscreenSRV, mOffscreenUAV, 4);
 
 		//
@@ -1641,7 +1500,6 @@ void PuckMan3D::DrawWrapper()
 		md3dImmediateContext->OMSetDepthStencilState(mFontDS, 0);
 
 		std::stringstream os;
-		//os << "(" << pacMans[0].pos.x << ", " << pacMans[0].pos.z << ")" << "    " << mPelletCounter;
 		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
 		mLitTexEffect->SetPerFrameParams(ambient, eyePos, mPointLights[5], mSpotLights[0]);
 		mLitTexEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, mFontTexture);
@@ -1656,10 +1514,6 @@ void PuckMan3D::DrawWrapper()
 	{
 		mFBBlueGhost[i]->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
 	}
-	//mFBBlinky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
-	//mFBInky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
-	//mFBPinky->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
-	//mFBClyde->DrawFireBall(eyePos, viewProj, md3dImmediateContext);
 
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	md3dImmediateContext->OMSetBlendState(mTransparentBS, blendFactor, 0xffffffff);
@@ -1786,25 +1640,6 @@ void PuckMan3D::DrawScreenQuad()
 
 	mLitTexEffect->SetPerObjectParams(identity, identity, identity, mBlur.GetBlurredOutput());
 	mLitTexEffect->Draw(md3dImmediateContext, mGeometryQuadFullScreen->GetVB(), mGeometryQuadFullScreen->GetIB(), mGeometryQuadFullScreen->GetIndexCount());
-	
-	/*ID3DX11EffectTechnique* texOnlyTech = Effects::BasicFX->Light0TexTech;
-	D3DX11_TECHNIQUE_DESC techDesc;
-
-	texOnlyTech->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p)
-	{
-		md3dImmediateContext->IASetVertexBuffers(0, 1, &mScreenQuadVB, &stride, &offset);
-		md3dImmediateContext->IASetIndexBuffer(mScreenQuadIB, DXGI_FORMAT_R32_UINT, 0);
-
-		Effects::BasicFX->SetWorld(identity);
-		Effects::BasicFX->SetWorldInvTranspose(identity);
-		Effects::BasicFX->SetWorldViewProj(identity);
-		Effects::BasicFX->SetTexTransform(identity);
-		Effects::BasicFX->SetDiffuseMap(mBlur.GetBlurredOutput());
-
-		texOnlyTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->DrawIndexed(6, 0, 0);
-	}*/
 }
 
 void PuckMan3D::OnMouseDown(WPARAM btnState, int x, int y)
@@ -2044,7 +1879,6 @@ void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s
 {
 	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
 	float s2Radius = MazeLoader::RADIUS_GHOST;
-	//std::vector<MazeLoader::AABox> triggerData = MazeLoader::GetTriggerCollisionData();
 	std::vector<MazeLoader::AABox> trapData = MazeLoader::GetTrapCollisionData();
 	float pmCurrOverLap = 0.0f;
 	float g1CurrOverLap = 0.0f;
@@ -2069,11 +1903,11 @@ void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s
 		XMVECTOR g3d = s4Center - D;
 		XMVECTOR g4d = s5Center - E;
 
-		float pmDistance = sqrt((pmd.m128_f32[0] * pmd.m128_f32[0]) /*+ (pmd.m128_f32[1] * pmd.m128_f32[1])*/ + (pmd.m128_f32[2] * pmd.m128_f32[2])); //Magnitude of the difference
-		float g1Distance = sqrt((g1d.m128_f32[0] * g1d.m128_f32[0]) /*+ (g1d.m128_f32[1] * g1d.m128_f32[1])*/ + (g1d.m128_f32[2] * g1d.m128_f32[2]));
-		float g2Distance = sqrt((g2d.m128_f32[0] * g2d.m128_f32[0]) /*+ (g2d.m128_f32[1] * g2d.m128_f32[1])*/ + (g2d.m128_f32[2] * g2d.m128_f32[2]));
-		float g3Distance = sqrt((g3d.m128_f32[0] * g3d.m128_f32[0]) /*+ (g3d.m128_f32[1] * g3d.m128_f32[1])*/ + (g3d.m128_f32[2] * g3d.m128_f32[2]));
-		float g4Distance = sqrt((g4d.m128_f32[0] * g4d.m128_f32[0]) /*+ (g4d.m128_f32[1] * g4d.m128_f32[1])*/ + (g4d.m128_f32[2] * g4d.m128_f32[2]));
+		float pmDistance = sqrt((pmd.m128_f32[0] * pmd.m128_f32[0]) + (pmd.m128_f32[2] * pmd.m128_f32[2])); //Magnitude of the difference
+		float g1Distance = sqrt((g1d.m128_f32[0] * g1d.m128_f32[0]) + (g1d.m128_f32[2] * g1d.m128_f32[2]));
+		float g2Distance = sqrt((g2d.m128_f32[0] * g2d.m128_f32[0]) + (g2d.m128_f32[2] * g2d.m128_f32[2]));
+		float g3Distance = sqrt((g3d.m128_f32[0] * g3d.m128_f32[0]) + (g3d.m128_f32[2] * g3d.m128_f32[2]));
+		float g4Distance = sqrt((g4d.m128_f32[0] * g4d.m128_f32[0]) + (g4d.m128_f32[2] * g4d.m128_f32[2]));
 
 		float overlap = s1Radius - pmDistance;
 		float g1OverLap = s2Radius - g1Distance;
@@ -2182,7 +2016,7 @@ XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 
 		XMVECTOR d = s1Center - A; //difference between the closest point on the box  and sphere center
 
-		float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) /*+ (d.m128_f32[1] * d.m128_f32[1])*/ + (d.m128_f32[2] * d.m128_f32[2])); //Magnitude of the difference
+		float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) + (d.m128_f32[2] * d.m128_f32[2])); //Magnitude of the difference
 
 		float overLap = s1Radius - distance;
 
@@ -2291,46 +2125,13 @@ void PuckMan3D::DrawParticles()
 	md3dImmediateContext->OMSetDepthStencilState(NULL, 0);
 }
 
-/*void PuckMan3D::DrawFireBall()
-{
-	XMMATRIX proj = XMLoadFloat4x4(&mProj);
-	XMMATRIX view = XMLoadFloat4x4(&mView);
-	XMMATRIX vp = view * proj;
-
-	mFireBallEffect->SetPerFrameParams(XMLoadFloat3(&mEyePosW));
-	mFireBallEffect->SetPerObjectParams(vp, mParticleTexture);
-
-	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	md3dImmediateContext->IASetInputLayout(Vertex::GetParticleVertLayout());
-
-	UINT stride = sizeof(Vertex::ParticleVertex);
-	UINT offset = 0;
-
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mFireBallParticleVB, &stride, &offset);
-
-	md3dImmediateContext->OMSetDepthStencilState(mNoDepthDS, 0);
-	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	md3dImmediateContext->OMSetBlendState(mAdditiveBS, blendFactor, 0xffffffff);
-
-	D3DX11_TECHNIQUE_DESC techDesc;
-	mFireBallEffect->GetTech()->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p)
-	{
-		mFireBallEffect->GetTech()->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->Draw(mFireBallParticles.size(), 0);
-	}
-
-	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
-	md3dImmediateContext->OMSetDepthStencilState(NULL, 0);
-}*/
-
 XNA::OrientedBox* PuckMan3D::GetOrientedBox(FXMVECTOR extents, const GraphicalObject* obj)
 {
 	XNA::OrientedBox* ret = new XNA::OrientedBox();
 	XMStoreFloat3(&ret->Extents, extents);
 	XMStoreFloat3(&ret->Center, obj->GetPos());
 
-	XMMATRIX rot = //XMMatrixIdentity();
+	XMMATRIX rot =
 		XMMatrixSet(
 		obj->GetRight().m128_f32[0],
 		obj->GetRight().m128_f32[1],
@@ -2380,7 +2181,6 @@ XMVECTOR PuckMan3D::CylToCyl(FXMVECTOR c1Pos, float c1Rad, float c1Height,
 
 void PuckMan3D::BuildPuckMan()
 {
-	//mPuckMan = new PuckMan(XMVectorSet())
 	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
 	mPuckMan = new PuckMan(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), MazeLoader::RADIUS_PAC_MAN);
 	MazeLoader::SetPacManPos(XMVectorSet(-12.0f, 0.75f, -17.0f, 0.0f), 1);
@@ -2542,7 +2342,6 @@ void PuckMan3D::resetGame()
 	{
 		mSpotLights[i].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
 	}
-	//MazeLoader::ResetPacManPosition()
 	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
 	mPuckMan->SetPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f));
 }
@@ -2833,30 +2632,6 @@ void PuckMan3D::BuildScreenQuadGeometryBuffers()
 
 	mGeometryQuadFullScreen->SetVertices(md3dDevice, &vertices[0], vertices.size());
 	mGeometryQuadFullScreen->SetIndices(md3dDevice, &quad.Indices[0], quad.Indices.size());
-
-	/*D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::NormalTexVertex) * quad.Vertices.size();
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;
-	vinitData.pSysMem = &vertices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mScreenQuadVB));
-
-	//
-	// Pack the indices of all the meshes into one index buffer.
-	//
-
-	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * quad.Indices.size();
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = &quad.Indices[0];
-	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mScreenQuadIB));*/
 }
 
 void PuckMan3D::BuildOffscreenViews()
@@ -2951,7 +2726,6 @@ void PuckMan3D::writeToTxtFile()
 	writeTxtFile.open("highscores.txt");
 	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
 	for (int i = 0; i < mHighScore.size(); ++i)
-	//for (int i = mHighScore.size() - 1; i >= 0; --i)
 	{
 		writeTxtFile << mHighScore[i] << std::endl;
 	}

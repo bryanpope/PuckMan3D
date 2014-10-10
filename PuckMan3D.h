@@ -170,7 +170,6 @@ private:
 	void calcGhostScore();
 	void LoadTriggers();
 	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
-	DWORD PathFindingThreadStart();
 private:
 	struct Fruit
 	{
