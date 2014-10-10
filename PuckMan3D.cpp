@@ -819,19 +819,21 @@ void PuckMan3D::UpdateScene(float dt)
 	XMVECTOR inkyPos = XMLoadFloat3(&ghosts[1].pos);
 	XMVECTOR pinkyPos = XMLoadFloat3(&ghosts[2].pos);
 	XMVECTOR clydePos = XMLoadFloat3(&ghosts[3].pos);
-
-	AABoxTriggerPuckManGhostsOverLap(mPuckMan->GetPos(), blinkyPos, inkyPos, pinkyPos, clydePos);
-	for (int i = 0; i < mTriggers.size(); ++i)
+	if (mIsTrapActivated)
 	{
-		if (mTriggers[i].isOn)
+		AABoxTriggerPuckManGhostsOverLap(mPuckMan->GetPos(), blinkyPos, inkyPos, pinkyPos, clydePos);
+		for (int i = 0; i < mTriggers.size(); ++i)
 		{
-			//change color of trap to TRAPACTIVE
-			traps[i].colour = XMFLOAT4(0.9f, 0.0f, 0.0f, 1.0f);//Materials::TRAPACTIVE;
-		}
-		else
-		{
-			//change color to TRAPINACTIVE
-			traps[i].colour = XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f);// Materials::TRAPINACTIVE;
+			if (mTriggers[i].isOn)
+			{
+				//change color of trap to TRAPACTIVE
+				traps[i].colour = XMFLOAT4(0.9f, 0.0f, 0.0f, 1.0f);//Materials::TRAPACTIVE;
+			}
+			else
+			{
+				//change color to TRAPINACTIVE
+				traps[i].colour = XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f);// Materials::TRAPINACTIVE;
+			}
 		}
 	}
 
@@ -1457,19 +1459,22 @@ void PuckMan3D::DrawWrapper()
 		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(),
 			mCountPowerUps, oc.powerUps.indexOffset, oc.powerUps.indexCount);
 
-		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
-		mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
-		Material TriggerColour = Materials::TRIGGER;
-		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, TriggerColour);
-		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBTriggers(),
-			mCountTriggers, oc.triggers.indexOffset, oc.triggers.indexCount);
+		if (mIsTrapActivated)
+		{
+			md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+			mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+			Material TriggerColour = Materials::TRIGGER;
+			mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, TriggerColour);
+			mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBTriggers(),
+				mCountTriggers, oc.triggers.indexOffset, oc.triggers.indexCount);
 
-		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
-		mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
-		Material TrapColour = Materials::TRAPINACTIVE;
-		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, TrapColour);
-		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBTraps(),
-			mCountTraps, oc.traps.indexOffset, oc.traps.indexCount);
+			md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+			mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+			Material TrapColour = Materials::TRAPINACTIVE;
+			mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, TrapColour);
+			mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBTraps(),
+				mCountTraps, oc.traps.indexOffset, oc.traps.indexCount);
+		}
 
 		std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 		world = XMLoadFloat4x4(&mGridWorld);
@@ -1682,6 +1687,15 @@ void PuckMan3D::DrawWrapper()
 		crt << "CRT - (4) " << (mIsCRTShaderOn ? "On" : "Off");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, crt.str());
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, "Audio - (5)");
+		if (mIsTrapActivated)
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 30, 75, 25, "Traps - (6) - (On)");
+		}
+		else
+		{
+			mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 30, 75, 25, "Traps - (6) - (Off)");
+		}
+
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to return");
 	}
 	if (mGameState == GameState::GS_SOUNDOPTIONS)
@@ -1977,6 +1991,22 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			mGameState = GS_HIGHSCORE;
 		}
+	}
+	if (GetAsyncKeyState('6') & 0x0001)
+	{
+		
+		if (mGameState == GS_OPTIONS)
+		{
+			if (mIsTrapActivated)
+			{
+				mIsTrapActivated = false;
+			}
+			else
+			{
+				mIsTrapActivated = true;
+			}
+		}
+
 	}
 	if (GetAsyncKeyState('0') & 0x0001)
 	{
