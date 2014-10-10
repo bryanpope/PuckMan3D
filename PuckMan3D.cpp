@@ -792,7 +792,6 @@ void PuckMan3D::UpdateScene(float dt)
 	XMVECTOR inkyPos = XMLoadFloat3(&ghosts[1].pos);
 	XMVECTOR pinkyPos = XMLoadFloat3(&ghosts[2].pos);
 	XMVECTOR clydePos = XMLoadFloat3(&ghosts[3].pos);
-<<<<<<< HEAD
 	
 	AABoxTriggerPuckManGhostsOverLap(pos, blinkyPos, inkyPos, pinkyPos, clydePos);
 	for (int i = 0; i < mTriggers.size(); ++i)
@@ -937,12 +936,6 @@ void PuckMan3D::UpdateScene(float dt)
 
 		}
 		else
-=======
-	if (mIsTrapActivated)
-	{
-		AABoxTriggerPuckManGhostsOverLap(mPuckMan->GetPos(), blinkyPos, inkyPos, pinkyPos, clydePos);
-		for (int i = 0; i < mTriggers.size(); ++i)
->>>>>>> origin/master
 		{
 			if (mTriggers[i].isOn)
 			{
