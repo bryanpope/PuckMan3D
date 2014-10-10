@@ -2892,15 +2892,15 @@ void PuckMan3D::readFromTxtFile()
 {
 	std::stringstream highScore;
 	std::string temp;
-	int pusBackZero = 0;
+	int pushBackZero = 0;
 	readTxtFile.open("highscores.txt");
 	mHighScore.clear();
 	while (std::getline(readTxtFile, temp))
 	{
 		highScore.clear();
 		highScore.str(temp);
-		highScore >> pusBackZero;
-		mHighScore.push_back(pusBackZero);
+		highScore >> pushBackZero;
+		mHighScore.push_back(pushBackZero);
 	}
 	readTxtFile.close();
 }
@@ -2909,8 +2909,8 @@ void PuckMan3D::writeToTxtFile()
 {
 	writeTxtFile.open("highscores.txt");
 	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
-	for (int i = 0; i < mHighScore.size(); ++i)
-	//for (int i = mHighScore.size() - 1; i != 0; --i)
+	//for (int i = 0; i < mHighScore.size(); ++i)
+	for (int i = mHighScore.size() - 1; i >= 0; --i)
 	{
 		writeTxtFile << mHighScore[i] << std::endl;
 	}
