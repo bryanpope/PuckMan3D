@@ -960,7 +960,7 @@ void PuckMan3D::UpdateScene(float dt)
 			mIsGameOver = false;
 			for (int i = mHighScore.size() - 1; i >= 0; ++i)
 			{
-				if (i != mHighScore.size())
+				if (i < mHighScore.size())
 				{
 					if (mHighScore[i] < mScore)
 					{
