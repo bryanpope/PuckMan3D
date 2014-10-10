@@ -1997,7 +1997,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		{
 			//reset highscore
 			resetHighScore();
-			//readFromTxtFile();
+			readFromTxtFile();
 		}
 	}
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
@@ -2940,6 +2940,7 @@ void PuckMan3D::writeToTxtFile()
 	writeTxtFile.open("highscores.txt");
 	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
 	for (int i = 0; i < mHighScore.size(); ++i)
+	//for (int i = mHighScore.size() - 1; i != 0; --i)
 	{
 		writeTxtFile << mHighScore[i] << std::endl;
 	}
@@ -2948,10 +2949,13 @@ void PuckMan3D::writeToTxtFile()
 
 void PuckMan3D::resetHighScore()
 {
-	/*writeTxtFile.open("highscores.txt");
-	HighScore << 0;
-	writeTxtFile << 0;
-	writeTxtFile.close();*/
+	writeTxtFile.open("highscores.txt");
+	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
+	for (int i = 0; i < mHighScore.size(); ++i)
+	{
+		writeTxtFile << 0 << std::endl;
+	}
+	writeTxtFile.close();
 }
 
 void PuckMan3D::calcGhostScore()
