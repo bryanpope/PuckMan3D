@@ -150,8 +150,8 @@ PuckMan3D::~PuckMan3D()
 	if (mGeometryQuadFullScreen)
 		delete(mGeometryQuadFullScreen);
 
-	if (mPuckMan)
-		delete(mPuckMan);
+	/*if (mPuckMan)
+		delete(mPuckMan);*/
 
 	if (mBlinky)
 		delete(mBlinky);
