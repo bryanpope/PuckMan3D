@@ -8,7 +8,7 @@
 
 class MazeLoader
 {
-public: 
+public:
 	static const UINT MAX_VERTICES;
 	static const UINT MAX_LINE_WIDTH;
 
@@ -33,6 +33,8 @@ public:
 		OffsetsCounts powerUps;
 		OffsetsCounts pacMan;
 		OffsetsCounts ghosts;
+		OffsetsCounts triggers;
+		OffsetsCounts traps;
 	};
 	struct InitialPosition
 	{
@@ -90,21 +92,27 @@ public:
 		ME_WALL,
 		ME_PELLET,
 		ME_PELLET_DIVERGENT,
+		ME_PELLET_TRIGGER,
+		ME_PELLET_TRAP,
 		ME_POWERUP,
-		ME_BLANK, 
+		ME_BLANK,
 		ME_NOTHING,
 		ME_NOTHING_DIVERGENT
+
 	};
 
-	static bool Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices, 
+	static bool Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices,
 		std::vector<Vertex::InstancedData>& instFloor,
 		std::vector<Vertex::InstancedData>& instWallsBent, std::vector<Vertex::InstancedData>& instWallsStraight,
 		std::vector<Vertex::InstancedData>& instPellets, std::vector<Vertex::InstancedData>& instPowerUps,
-		std::vector<Vertex::InstancedData>& instPacMans, std::vector<Vertex::InstancedData>& instGhosts);
+		std::vector<Vertex::InstancedData>& instPacMans, std::vector<Vertex::InstancedData>& instGhosts,
+		std::vector<Vertex::InstancedData>& instTriggers, std::vector<Vertex::InstancedData>& instTraps);
 
 	static const OffsetsCountsMazeElements& GetOffsetsCounts(){ return mElementOffsetsCounts; }
 	static const InitialPosition& GetInitialPos(){ return mInitialPositions; }
 	static const std::vector<AABox> GetWallCollisionData(){ return mBoxData; }
+	static const std::vector<AABox> GetTriggerCollisionData(){ return mTriggerData; }
+	static const std::vector<AABox> GetTrapCollisionData(){ return mTrapData; }
 	static bool IsBlocked(UINT row, UINT col);
 	static bool IsDivergent(UINT row, UINT col);
 	static std::vector<MazeElementSpecs> GetFloorData(){ return mFloor; }
@@ -114,6 +122,8 @@ public:
 	static std::vector<MazeElementSpecs> GetPowerUpData(){ return mPowerUps; }
 	static std::vector<MazeElementSpecs> GetPacManData(){ return mPacMans; }
 	static std::vector<MazeElementSpecs> GetGhostData(){ return mGhosts; }
+	static std::vector<MazeElementSpecs> GetTriggerData(){ return mTriggers; }
+	static std::vector<MazeElementSpecs> GetTrapData(){ return mTraps; }
 	//static void EraseWall(UINT index){ mWalls.erase(mWalls.begin() + index); }
 	static void ErasePellet(UINT index){ mPellets.erase(mPellets.begin() + index); }
 	static void ErasePowerUp(UINT index){ mPowerUps.erase(mPowerUps.begin() + index); }
@@ -162,12 +172,16 @@ private:
 		UINT pellets;
 		UINT powerUps;
 		UINT emptySpaces;
+		UINT triggers;
+		UINT traps;
 	};
 	static MazeElementsCounts mElementCount;
 
 	static OffsetsCountsMazeElements mElementOffsetsCounts;
 	static InitialPosition mInitialPositions;
 	static std::vector<AABox> mBoxData;
+	static std::vector<AABox> mTriggerData;
+	static std::vector<AABox> mTrapData;
 	static std::vector<MazeElements> mMazeElements;
 	static std::vector<MazeElements> mMazeElementsModify;
 	static std::vector<MazeElementSpecs> mFloor;
@@ -177,6 +191,8 @@ private:
 	static std::vector<MazeElementSpecs> mPowerUps;
 	static std::vector<MazeElementSpecs> mPacMans;
 	static std::vector<MazeElementSpecs> mGhosts;
+	static std::vector<MazeElementSpecs> mTriggers;
+	static std::vector<MazeElementSpecs> mTraps;
 	static UINT mMazeWidth;
 	static UINT mMazeHeight;
 

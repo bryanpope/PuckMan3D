@@ -14,6 +14,8 @@ protected:
 	ID3D11Buffer* mInstanceBPowerUps;
 	ID3D11Buffer* mInstanceBPacMans;
 	ID3D11Buffer* mInstanceBGhosts;
+	ID3D11Buffer* mInstanceBTriggers;
+	ID3D11Buffer* mInstanceBTraps;
 	UINT mIndexCount;
 
 public:
@@ -23,12 +25,12 @@ public:
 
 	virtual ~GraphicalGeometry(void)
 	{
-		if(mVB)
+		if (mVB)
 		{
 			mVB->Release();
 		}
 
-		if(mIB)
+		if (mIB)
 		{
 			mIB->Release();
 		}
@@ -61,6 +63,7 @@ public:
 		{
 			mInstanceBGhosts->Release();
 		}
+
 	}
 
 	ID3D11Buffer* GetVB()
@@ -100,6 +103,14 @@ public:
 	ID3D11Buffer* GetInstanceBGhosts()
 	{
 		return mInstanceBGhosts;
+	}
+	ID3D11Buffer* GetInstanceBTriggers()
+	{
+		return mInstanceBTriggers;
+	}
+	ID3D11Buffer* GetInstanceBTraps()
+	{
+		return mInstanceBTraps;
 	}
 
 	UINT GetIndexCount() const

@@ -11,6 +11,8 @@ MazeLoader::MazeElementsCounts MazeLoader::mElementCount;
 MazeLoader::OffsetsCountsMazeElements MazeLoader::mElementOffsetsCounts;
 MazeLoader::InitialPosition MazeLoader::mInitialPositions;
 std::vector<MazeLoader::AABox> MazeLoader::mBoxData;
+std::vector<MazeLoader::AABox> MazeLoader::mTriggerData;
+std::vector<MazeLoader::AABox> MazeLoader::mTrapData;
 std::vector<MazeLoader::MazeElements> MazeLoader::mMazeElements;
 std::vector<MazeLoader::MazeElements> MazeLoader::mMazeElementsModify;
 UINT MazeLoader::mMazeWidth;
@@ -22,6 +24,8 @@ std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPellets;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPowerUps;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mPacMans;
 std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mGhosts;
+std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mTriggers;
+std::vector<MazeLoader::MazeElementSpecs> MazeLoader::mTraps;
 
 std::vector<Vertex::NormalTexVertex> MazeLoader::mCylVerticesStraight;
 std::vector<UINT> MazeLoader::mCylIndicesStraight;
@@ -43,11 +47,12 @@ MazeLoader::~MazeLoader(void)
 {
 }
 
-bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices, 
+bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Vertex::NormalTexVertex>& vertices, std::vector<UINT>& indices,
 	std::vector<Vertex::InstancedData>& instFloor,
 	std::vector<Vertex::InstancedData>& instWallsBent, std::vector<Vertex::InstancedData>& instWallsStraight,
 	std::vector<Vertex::InstancedData>& instPellets, std::vector<Vertex::InstancedData>& instPowerUps,
-	std::vector<Vertex::InstancedData>& instPacMans, std::vector<Vertex::InstancedData>& instGhosts)
+	std::vector<Vertex::InstancedData>& instPacMans, std::vector<Vertex::InstancedData>& instGhosts,
+	std::vector<Vertex::InstancedData>& instTriggers, std::vector<Vertex::InstancedData>& instTraps)
 {
 	std::vector<XMFLOAT3> vertPos;
 	vertPos.reserve(MAX_VERTICES);
@@ -64,7 +69,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	XMFLOAT4X4 worldPos;
 	XMStoreFloat4x4(&worldPos, XMMatrixIdentity());
 
-	if(!fin)
+	if (!fin)
 	{
 		OutputDebugString(L"Error loading mesh file.");
 		return false;
@@ -91,6 +96,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	mElementCount.pellets = 0;
 	mElementCount.powerUps = 0;
 	mElementCount.emptySpaces = 0;
+	mElementCount.triggers = 0;
+	mElementCount.traps = 0;
 
 	wchar_t line[256];
 	UINT lineCount = 0;
@@ -105,12 +112,12 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		}
 		/*else
 		{
-			int readLineWidth = fin.gcount();
-			if (readLineWidth != lineWidth)
-			{
-				OutputDebugString(L"Maze line widths should be all the same!");
-				return false;
-			}
+		int readLineWidth = fin.gcount();
+		if (readLineWidth != lineWidth)
+		{
+		OutputDebugString(L"Maze line widths should be all the same!");
+		return false;
+		}
 		}*/
 		std::wstring wLine = line;
 		mElementCount.walls.cornerTopLeft += std::count(wLine.begin(), wLine.end(), L'0');
@@ -122,8 +129,13 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		mElementCount.walls.horizontal += std::count(wLine.begin(), wLine.end(), L'6');
 		mElementCount.pellets += std::count(wLine.begin(), wLine.end(), L' ');
 		mElementCount.pellets += std::count(wLine.begin(), wLine.end(), L'D');
+		mElementCount.pellets += std::count(wLine.begin(), wLine.end(), L'T');
+		mElementCount.pellets += std::count(wLine.begin(), wLine.end(), L'X');
 		mElementCount.powerUps += std::count(wLine.begin(), wLine.end(), L'O');
 		mElementCount.emptySpaces += std::count(wLine.begin(), wLine.end(), L'-');
+		mElementCount.triggers += std::count(wLine.begin(), wLine.end(), L'T');
+		mElementCount.traps += std::count(wLine.begin(), wLine.end(), L'X');
+
 
 		mazeText.push_back(line);
 	}
@@ -137,6 +149,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	GeometryGenerator::MeshData meshPowerUp;
 	GeometryGenerator::MeshData meshPacMan;
 	GeometryGenerator::MeshData meshGhost;
+	GeometryGenerator::MeshData meshTrigger;
+	GeometryGenerator::MeshData meshTrap;
 
 	//geoGen.CreateBox(0.70f, 0.20f, 0.70f, meshBox);
 	geoGen.CreateGrid(mMazeWidth * 3, mMazeHeight * 3, mMazeHeight, mMazeWidth, meshFloor);
@@ -145,6 +159,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	geoGen.CreateSphere(RADIUS_POWERUP, 10, 10, meshPowerUp);
 	geoGen.CreateSphere(RADIUS_PAC_MAN, 10, 10, meshPacMan);
 	geoGen.CreateSphere(RADIUS_GHOST, 10, 10, meshGhost);
+	geoGen.CreateBox(1.0f, 1.0f, 1.0f, meshTrigger);
+	geoGen.CreateBox(1.0f, 1.0f, 1.0f, meshTrap);
 
 	UINT startVertexWallBent = meshFloor.Vertices.size() * 1;
 	UINT startIndexWallBent = meshFloor.Indices.size() * 1;
@@ -160,11 +176,15 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	UINT startIndexPacMan = startIndexPowerUp + (meshPowerUp.Indices.size() * 1);
 	UINT startVertexGhost = startVertexPacMan + (meshPacMan.Vertices.size() * 1);
 	UINT startIndexGhost = startIndexPacMan + (meshPacMan.Indices.size() * 1);
-	
+	UINT startVertexTrigger = startVertexGhost + (meshGhost.Vertices.size() * 1);
+	UINT startIndexTrigger = startIndexGhost + (meshGhost.Indices.size() * 1);
+	UINT startVertexTrap = startVertexTrigger + (meshTrigger.Vertices.size() * 1);
+	UINT startIndexTrap = startIndexTrigger + (meshTrigger.Indices.size() * 1);
+
 	UINT countVertex = (meshFloor.Vertices.size() * 1) + (mCylVerticesBent.size() * 1) + (mCylVerticesStraight.size() * 1) + (meshPellet.Vertices.size() * 1) + (meshPowerUp.Vertices.size() * 1)
-		+ (meshPacMan.Vertices.size() * 1) + (meshGhost.Vertices.size() * 1);
+		+ (meshPacMan.Vertices.size() * 1) + (meshGhost.Vertices.size() * 1) + (meshTrigger.Vertices.size() * 1) + (meshTrap.Vertices.size() * 1);
 	UINT countIndex = (meshFloor.Indices.size() * 1) + (mCylIndicesBent.size() * 1) + (mCylIndicesStraight.size() * 1) + (meshPellet.Indices.size() * 1) + (meshPowerUp.Indices.size() * 1)
-		+ (meshPacMan.Indices.size() * 1) + (meshGhost.Indices.size() * 1);
+		+ (meshPacMan.Indices.size() * 1) + (meshGhost.Indices.size() * 1) + (meshTrigger.Indices.size() * 1) + (meshTrap.Indices.size() * 1);
 
 	UINT countWallsBent = mElementCount.walls.cornerTopLeft + mElementCount.walls.cornerTopRight + mElementCount.walls.cornerBottomRight + mElementCount.walls.cornerBottomLeft;
 	UINT countWallsStraight = mElementCount.walls.vertical + mElementCount.walls.horizontal;
@@ -178,6 +198,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	instPowerUps.resize(mElementCount.powerUps);
 	instPacMans.resize(3);
 	instGhosts.resize(4);
+	instTriggers.resize(mElementCount.triggers);
+	instTraps.resize(mElementCount.traps);
 
 	float posX = lineWidth * -0.5f;	// horizontal
 	float posZ = lineCount * -0.5f;	// vertical
@@ -195,6 +217,10 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	UINT iCountPacMan = startIndexPacMan;
 	UINT vCountGhost = startVertexGhost;
 	UINT iCountGhost = startIndexGhost;
+	UINT vCountTrigger = startVertexTrigger;
+	UINT iCountTrigger = startIndexTrigger;
+	UINT vCountTrap = startVertexTrap;
+	UINT iCountTrap = startIndexTrap;
 	UINT iBlockFloor = 0;
 	UINT iBlockWallBent = startVertexWallBent;
 	UINT iBlockWallStraight = startVertexWallStraight;
@@ -202,6 +228,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	UINT iBlockPowerUp = startVertexPowerUp;
 	UINT iBlockPacMan = startVertexPacMan;
 	UINT iBlockGhost = startVertexGhost;
+	UINT iBlockTrigger = startVertexTrigger;
+	UINT iBlockTrap = startVertexTrap;
 
 	UINT instanceCountFloor = 0;
 	UINT instanceCountWallBent = 0;
@@ -210,6 +238,8 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	UINT instanceCountPowerUp = 0;
 	UINT instanceCountPacMan = 0;
 	UINT instanceCountGhost = 0;
+	UINT instanceCountTrigger = 0;
+	UINT instanceCountTrap = 0;
 
 	mElementOffsetsCounts.floors.vertexOffset = 0;
 	mElementOffsetsCounts.floors.indexOffset = 0;
@@ -259,6 +289,20 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 	mElementOffsetsCounts.ghosts.indexCount = meshGhost.Indices.size() * 1;
 	mElementOffsetsCounts.ghosts.vertexSize = meshGhost.Vertices.size();
 	mElementOffsetsCounts.ghosts.indexSize = meshGhost.Indices.size();
+
+	mElementOffsetsCounts.triggers.vertexOffset = startVertexTrigger;
+	mElementOffsetsCounts.triggers.indexOffset = startIndexTrigger;
+	mElementOffsetsCounts.triggers.vertexCount = meshTrigger.Vertices.size() * 1;
+	mElementOffsetsCounts.triggers.indexCount = meshTrigger.Indices.size() * 1;
+	mElementOffsetsCounts.triggers.vertexSize = meshTrigger.Vertices.size();
+	mElementOffsetsCounts.triggers.indexSize = meshTrigger.Indices.size();
+
+	mElementOffsetsCounts.traps.vertexOffset = startVertexTrap;
+	mElementOffsetsCounts.traps.indexOffset = startIndexTrap;
+	mElementOffsetsCounts.traps.vertexCount = meshTrap.Vertices.size() * 1;
+	mElementOffsetsCounts.traps.indexCount = meshTrap.Indices.size() * 1;
+	mElementOffsetsCounts.traps.vertexSize = meshTrap.Vertices.size();
+	mElementOffsetsCounts.traps.indexSize = meshTrap.Indices.size();
 
 	for (size_t k = 0; k < meshFloor.Vertices.size(); ++k, ++vCountFloor)
 	{
@@ -350,6 +394,34 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 		indices[iCountGhost] = meshGhost.Indices[k] + iBlockGhost;
 	}
 	iBlockGhost += meshGhost.Vertices.size();
+
+	for (size_t k = 0; k < meshTrigger.Vertices.size(); ++k, ++vCountTrigger)
+	{
+		vertices[vCountTrigger].pos.x = meshTrigger.Vertices[k].Position.x;
+		vertices[vCountTrigger].pos.y = meshTrigger.Vertices[k].Position.y;
+		vertices[vCountTrigger].pos.z = meshTrigger.Vertices[k].Position.z;
+		vertices[vCountTrigger].normal = meshTrigger.Vertices[k].Normal;
+		vertices[vCountTrigger].tex = meshTrigger.Vertices[k].TexC;
+	}
+	for (size_t k = 0; k < meshTrigger.Indices.size(); ++k, ++iCountTrigger)
+	{
+		indices[iCountTrigger] = meshTrigger.Indices[k] + iBlockTrigger;
+	}
+	iBlockTrigger += meshTrigger.Vertices.size();
+
+	for (size_t k = 0; k < meshTrap.Vertices.size(); ++k, ++vCountTrap)
+	{
+		vertices[vCountTrap].pos.x = meshTrap.Vertices[k].Position.x;
+		vertices[vCountTrap].pos.y = meshTrap.Vertices[k].Position.y;
+		vertices[vCountTrap].pos.z = meshTrap.Vertices[k].Position.z;
+		vertices[vCountTrap].normal = meshTrap.Vertices[k].Normal;
+		vertices[vCountTrap].tex = meshTrap.Vertices[k].TexC;
+	}
+	for (size_t k = 0; k < meshTrap.Indices.size(); ++k, ++iCountTrap)
+	{
+		indices[iCountTrap] = meshTrap.Indices[k] + iBlockTrap;
+	}
+	iBlockTrap += meshTrap.Vertices.size();
 
 	for (int i = 0; i < 3; ++i)
 	{
@@ -451,15 +523,70 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				}
 				mBoxData.push_back(AABox(XMVectorSet(posX, 0.0f, -posZ, 0.0f), 0.5f, 0.5f));
 			}
-			if (mazeText[i][j] == L' ' || mazeText[i][j] == L'D')	// pellets or divergent pellets
+			if (mazeText[i][j] == L' ' || mazeText[i][j] == L'D' || mazeText[i][j] == L'T' || mazeText[i][j] == L'X')	// pellets or divergent pellets or trigger pellets or trap pellets
 			{
-				mMazeElements.push_back(mazeText[i][j] == L' ' ? ME_PELLET : ME_PELLET_DIVERGENT);
-				worldPos._41 = posX;
-				worldPos._42 = 0.0f;
-				worldPos._43 = -posZ;
-				mPellets.push_back(MazeElementSpecs(worldPos, Materials::PELLET.Diffuse, true, true));
-				instPellets[instanceCountPellet].World = worldPos;
-				instPellets[instanceCountPellet++].Color = Materials::PELLET.Diffuse;
+				XMFLOAT4 colour;
+				switch (mazeText[i][j])
+				{
+				case L' ':
+					mMazeElements.push_back(ME_PELLET);
+					worldPos._41 = posX;
+					worldPos._42 = 0.0f;
+					worldPos._43 = -posZ;
+					colour = Materials::PELLET.Diffuse;
+					mPellets.push_back(MazeElementSpecs(worldPos, colour, true, true));
+					instPellets[instanceCountPellet].World = worldPos;
+					instPellets[instanceCountPellet++].Color = colour;
+					break;
+				case L'D':
+					mMazeElements.push_back(ME_PELLET_DIVERGENT);
+					worldPos._41 = posX;
+					worldPos._42 = 0.0f;
+					worldPos._43 = -posZ;
+					colour = Materials::PELLET.Diffuse;
+					mPellets.push_back(MazeElementSpecs(worldPos, colour, true, true));
+					instPellets[instanceCountPellet].World = worldPos;
+					instPellets[instanceCountPellet++].Color = colour;
+					break;
+				case L'T':
+					mMazeElements.push_back(ME_PELLET_TRIGGER);
+					worldPos._41 = posX;
+					worldPos._42 = -1.24f;
+					worldPos._43 = -posZ;
+					colour = Materials::TRIGGER.Diffuse;
+					mTriggers.push_back(MazeElementSpecs(worldPos, colour, true, true));
+					mTriggerData.push_back(AABox(XMVectorSet(posX, 0.0f, -posZ, 0.0f), 0.5f, 0.5f));
+					instTriggers[instanceCountTrigger].World = worldPos;
+					instTriggers[instanceCountTrigger++].Color = colour;
+					worldPos._41 = posX;
+					worldPos._42 = 0.0f;
+					worldPos._43 = -posZ;
+					colour = Materials::PELLET.Diffuse;
+					mPellets.push_back(MazeElementSpecs(worldPos, colour, true, true));
+					instPellets[instanceCountPellet].World = worldPos;
+					instPellets[instanceCountPellet++].Color = colour;
+					break;
+				case L'X':
+					mMazeElements.push_back(ME_PELLET_TRAP);
+					worldPos._41 = posX;
+					worldPos._42 = -1.24f;
+					worldPos._43 = -posZ;
+					colour = Materials::TRAPINACTIVE.Diffuse;
+					mTraps.push_back(MazeElementSpecs(worldPos, colour, true, true));
+					mTrapData.push_back(AABox(XMVectorSet(posX, 0.0f, -posZ, 0.0f), 0.5f, 0.5f));
+					instTraps[instanceCountTrap].World = worldPos;
+					instTraps[instanceCountTrap++].Color = colour;
+					worldPos._41 = posX;
+					worldPos._42 = 0.0f;
+					worldPos._43 = -posZ;
+					colour = Materials::PELLET.Diffuse;
+					mPellets.push_back(MazeElementSpecs(worldPos, colour, true, true));
+					instPellets[instanceCountPellet].World = worldPos;
+					instPellets[instanceCountPellet++].Color = colour;
+					break;
+				}
+				//mTriggerData.push_back(AABox(XMVectorSet(posX, 0.0f, -posZ, 0.0f), 0.5f, 0.5f));
+				//mTrapData.push_back(AABox(XMVectorSet(posX, 0.0f, -posZ, 0.0f), 0.5f, 0.5f));
 			}
 			if (mazeText[i][j] == L'O')	// power up
 			{
@@ -520,6 +647,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 			{
 				mMazeElements.push_back(ME_BLANK);
 			}
+
 			++posX;
 			//iBlock += iCount;
 		}
@@ -559,7 +687,7 @@ bool MazeLoader::IsDivergent(UINT row, UINT col)
 }
 
 void MazeLoader::SetPacManPos(FXMVECTOR pos, UINT index)
-{ 
+{
 	mPacMans[index].pos.x = pos.m128_f32[0];
 	mPacMans[index].pos.y = pos.m128_f32[1];
 	mPacMans[index].pos.z = pos.m128_f32[2];
@@ -570,14 +698,14 @@ void MazeLoader::SetPacManPos(FXMVECTOR pos, UINT index)
 }
 
 void MazeLoader::SetPacManVel(FXMVECTOR vel, UINT index)
-{ 
+{
 	mPacMans[index].vel.x = vel.m128_f32[0];
 	mPacMans[index].vel.y = vel.m128_f32[1];
 	mPacMans[index].vel.z = vel.m128_f32[2];
 }
 
 void MazeLoader::SetGhostPos(FXMVECTOR pos, UINT index)
-{ 
+{
 	mGhosts[index].pos.x = pos.m128_f32[0];
 	mGhosts[index].pos.y = pos.m128_f32[1];
 	mGhosts[index].pos.z = pos.m128_f32[2];
@@ -588,7 +716,7 @@ void MazeLoader::SetGhostPos(FXMVECTOR pos, UINT index)
 }
 
 void MazeLoader::SetGhostVel(FXMVECTOR vel, UINT index)
-{ 
+{
 	mGhosts[index].vel.x = vel.m128_f32[0];
 	mGhosts[index].vel.y = vel.m128_f32[1];
 	mGhosts[index].vel.z = vel.m128_f32[2];
@@ -600,7 +728,7 @@ void MazeLoader::SetGhostColour(XMFLOAT4 col, UINT index)
 }
 
 void MazeLoader::RemovePellet(UINT index)
-{ 
+{
 	mPellets[index].isShown = mPellets[index].isCollider = false;
 
 	UINT row = mMazeHeight - (UINT)floor(mPellets[index].pos.z + (mMazeHeight * 0.5));
@@ -680,35 +808,35 @@ bool MazeLoader::IsPellet(UINT row, UINT col)
 
 /*UINT MazeLoader::AddVertex(Vertex::NormalTexVertex vertex, std::vector<Vertex::NormalTexVertex>& vertBuf)
 {
-	HashEntry* currEntry = hashTable[hashValue];
-	HashEntry* prevEntry = NULL;
-	while(currEntry != NULL)
-	{
-		if(vertex.pos == vertBuf[currEntry->index].pos && 
-			vertex.tex == vertBuf[currEntry->index].tex && 
-			vertex.normal == vertBuf[currEntry->index].normal)
-		{
-			return currEntry->index;
-		}
-		prevEntry = currEntry;
-		currEntry = currEntry->pNext;
-	}
+HashEntry* currEntry = hashTable[hashValue];
+HashEntry* prevEntry = NULL;
+while(currEntry != NULL)
+{
+if(vertex.pos == vertBuf[currEntry->index].pos &&
+vertex.tex == vertBuf[currEntry->index].tex &&
+vertex.normal == vertBuf[currEntry->index].normal)
+{
+return currEntry->index;
+}
+prevEntry = currEntry;
+currEntry = currEntry->pNext;
+}
 
-	currEntry = new HashEntry();
-	currEntry->index = vertBuf.size(); 
-	currEntry->pNext = NULL;
+currEntry = new HashEntry();
+currEntry->index = vertBuf.size();
+currEntry->pNext = NULL;
 
-	if(prevEntry != NULL)
-	{
-		prevEntry->pNext = currEntry;
-	}
-	else
-	{
-		hashTable[hashValue] = currEntry;
-	}
+if(prevEntry != NULL)
+{
+prevEntry->pNext = currEntry;
+}
+else
+{
+hashTable[hashValue] = currEntry;
+}
 
-	vertBuf.push_back(vertex);
-	
-	return currEntry->index;
+vertBuf.push_back(vertex);
+
+return currEntry->index;
 }*/
 

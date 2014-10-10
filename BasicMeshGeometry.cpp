@@ -2,12 +2,12 @@
 
 
 BasicMeshGeometry::BasicMeshGeometry(LitMatEffect* effect) :
-	mEffectMat(effect)
+mEffectMat(effect)
 {
 }
 
 BasicMeshGeometry::BasicMeshGeometry(LitTexEffect* effect) :
-	mEffectTex(effect)
+mEffectTex(effect)
 {
 }
 
@@ -21,7 +21,7 @@ void BasicMeshGeometry::SetMaterial(Material mat)
 	mMaterial = mat;
 }
 
-void BasicMeshGeometry::SetVertices(ID3D11Device* device, const Vertex::NormalTexVertex* verts,	UINT count)
+void BasicMeshGeometry::SetVertices(ID3D11Device* device, const Vertex::NormalTexVertex* verts, UINT count)
 {
 	ReleaseCOM(mVB);
 
@@ -43,7 +43,7 @@ void BasicMeshGeometry::SetIndices(ID3D11Device* device, const UINT* indices, UI
 {
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * count;
+	ibd.ByteWidth = sizeof(UINT)* count;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
@@ -146,6 +146,32 @@ void BasicMeshGeometry::SetInstancesGhosts(ID3D11Device* device, const Vertex::I
 	ibd.StructureByteStride = 0;
 
 	HR(device->CreateBuffer(&ibd, 0, &mInstanceBGhosts));
+}
+
+void BasicMeshGeometry::SetInstancesTriggers(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count)
+{
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = sizeof(Vertex::InstancedData) * count;
+	ibd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&ibd, 0, &mInstanceBTriggers));
+}
+
+void BasicMeshGeometry::SetInstancesTraps(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count)
+{
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = sizeof(Vertex::InstancedData) * count;
+	ibd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&ibd, 0, &mInstanceBTraps));
 }
 
 void BasicMeshGeometry::Draw(ID3D11DeviceContext* context, CXMMATRIX world, CXMMATRIX ITWorld, CXMMATRIX vp)

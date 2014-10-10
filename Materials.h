@@ -20,6 +20,9 @@ public:
 	static const Material GRAPES;
 	static const Material GHOSTFRIGHTENED;
 	static const Material GHOSTFLASHING;
+	static const Material TRIGGER;
+	static const Material TRAPACTIVE;
+	static const Material TRAPINACTIVE;
 	Materials(){}
 	~Materials(){}
 };

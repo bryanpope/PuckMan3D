@@ -331,6 +331,7 @@ bool PuckMan3D::Init()
 	loadSirenSFX();
 	loadWaSFX();
 	loadKaSFX();
+	LoadTriggers();
 	
 	for (int i = 0; i < 6; ++i)
 	{
@@ -821,7 +822,54 @@ void PuckMan3D::UpdateScene(float dt)
 		}
 	}
 
+	//////Checking Collision with Trigger
+	std::vector<MazeLoader::MazeElementSpecs> traps = MazeLoader::GetTrapData();
+	XMVECTOR blinkyPos = XMLoadFloat3(&ghosts[0].pos);
+	XMVECTOR inkyPos = XMLoadFloat3(&ghosts[1].pos);
+	XMVECTOR pinkyPos = XMLoadFloat3(&ghosts[2].pos);
+	XMVECTOR clydePos = XMLoadFloat3(&ghosts[3].pos);
+
+	AABoxTriggerPuckManGhostsOverLap(mPuckMan->GetPos(), blinkyPos, inkyPos, pinkyPos, clydePos);
+	for (int i = 0; i < traps.size(); ++i)
+	{
+		if (mTrapSet[i])
+		{
+			//change color of trap to TRAPACTIVE
+			traps[i].colour = XMFLOAT4(0.9f, 0.0f, 0.0f, 1.0f);//Materials::TRAPACTIVE;
+		}
+		else
+		{
+			//change color to TRAPINACTIVE
+			traps[i].colour = XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f);// Materials::TRAPINACTIVE;
+		}
+	}
+
 	////Checking PacMan Collision with fruit
+	if (mCanDrawFruit && mFruitSpawnCounter == 0)
+	{
+		if (mPelletCounter == 70)
+		{
+			//pick a number between 1 and 4
+			randNumber = rg(4) + 1;
+			mFruit.push_back(mFruitPos);
+			mFruitTime = 0.0f;
+			mCanDrawFruit = false;
+			mFruitSpawnCounter += 1;
+		}
+	}
+	else if (mCanDrawFruit && (mFruitSpawnCounter == 0 || mFruitSpawnCounter == 1))
+	{
+		if (mPelletCounter == 170)
+		{
+			//pick a number between 1 and 4
+			randNumber = rg(4) + 1;
+			mFruit.push_back(mFruitPos);
+			mFruitTime = 0.0f;
+			mCanDrawFruit = false;
+			mFruitSpawnCounter += 1;
+		}
+	}
+
 	for (int i = 0; i < mFruit.size(); ++i)
 	{
 		XMVECTOR fruitPos = XMLoadFloat3(&mFruitPos);
@@ -830,17 +878,18 @@ void PuckMan3D::UpdateScene(float dt)
 			playFruitSFX();
 			mFruit.erase(mFruit.begin() + i);
 			mScore += 50;
-			mCanDrawFruit = false;
+			mCanDrawFruit = true;
 			mCanDrawHUDFruit = true;
 			mFruitCounter += 1;
-			mFruitTime = 0.0f;
+			//mFruitTime = 0.0f;
 			break;
 		}
 		if (mFruitTime >= 10.0f)
 		{//if the fruit has been spawned for 10 seconds remove it
 			mFruit.erase(mFruit.begin() + i);
-			mCanDrawFruit = false;
-			mFruitTime = 0.0f;
+			mCanDrawFruit = true;
+			mCanDrawHUDFruit = false;
+			//mFruitTime = 0.0f;
 			break;
 		}
 	}
@@ -975,17 +1024,6 @@ void PuckMan3D::UpdateScene(float dt)
 		mGameState = GameState::GS_GAMEOVER;
 	}
 	
-
-	if (mCanDrawFruit)
-	{
-		if (mPelletCounter == 70 || mPelletCounter == 170)
-		{
-			//pick a number between 1 and 4
-			randNumber = rg(4) + 1;
-			mFruit.push_back(mFruitPos);
-			mCanDrawFruit = false;
-		}
-	}
 
 	//reset board if all pellets are gone
 	if (mPelletCounter == MazeLoader::GetEatableCount())
@@ -1138,6 +1176,33 @@ void PuckMan3D::UpdateScene(float dt)
 		}
 	}
 	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBGhosts(), 0);
+
+	std::vector<MazeLoader::MazeElementSpecs> triggers = MazeLoader::GetTriggerData();
+
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBTriggers(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountTriggers = 0;
+	for (UINT i = 0; i < triggers.size(); ++i)
+	{
+		if (triggers[i].isShown)
+		{
+			dataView[mCountTriggers++] = { triggers[i].world, triggers[i].colour };
+		}
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBTriggers(), 0);
+
+
+	md3dImmediateContext->Map(mMazeModelInstanced->GetMesh()->GetInstanceBTraps(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	dataView = reinterpret_cast<Vertex::InstancedData*>(mappedData.pData);
+	mCountTraps = 0;
+	for (UINT i = 0; i < traps.size(); ++i)
+	{
+		if (traps[i].isShown)
+		{
+			dataView[mCountTraps++] = { traps[i].world, traps[i].colour };
+		}
+	}
+	md3dImmediateContext->Unmap(mMazeModelInstanced->GetMesh()->GetInstanceBTraps(), 0);
 
 	mFireBallPac->Update(mPuckMan->GetPos(), MazeLoader::RADIUS_PAC_MAN, dt, md3dImmediateContext);
 	for (int i = 0; i < 4; ++i)
@@ -1409,6 +1474,20 @@ void PuckMan3D::DrawWrapper()
 		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, powerUpColour);
 		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBPowerUps(),
 			mCountPowerUps, oc.powerUps.indexOffset, oc.powerUps.indexCount);
+
+		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+		mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+		Material TriggerColour = Materials::TRIGGER;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, TriggerColour);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBTriggers(),
+			mCountTriggers, oc.triggers.indexOffset, oc.triggers.indexCount);
+
+		md3dImmediateContext->IASetInputLayout(Vertex::GetNormalMatVertInstanceLayout());
+		mLitMatInstanceEffect->SetEffectTech("LitMatTechInstanced");
+		Material TrapColour = Materials::TRAPINACTIVE;
+		mLitMatInstanceEffect->SetPerObjectParams(world, worldInvTranspose, worldViewProj, viewProj, TrapColour);
+		mLitMatInstanceEffect->DrawInstanced(md3dImmediateContext, mMazeModelInstanced->GetMesh()->GetVB(), mMazeModelInstanced->GetMesh()->GetIB(), mMazeModelInstanced->GetMesh()->GetInstanceBTraps(),
+			mCountTraps, oc.traps.indexOffset, oc.traps.indexCount);
 
 		std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
 		world = XMLoadFloat4x4(&mGridWorld);
@@ -1946,6 +2025,144 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 			mGameState = GameState::GS_MAINMENU;
 			mIsGameOver = true;
 		}
+	}
+}
+
+//// trigger collision with Puckman or ghost 
+void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s2Center, FXMVECTOR s3Center, CXMVECTOR s4Center, CXMVECTOR s5Center)
+{
+	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
+	float s2Radius = MazeLoader::RADIUS_GHOST;
+	std::vector<MazeLoader::AABox> triggerData = MazeLoader::GetTriggerCollisionData();
+	std::vector<MazeLoader::AABox> trapData = MazeLoader::GetTrapCollisionData();
+	float pmCurrOverLap = 0.0f;
+	float g1CurrOverLap = 0.0f;
+	float g2CurrOverLap = 0.0f;
+	float g3CurrOverLap = 0.0f;
+	float g4CurrOverLap = 0.0f;
+
+	for (int i = 0; i < triggerData.size(); ++i)
+	{
+		XMVECTOR min = XMLoadFloat3(&triggerData[i].min);
+		XMVECTOR max = XMLoadFloat3(&triggerData[i].max);
+
+		XMVECTOR A = XMVectorClamp(s1Center, min, max);
+		XMVECTOR B = XMVectorClamp(s2Center, min, max);
+		XMVECTOR C = XMVectorClamp(s3Center, min, max);
+		XMVECTOR D = XMVectorClamp(s4Center, min, max);
+		XMVECTOR E = XMVectorClamp(s5Center, min, max);
+
+		XMVECTOR pmd = s1Center - A; //difference between the closest point on the box  and sphere center
+		XMVECTOR g1d = s2Center - B;
+		XMVECTOR g2d = s3Center - C;
+		XMVECTOR g3d = s4Center - D;
+		XMVECTOR g4d = s5Center - E;
+
+		float pmDistance = sqrt((pmd.m128_f32[0] * pmd.m128_f32[0]) /*+ (pmd.m128_f32[1] * pmd.m128_f32[1])*/ + (pmd.m128_f32[2] * pmd.m128_f32[2])); //Magnitude of the difference
+		float g1Distance = sqrt((g1d.m128_f32[0] * g1d.m128_f32[0]) /*+ (g1d.m128_f32[1] * g1d.m128_f32[1])*/ + (g1d.m128_f32[2] * g1d.m128_f32[2]));
+		float g2Distance = sqrt((g2d.m128_f32[0] * g2d.m128_f32[0]) /*+ (g2d.m128_f32[1] * g2d.m128_f32[1])*/ + (g2d.m128_f32[2] * g2d.m128_f32[2]));
+		float g3Distance = sqrt((g3d.m128_f32[0] * g3d.m128_f32[0]) /*+ (g3d.m128_f32[1] * g3d.m128_f32[1])*/ + (g3d.m128_f32[2] * g3d.m128_f32[2]));
+		float g4Distance = sqrt((g4d.m128_f32[0] * g4d.m128_f32[0]) /*+ (g4d.m128_f32[1] * g4d.m128_f32[1])*/ + (g4d.m128_f32[2] * g4d.m128_f32[2]));
+
+		float pmOverLap = s1Radius - pmDistance;
+		float g1OverLap = s2Radius - g1Distance;
+		float g2OverLap = s2Radius - g2Distance;
+		float g3OverLap = s2Radius - g3Distance;
+		float g4OverLap = s2Radius - g4Distance;
+
+		if ((pmOverLap < pmCurrOverLap && mPMInCollision)) // no collision with Trigger and PuckMan
+		{
+			mPMInCollision = false;
+		}
+		if ((g1OverLap < g1CurrOverLap && mG1InCollision)) // no collision with Trigger and Ghost 1
+		{
+			mG1InCollision = false;
+		}
+		if ((g2OverLap < g2CurrOverLap && mG2InCollision)) // no collision with Trigger and Ghost 2
+		{
+			mG2InCollision = false;
+		}
+		if ((g3OverLap < g3CurrOverLap && mG3InCollision)) // no collision with Trigger and Ghost 3
+		{
+			mG3InCollision = false;
+		}
+		if ((g4OverLap < g4CurrOverLap && mG4InCollision)) // no collision with Trigger and Ghost 4
+		{
+			mG4InCollision = false;
+		}
+
+		if ((pmOverLap > pmCurrOverLap) && !mTriggerPressed[i] && !mPMInCollision) // Have Collision with unpressed Trigger and PuckMan
+		{
+			mPMInCollision = true;
+			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
+			mTrapSet[i] = true; // Change bool mTrapSet to true
+			break;
+		}
+		if ((g1OverLap > g1CurrOverLap) && !mTriggerPressed[i] && !mG1InCollision) // Have Collision with unpressed Trigger and Ghost 1
+		{
+			mG1InCollision = true;
+			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
+			mTrapSet[i] = true; // Change bool mTrapSet to true
+			break;
+		}
+		if ((g2OverLap > g2CurrOverLap) && !mTriggerPressed[i] && !mG2InCollision) // Have Collision with unpressed Trigger and Ghost 2
+		{
+			mG2InCollision = true;
+			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
+			mTrapSet[i] = true; // Change bool mTrapSet to true
+			break;
+		}
+		if ((g3OverLap > g3CurrOverLap) && !mTriggerPressed[i] && !mG3InCollision) // Have Collision with unpressed Trigger and Ghost 3
+		{
+			mG3InCollision = true;
+			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
+			mTrapSet[i] = true; // Change bool mTrapSet to true
+			break;
+		}
+		if ((g4OverLap > g4CurrOverLap) && !mTriggerPressed[i] && !mG4InCollision) // Have Collision with unpressed Trigger and Ghost 4
+		{
+			mG4InCollision = true;
+			mTriggerPressed[i] = true; // Change the bool mTriggerPressed to True
+			mTrapSet[i] = true; // Change bool mTrapSet to true
+			break;
+		}
+
+		if ((pmOverLap > pmCurrOverLap) && mTriggerPressed[i] && !mPMInCollision) // Have Collision with pressed Trigger and PuckMan
+		{
+			mPMInCollision = true;
+			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
+			mTrapSet[i] = false; // Change bool mTrapSet to False
+			break;
+		}
+		if ((g1OverLap > g1CurrOverLap) && mTriggerPressed[i] && !mG1InCollision) // Have Collision with pressed Trigger and Ghost 1
+		{
+			mG1InCollision = true;
+			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
+			mTrapSet[i] = false; // Change bool mTrapSet to False
+			break;
+		}
+		if ((g2OverLap > g2CurrOverLap) && mTriggerPressed[i] && !mG2InCollision) // Have Collision with pressed Trigger and Ghost 2
+		{
+			mG2InCollision = true;
+			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
+			mTrapSet[i] = false; // Change bool mTrapSet to False
+			break;
+		}
+		if ((g3OverLap > g3CurrOverLap) && mTriggerPressed[i] && !mG3InCollision) // Have Collision with pressed Trigger and Ghost 3
+		{
+			mG3InCollision = true;
+			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
+			mTrapSet[i] = false; // Change bool mTrapSet to False
+			break;
+		}
+		if ((g4OverLap > g4CurrOverLap) && mTriggerPressed[i] && !mG4InCollision) // Have Collision with pressed Trigger and Ghost 4
+		{
+			mG4InCollision = true;
+			mTriggerPressed[i] = false; // Change the bool mTriggerPressed to False
+			mTrapSet[i] = false; // Change bool mTrapSet to False
+			break;
+		}
+
 	}
 }
 
@@ -2764,5 +2981,14 @@ void PuckMan3D::calcGhostScore()
 	if (mGhostEatenCounter == 4)
 	{
 		mGhostEatenPoints = 1600;
+	}
+}
+
+void PuckMan3D::LoadTriggers()
+{
+	for (int i = 0; i < 4; ++i)
+	{
+		mTriggerPressed.push_back(false);
+		mTrapSet.push_back(false);
 	}
 }

@@ -8,8 +8,8 @@
 class BasicModel
 {
 public:
-	BasicModel() : 
-	  mSubsetCount(0){}
+	BasicModel() :
+		mSubsetCount(0){}
 
 	BasicModel(ID3D11Device* device, LitTexEffect* effect, std::string filename, bool isRHS, bool isVFlipped);
 	BasicModel(ID3D11Device* device, LitMatEffect* effect, std::string filename);
@@ -20,7 +20,7 @@ public:
 
 protected:
 	UINT mSubsetCount;
-	
+
 	std::vector<Vertex::NormalTexVertex> mVertices;
 
 	std::vector<UINT> mIndices;
@@ -32,7 +32,8 @@ protected:
 	std::vector<Vertex::InstancedData> mInstancesPowerUps;
 	std::vector<Vertex::InstancedData> mInstancesPacMans;
 	std::vector<Vertex::InstancedData> mInstancesGhosts;
-
+	std::vector<Vertex::InstancedData> mInstancesTriggers;
+	std::vector<Vertex::InstancedData> mInstancesTraps;
 	std::vector<MeshGeometry::Subset> mSubsets;
 
 	BasicMeshGeometry* mModelMesh;

@@ -36,6 +36,8 @@ public:
 	virtual void SetInstancesPowerUps(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
 	virtual void SetInstancesPacMans(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
 	virtual void SetInstancesGhosts(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+	virtual void SetInstancesTriggers(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
+	virtual void SetInstancesTraps(ID3D11Device* device, const Vertex::InstancedData* instances, UINT count);
 
 	void SetMaterial(Material mat);
 

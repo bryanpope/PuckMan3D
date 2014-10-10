@@ -120,6 +120,7 @@ private:
 	void UpdateCollision();
 	void updateStringStream();
 	XMVECTOR PacManAABoxOverLap(XMVECTOR s1Center);
+	void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s2Center, FXMVECTOR s3Center, CXMVECTOR s4Center, CXMVECTOR s5Center);
 
 	bool PuckMan3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 	bool PuckMan3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
@@ -154,6 +155,7 @@ private:
 	void writeToTxtFile();
 	void resetHighScore();
 	void calcGhostScore();
+	void LoadTriggers();
 	static DWORD WINAPI PathFindingStaticThreadStart(LPVOID lpParam);
 	DWORD PathFindingThreadStart();
 private:
@@ -266,6 +268,13 @@ private:
 	bool mMuteDeathSFX = false;
 	bool mCanDrawFruit = true;
 	bool mCanDrawHUDFruit = false;
+	std::vector<bool> mTriggerPressed;
+	std::vector<bool> mTrapSet;
+	bool mPMInCollision = false;
+	bool mG1InCollision = false;
+	bool mG2InCollision = false;
+	bool mG3InCollision = false;
+	bool mG4InCollision = false;
 	float fruitR = 0.60f;
 	float mNextTime = 0.0f;
 	float mCurrentTime = 0.0f;
@@ -275,6 +284,7 @@ private:
 	float mBeginningTime = 0.0f;
 	float mFruitTime = 0.f;
 	int mLevelCounter;
+	int mFruitSpawnCounter = 0;
 	int mPelletCounter = 0;
 	int mFruitCounter = 0;
 	int mGhostEatenCounter = 0;
@@ -289,6 +299,8 @@ private:
 	int mPacManVertexOffset;
 	int mPowerUpVertexOffset;
 	int mGhostVertexOffset;
+	int mTriggerVertexOffset;
+	int mTrapVertexOffset;
 	//int mFruitVertexOffset;
 
 	UINT mBoxIndexOffset;
@@ -297,6 +309,8 @@ private:
 	UINT mPacManIndexOffset;
 	UINT mPowerUpIndexOffset;
 	UINT mGhostIndexOffset;
+	UINT mTriggerIndexOffset;
+	UINT mTrapIndexOffset;
 	//UINT mFruitIndexOffset;
 
 	UINT mBoxIndexCount;
@@ -305,6 +319,8 @@ private:
 	UINT mPacManIndexCount;
 	UINT mPowerUpIndexCount;
 	UINT mGhostIndexCount;
+	UINT mTriggerIndexCount;
+	UINT mTrapIndexCount;
 
 
 	// Define transformations from local spaces to world space.
@@ -312,6 +328,8 @@ private:
 	XMFLOAT4X4 mPowerUpWorld[4];
 	XMFLOAT4X4 mPacManWorld[3];
 	XMFLOAT4X4 mGhostWorld[4];
+	XMFLOAT4X4 mTriggerWorld[4];
+	XMFLOAT4X4 mTrapWorld[4];
 	XMFLOAT4X4 mBoxWorld[55];
 	XMFLOAT4X4 mGridWorld;
 	XMFLOAT4X4 mHUDFruitWorld;
@@ -332,6 +350,8 @@ private:
 	UINT mCountPowerUps;
 	UINT mCountPacMans;
 	UINT mCountGhosts;
+	UINT mCountTriggers;
+	UINT mCountTraps;
 
 	enum GhostState
 	{
