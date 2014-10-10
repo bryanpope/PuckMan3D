@@ -1664,11 +1664,11 @@ void PuckMan3D::DrawWrapper()
 
 	if (mGameState == GameState::GS_ATTRACT)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 15, "Press space to begin");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 15, "Press space to \nbegin");
 	}
 	if (mGameState == GameState::GS_GAMEOVER)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 15, "Press space to go back.");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(10.0f, 620.0f, 0.0f, 0.0f), 50, 75, 15, "Press space to \ngo back.");
 	}
 	if (mGameState == GameState::GS_OPTIONS)
 	{
