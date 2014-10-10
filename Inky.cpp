@@ -101,6 +101,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						reachedEnd = false;
 						isLooping = false;
 						CleanUpNodesWaypoints();
+						mTweenPoints.clear();
 					}
 				}
 				//If the powerup is activated, switch to the FRIGHTENED state
@@ -108,6 +109,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				{
 					SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 					scatterPathDrawn = false;
 					reachedEnd = false;
 					isLooping = false;
@@ -118,7 +120,6 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 
 			case CHASE:
 				SetSpeed(levelNumber, GHOST_STATES::CHASE);
-				PathNode* offsetTile;
 				if (!firstChasePathDrawn)
 				{
 					PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
@@ -136,10 +137,10 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						if (facingState == Direction::DIRECTION::NORTH || facingState == Direction::DIRECTION::SOUTH)
 						{
 							//Offset tile = 2 spaces in PuckMan's facing
-							offsetTile = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x),
-								round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2])));
+							offsetTile.xPos = round(MazeLoader::GetPacManData().at(0).pos.x);
+							offsetTile.zPos = round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2]));
 							//Draw a vector from Blinky's current position to the offset tile's position
-							XMVECTOR targetTile = XMVectorSet(offsetTile->xPos - blinkyPos.x, 0.0f, offsetTile->zPos - blinkyPos.z, 0.0f);
+							XMVECTOR targetTile = XMVectorSet(offsetTile.xPos - blinkyPos.x, 0.0f, offsetTile.zPos - blinkyPos.z, 0.0f);
 							//Double the vector length extending forward, this is Inky's target
 							targetTile = XMVectorScale(targetTile, 2.0f);
 
@@ -158,24 +159,23 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 								{
 									break;
 								}
-								//goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
-								//goalCol = round(clampedX + 13.5f);
 							}
 
 							PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 							if (PostPathFinding())
 							{
 								this->UpdateCurrentTweenPoint(dt);
+								mPathNext += (1.0f / 10.0f);
 							}
 						}
 
 						else if (facingState == Direction::DIRECTION::WEST || facingState == Direction::DIRECTION::EAST)
 						{
 							//Offset tile = 2 spaces in PuckMan's facing
-							offsetTile = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x + (2 * Direction::getDirecitonVector(facingState).m128_f32[0])),
-								round(MazeLoader::GetPacManData().at(0).pos.z));
+							offsetTile.xPos = round(MazeLoader::GetPacManData().at(0).pos.x);
+							offsetTile.zPos = round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2]));
 							//Draw a vector from Blinky's current position to the offset tile's position
-							XMVECTOR targetTile = XMVectorSet(offsetTile->xPos - blinkyPos.x, 0.0f, offsetTile->zPos - blinkyPos.z, 0.0f);
+							XMVECTOR targetTile = XMVectorSet(offsetTile.xPos - blinkyPos.x, 0.0f, offsetTile.zPos - blinkyPos.z, 0.0f);
 							//Double the vector length extending forward, this is Inky's target
 							targetTile = XMVectorScale(targetTile, 2.0f);
 
@@ -194,17 +194,15 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 								{
 									break;
 								}
-								//goalRow = (MazeLoader::GetMazeHeight()) - round(clampedZ + 15.5f);
-								//goalCol = round(clampedX + 13.5f);
 							}
 
 							PrePathFinding(this->mPos.x, this->mPos.z, round(MazeLoader::GetPacManData().at(0).pos.x), round(MazeLoader::GetPacManData().at(0).pos.z));
 							if (PostPathFinding())
 							{
 								this->UpdateCurrentTweenPoint(dt);
+								mPathNext += (1.0f / 10.0f);
 							}
 						}
-						mPathNext += (1.0f / 10.0f);
 					}
 				}
 				if (mTweenPoints.size() != 0)
@@ -225,6 +223,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						reachedEnd = false;
 						isLooping = false;
 						CleanUpNodesWaypoints();
+						mTweenPoints.clear();
 					}
 				}
 				//If the powerup is activated, switch to the FRIGHTENED state
@@ -232,6 +231,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				{
 					SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 					mPrevState = mGhostStates;
 					this->mGhostStates = GHOST_STATES::FRIGHTENED;
 					scatterPathDrawn = false;
@@ -275,6 +275,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 					if (!powerUpActivated)
 					{
 						mGhostStates = mPrevState;
+						mTweenPoints.clear();
 					}
 					break;
 			}
@@ -285,9 +286,12 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 void Inky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::IDLE;
+	mTweenPoints.clear();
 	mWaypoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
+	mPathCurrent = 0.0f;
+	mPathNext = 0.0f;
 	isIdle = true;
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;

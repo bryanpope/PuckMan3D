@@ -11,7 +11,6 @@ Ghost::Ghost(FXMVECTOR pos, float radius)
 	XMStoreFloat3(&mPos, pos);
 	mVel = XMFLOAT3(100.0f, 0.0f, 100.0f);
 	mRadius = radius;
-	mSpeed = 1.0f;
 	mIsFindPathRunning = false;
 	mhThreadPathFinding = NULL;
 

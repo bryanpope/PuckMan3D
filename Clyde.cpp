@@ -73,6 +73,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 					mGhostStates = GHOST_STATES::CHASE;
 					mChaseTimer = 0.0f;
 					firstChasePathDrawn = false;
+					mPathNext += (1.0f / 10.0f);
 				}
 				//If the distance between Clyde and Puckman is less than 8 tiles, go back to Scatter mode
 				else if (euclidDistance < 8 && !powerUpActivated)
@@ -81,8 +82,8 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 					mScatterTimer = 0.0f;
 					scatterPathDrawn = false;
 					this->mCurrWaypointIndex = 0;
+					mPathNext += (1.0f / 10.0f);
 				}
-				mPathNext += 1.0f;
 			}
 
 			switch (mGhostStates)
@@ -130,6 +131,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 						reachedEnd = false;
 						isLooping = false;
 						CleanUpNodesWaypoints();
+						mTweenPoints.clear();
 					}
 				}
 				//If the powerup is activated, switch to the FRIGHTENED state
@@ -137,6 +139,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 				{
 					SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 					scatterPathDrawn = false;
 					reachedEnd = false;
 					isLooping = false;
@@ -187,6 +190,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 						reachedEnd = false;
 						isLooping = false;
 						CleanUpNodesWaypoints();
+						mTweenPoints.clear();
 					}
 				}
 				//If the powerup is activated, switch to the FRIGHTENED state
@@ -194,6 +198,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 				{
 					SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 					mPrevState = mGhostStates;
 					this->mGhostStates = GHOST_STATES::FRIGHTENED;
 					scatterPathDrawn = false;
@@ -237,6 +242,7 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 				if (!powerUpActivated)
 				{
 					mGhostStates = mPrevState;
+					mTweenPoints.clear();
 				}
 				break;
 			}
@@ -247,9 +253,12 @@ void Clyde::Update(float dt, bool powerUpActivated, int levelNumber, int pelletC
 void Clyde::Reset()
 {
 	this->mGhostStates = GHOST_STATES::IDLE;
+	mTweenPoints.clear();
 	mWaypoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
+	mPathCurrent = 0.0f;
+	mPathNext = 0.0f;
 	isIdle = true;
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;

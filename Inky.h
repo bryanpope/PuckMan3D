@@ -5,6 +5,7 @@ class Inky : public Ghost
 protected:
 	std::vector<PathNode*> mScatterWaypoints;
 	void LoadScatterWaypoints();
+	PathNode offsetTile;
 
 public:
 	Inky(FXMVECTOR pos, float radius);
