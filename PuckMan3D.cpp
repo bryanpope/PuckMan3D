@@ -68,6 +68,24 @@ PuckMan3D::~PuckMan3D()
 	if (mLitTexEffect)
 		delete mLitTexEffect;
 
+	if (mCherry)
+		delete mCherry;
+
+	if (mGrapes)
+		delete mGrapes;
+
+	if (mApple)
+		delete mApple;
+
+	if (mPeach)
+		delete mPeach;
+
+	if (mHUDFruit)
+		delete mHUDFruit;
+
+	if (mHUDFruit2)
+		delete mHUDFruit2;
+
 	if (mPuckMan)
 		delete mPuckMan;
 	
@@ -132,6 +150,9 @@ PuckMan3D::~PuckMan3D()
 	if (mGeometryQuadFullScreen)
 		delete(mGeometryQuadFullScreen);
 
+	if (mPuckMan)
+		delete(mPuckMan);
+
 	if (mBlinky)
 		delete(mBlinky);
 
@@ -162,11 +183,11 @@ PuckMan3D::~PuckMan3D()
 	if (mHUDFruitGeometry2)
 		delete(mHUDFruitGeometry2);
 
-	for (int i = 0; i < 4; ++i)
+	/*for (int i = 0; i < 4; ++i)
 	{
 		if (mFBBlueGhost[i])
 			delete mFBBlueGhost[i];
-	}
+	}*/
 
 	ReleaseCOM(mOffscreenSRV);
 	ReleaseCOM(mOffscreenUAV);
