@@ -92,6 +92,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 					reachedEnd = false;
 					isLooping = false;
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 				}
 			}
 			//If the powerup is activated, switch to the FRIGHTENED state
@@ -104,6 +105,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 				mPrevState = mGhostStates;
 				this->mGhostStates = GHOST_STATES::FRIGHTENED;
 				CleanUpNodesWaypoints();
+				mTweenPoints.clear();
 			}
 			break;
 
@@ -150,6 +152,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 					reachedEnd = false;
 					isLooping = false;
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 				}
 			}
 			//If the powerup is activated, switch to the FRIGHTENED state
@@ -157,12 +160,14 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			{
 				SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 				CleanUpNodesWaypoints();
+				mTweenPoints.clear();
 				mPrevState = mGhostStates;
 				this->mGhostStates = GHOST_STATES::FRIGHTENED;
 				scatterPathDrawn = false;
 				firstChasePathDrawn = false;
 			}
 			break;
+
 		case FRIGHTENED:
 			SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 			if (!scatterPathDrawn)
@@ -198,6 +203,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 			if (!powerUpActivated)
 			{
 				mGhostStates = mPrevState;
+				mTweenPoints.clear();
 			}
 			break;
 		}
@@ -208,8 +214,11 @@ void Blinky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::SCATTER;
 	mTweenPoints.clear();
+	mWaypoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
+	mPathCurrent = 0.0f;
+	mPathNext = 0.0f;
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;

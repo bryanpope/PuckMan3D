@@ -62,6 +62,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 				{
 					this->mPos = this->mCurrTweenPoint;
 					this->UpdateCurrentTweenPoint(dt);
+
 				}
 				else if (this->reachedEnd)
 				{
@@ -77,7 +78,6 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 					}
 				}
 			}
-			//If the powerup is not activated, proceed as normal
 			if (!powerUpActivated)
 			{
 				this->mGhostStates = GHOST_STATES::SCATTER;
@@ -90,18 +90,20 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 					reachedEnd = false;
 					isLooping = false;
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 				}
 			}
 			//If the powerup is activated, switch to the FRIGHTENED state
 			else if (powerUpActivated)
 			{
 				SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
-				CleanUpNodesWaypoints();
 				scatterPathDrawn = false;
 				reachedEnd = false;
 				isLooping = false;
 				mPrevState = mGhostStates;
 				this->mGhostStates = GHOST_STATES::FRIGHTENED;
+				CleanUpNodesWaypoints();
+				mTweenPoints.clear();
 			}
 			break;
 		case CHASE:
@@ -142,6 +144,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 						if (PostPathFinding())
 						{
 							this->UpdateCurrentTweenPoint(dt);
+							mPathNext += (1.0f / 10.0f);
 						}
 					}
 
@@ -166,9 +169,9 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 						if (PostPathFinding())
 						{
 							this->UpdateCurrentTweenPoint(dt);
+							mPathNext += (1.0f / 10.0f);
 						}
 					}
-					mPathNext += (1.0f / 10.0f);
 				}
 			}
 
@@ -190,6 +193,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 					reachedEnd = false;
 					isLooping = false;
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 				}
 			}
 			//If the powerup is activated, switch to the FRIGHTENED state
@@ -197,6 +201,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			{
 				SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 				CleanUpNodesWaypoints();
+				mTweenPoints.clear();
 				mPrevState = mGhostStates;
 				this->mGhostStates = GHOST_STATES::FRIGHTENED;
 				scatterPathDrawn = false;
@@ -221,7 +226,6 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 				{
 					this->mPos = this->mCurrTweenPoint;
 					this->UpdateCurrentTweenPoint(dt);
-
 				}
 				else if (this->reachedEnd)
 				{
@@ -240,6 +244,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 			if (!powerUpActivated)
 			{
 				mGhostStates = mPrevState;
+				mTweenPoints.clear();
 			}
 			break;
 		}
@@ -250,8 +255,11 @@ void Pinky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::SCATTER;
 	mTweenPoints.clear();
+	mWaypoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
+	mPathCurrent = 0.0f;
+	mPathNext = 0.0f;
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
 	isLooping = false;

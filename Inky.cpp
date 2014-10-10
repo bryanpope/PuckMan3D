@@ -101,6 +101,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						reachedEnd = false;
 						isLooping = false;
 						CleanUpNodesWaypoints();
+						mTweenPoints.clear();
 					}
 				}
 				//If the powerup is activated, switch to the FRIGHTENED state
@@ -108,6 +109,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				{
 					SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 					scatterPathDrawn = false;
 					reachedEnd = false;
 					isLooping = false;
@@ -164,6 +166,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 							if (PostPathFinding())
 							{
 								this->UpdateCurrentTweenPoint(dt);
+								mPathNext += (1.0f / 10.0f);
 							}
 						}
 
@@ -198,9 +201,9 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 							if (PostPathFinding())
 							{
 								this->UpdateCurrentTweenPoint(dt);
+								mPathNext += (1.0f / 10.0f);
 							}
 						}
-						mPathNext += (1.0f / 10.0f);
 					}
 				}
 				if (mTweenPoints.size() != 0)
@@ -221,6 +224,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						reachedEnd = false;
 						isLooping = false;
 						CleanUpNodesWaypoints();
+						mTweenPoints.clear();
 					}
 				}
 				//If the powerup is activated, switch to the FRIGHTENED state
@@ -228,6 +232,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 				{
 					SetSpeed(levelNumber, GHOST_STATES::FRIGHTENED);
 					CleanUpNodesWaypoints();
+					mTweenPoints.clear();
 					mPrevState = mGhostStates;
 					this->mGhostStates = GHOST_STATES::FRIGHTENED;
 					scatterPathDrawn = false;
@@ -271,6 +276,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 					if (!powerUpActivated)
 					{
 						mGhostStates = mPrevState;
+						mTweenPoints.clear();
 					}
 					break;
 			}
@@ -282,8 +288,11 @@ void Inky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::IDLE;
 	mTweenPoints.clear();
+	mWaypoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
+	mPathCurrent = 0.0f;
+	mPathNext = 0.0f;
 	isIdle = true;
 	firstChasePathDrawn = false;
 	scatterPathDrawn = false;
