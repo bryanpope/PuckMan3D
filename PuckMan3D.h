@@ -117,7 +117,6 @@ private:
 	void updateGhosts(float dt);
 	void UpdateParticleVB();
 	void UpdateKeyboardInput(float dt);
-	void UpdateCollision();
 	void updateStringStream();
 	XMVECTOR PacManAABoxOverLap(XMVECTOR s1Center);
 	void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s2Center, FXMVECTOR s3Center, CXMVECTOR s4Center, CXMVECTOR s5Center);
