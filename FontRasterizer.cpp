@@ -77,17 +77,28 @@ void FontRasterizer::DrawFont(ID3D11DeviceContext* context, FXMVECTOR pos, float
 
 	float x = pos.m128_f32[0];
 	float y = pos.m128_f32[1];
+	int charsDrawn = 0;
 	for (int i = 0; i < text.size(); ++i)
 	{
-
-		//draw a character
-		DrawCharacter(text[i], x, y, fontWidth, fontHeight, v, i);
-
-		x += fontWidth;
-		if (i % charsPerLine == charsPerLine - 1)
+		if (text[i] == '\n')
 		{
 			y -= fontHeight;
 			x = pos.m128_f32[0];
+			charsDrawn = 0;
+			continue;
+		}
+
+		//draw a character
+		DrawCharacter(text[i], x, y, fontWidth, fontHeight, v, i);
+		++charsDrawn;
+
+		x += fontWidth;
+		//if (i % charsPerLine == charsPerLine - 1)
+		if (charsDrawn == charsPerLine)
+		{
+			y -= fontHeight;
+			x = pos.m128_f32[0];
+			charsDrawn = 0;
 		}
 	}
 

@@ -1770,10 +1770,10 @@ void PuckMan3D::DrawWrapper()
 	{
 		std::vector<std::string> display;
 		std::stringstream displayScores;
-		copy(mHighScore.begin(), mHighScore.end(), std::ostream_iterator<int>(displayScores, " "));
+		copy(mHighScore.begin(), mHighScore.end(), std::ostream_iterator<int>(displayScores, "\n"));
 
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Highscore: " + displayScores.str());
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Highscore:\n" + displayScores.str());
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to return");
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
