@@ -2909,8 +2909,8 @@ void PuckMan3D::writeToTxtFile()
 {
 	writeTxtFile.open("highscores.txt");
 	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
-	//for (int i = 0; i < mHighScore.size(); ++i)
-	for (int i = mHighScore.size() - 1; i >= 0; --i)
+	for (int i = 0; i < mHighScore.size(); ++i)
+	//for (int i = mHighScore.size() - 1; i >= 0; --i)
 	{
 		writeTxtFile << mHighScore[i] << std::endl;
 	}
