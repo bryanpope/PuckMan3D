@@ -22,6 +22,7 @@ public:
 
 	PathNode* parent;
 
+	PathNode(){}
 	PathNode(float x, float z, int g, int f, PathNode* parent, Direction::DIRECTION facing);
 	PathNode(float x, float z);
 	~PathNode(){}

@@ -120,7 +120,6 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 
 			case CHASE:
 				SetSpeed(levelNumber, GHOST_STATES::CHASE);
-				PathNode* offsetTile;
 				if (!firstChasePathDrawn)
 				{
 					PrePathFinding(this->mPos.x, this->mPos.z, this->mScatterWaypoints[0]->xPos, this->mScatterWaypoints[0]->zPos);
@@ -138,10 +137,10 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						if (facingState == Direction::DIRECTION::NORTH || facingState == Direction::DIRECTION::SOUTH)
 						{
 							//Offset tile = 2 spaces in PuckMan's facing
-							offsetTile = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x),
-								round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2])));
+							offsetTile.xPos = round(MazeLoader::GetPacManData().at(0).pos.x);
+							offsetTile.zPos = round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2]));
 							//Draw a vector from Blinky's current position to the offset tile's position
-							XMVECTOR targetTile = XMVectorSet(offsetTile->xPos - blinkyPos.x, 0.0f, offsetTile->zPos - blinkyPos.z, 0.0f);
+							XMVECTOR targetTile = XMVectorSet(offsetTile.xPos - blinkyPos.x, 0.0f, offsetTile.zPos - blinkyPos.z, 0.0f);
 							//Double the vector length extending forward, this is Inky's target
 							targetTile = XMVectorScale(targetTile, 2.0f);
 
@@ -173,10 +172,10 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 						else if (facingState == Direction::DIRECTION::WEST || facingState == Direction::DIRECTION::EAST)
 						{
 							//Offset tile = 2 spaces in PuckMan's facing
-							offsetTile = new PathNode(round(MazeLoader::GetPacManData().at(0).pos.x + (2 * Direction::getDirecitonVector(facingState).m128_f32[0])),
-								round(MazeLoader::GetPacManData().at(0).pos.z));
+							offsetTile.xPos = round(MazeLoader::GetPacManData().at(0).pos.x);
+							offsetTile.zPos = round(MazeLoader::GetPacManData().at(0).pos.z + (2 * Direction::getDirecitonVector(facingState).m128_f32[2]));
 							//Draw a vector from Blinky's current position to the offset tile's position
-							XMVECTOR targetTile = XMVectorSet(offsetTile->xPos - blinkyPos.x, 0.0f, offsetTile->zPos - blinkyPos.z, 0.0f);
+							XMVECTOR targetTile = XMVectorSet(offsetTile.xPos - blinkyPos.x, 0.0f, offsetTile.zPos - blinkyPos.z, 0.0f);
 							//Double the vector length extending forward, this is Inky's target
 							targetTile = XMVectorScale(targetTile, 2.0f);
 
