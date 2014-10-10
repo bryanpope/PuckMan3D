@@ -783,7 +783,7 @@ void PuckMan3D::UpdateScene(float dt)
 					mpfData[i]->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
 					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
 					mpfData[i]->thisThing = this;
-					for (int j = 0; i < mpfData[i]->waypoints.size(); ++j)
+					for (int j = 0; j < mpfData[i]->waypoints.size(); ++j)
 					{
 						if (mpfData[i]->waypoints[j])
 						{

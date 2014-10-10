@@ -249,7 +249,7 @@ void Pinky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingS
 void Pinky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::SCATTER;
-	mWaypoints.clear();
+	mTweenPoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
 	firstChasePathDrawn = false;

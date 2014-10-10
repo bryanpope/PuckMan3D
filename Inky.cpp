@@ -285,7 +285,7 @@ void Inky::Update(float dt, bool powerUpActivated, Direction::DIRECTION facingSt
 void Inky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::IDLE;
-	mWaypoints.clear();
+	mTweenPoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
 	isIdle = true;
