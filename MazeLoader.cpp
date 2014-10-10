@@ -551,7 +551,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				case L'T':
 					mMazeElements.push_back(ME_PELLET_TRIGGER);
 					worldPos._41 = posX;
-					worldPos._42 = -1.24f;
+					worldPos._42 = -1.0f;
 					worldPos._43 = -posZ;
 					colour = Materials::TRIGGER.Diffuse;
 					mTriggers.push_back(MazeElementSpecs(worldPos, colour, true, true));
@@ -569,7 +569,7 @@ bool MazeLoader::Load(ID3D11Device* device, std::string filename, std::vector<Ve
 				case L'X':
 					mMazeElements.push_back(ME_PELLET_TRAP);
 					worldPos._41 = posX;
-					worldPos._42 = -1.24f;
+					worldPos._42 = -1.0f;
 					worldPos._43 = -posZ;
 					colour = Materials::TRAPINACTIVE.Diffuse;
 					mTraps.push_back(MazeElementSpecs(worldPos, colour, true, true));

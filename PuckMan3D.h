@@ -134,7 +134,7 @@ private:
 	void updateStringStream();
 	XMVECTOR PacManAABoxOverLap(XMVECTOR s1Center);
 	void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s2Center, FXMVECTOR s3Center, CXMVECTOR s4Center, CXMVECTOR s5Center);
-
+	bool PuckMan3D::PuckManOrGhostTrapOverLap(XMVECTOR s1Center, int trapIndex);
 	bool PuckMan3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 	bool PuckMan3D::PacManPelletOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);
 	bool PuckMan3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center);

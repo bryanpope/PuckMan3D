@@ -696,6 +696,12 @@ float angle = 0.0f;
 float timer = 0.0f;
 void PuckMan3D::UpdateScene(float dt)
 {
+	///for testing purposes
+	//mBlinky->isDead = true;
+	//mInky->isDead = true;
+	//mPinky->isDead = true;
+	//mClyde->isDead = true;
+
 	UpdateKeyboardInput(dt);
 	updateStringStream();
 
@@ -819,14 +825,148 @@ void PuckMan3D::UpdateScene(float dt)
 	XMVECTOR inkyPos = XMLoadFloat3(&ghosts[1].pos);
 	XMVECTOR pinkyPos = XMLoadFloat3(&ghosts[2].pos);
 	XMVECTOR clydePos = XMLoadFloat3(&ghosts[3].pos);
-
-	AABoxTriggerPuckManGhostsOverLap(mPuckMan->GetPos(), blinkyPos, inkyPos, pinkyPos, clydePos);
+	
+	AABoxTriggerPuckManGhostsOverLap(pos, blinkyPos, inkyPos, pinkyPos, clydePos);
 	for (int i = 0; i < mTriggers.size(); ++i)
 	{
 		if (mTriggers[i].isOn)
 		{
 			//change color of trap to TRAPACTIVE
 			traps[i].colour = XMFLOAT4(0.9f, 0.0f, 0.0f, 1.0f);//Materials::TRAPACTIVE;
+			
+			if (PuckManOrGhostTrapOverLap(pos, i) == true)
+			{
+				result = channel[6]->setPaused(true);
+				mIsPaused = true;
+				MazeLoader::RemoveLastPacMan();
+				MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
+				mPuckMan->SetPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f));
+				std::vector<MazeLoader::MazeElementSpecs> pacMans = MazeLoader::GetPacManData();
+				mBlinky->Reset();
+				mPinky->Reset();
+				mInky->Reset();
+				mClyde->Reset();
+				playDeathSFX();
+				mIsPlayerDead = true;
+				mIsMoving = false;
+				mCanMove = false;
+				ResetGhosts();
+				break;
+			}
+			if (PuckManOrGhostTrapOverLap(blinkyPos, i) == true)
+			{
+				if (!mTouchedGhost[i])
+				{
+					mFBBlueGhost[i]->SetPos(ghosts[0].pos, MazeLoader::RADIUS_GHOST);
+					mTouchedGhost[i] = true;
+					playGhostDeathSFX();
+					mGhostEatenCounter++;
+					//calcGhostScore();
+					//mScore += mGhostEatenPoints;
+					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+					mpfData[i]->posStart = XMFLOAT2(ghosts[0].pos.x, ghosts[0].pos.z);
+					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
+					mpfData[i]->thisThing = this;
+					for (int j = 0; i < mpfData[i]->waypoints.size(); ++j)
+					{
+						if (mpfData[i]->waypoints[j])
+						{
+							delete mpfData[i]->waypoints[j];
+							mpfData[i]->waypoints[j] = NULL;
+						}
+					}
+					mpfData[i]->waypoints.clear();
+
+					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);
+				}
+				break;
+			}
+			if (PuckManOrGhostTrapOverLap(inkyPos, i) == true)
+			{
+				if (!mTouchedGhost[i])
+				{
+					mFBBlueGhost[i]->SetPos(ghosts[1].pos, MazeLoader::RADIUS_GHOST);
+					mTouchedGhost[i] = true;
+					playGhostDeathSFX();
+					mGhostEatenCounter++;
+					//calcGhostScore();
+					//mScore += mGhostEatenPoints;
+					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+					mpfData[i]->posStart = XMFLOAT2(ghosts[1].pos.x, ghosts[1].pos.z);
+					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
+					mpfData[i]->thisThing = this;
+					for (int j = 0; i < mpfData[i]->waypoints.size(); ++j)
+					{
+						if (mpfData[i]->waypoints[j])
+						{
+							delete mpfData[i]->waypoints[j];
+							mpfData[i]->waypoints[j] = NULL;
+						}
+					}
+					mpfData[i]->waypoints.clear();
+
+					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);
+				}
+				break;
+			}
+			if (PuckManOrGhostTrapOverLap(pinkyPos, i) == true)
+			{
+				if (!mTouchedGhost[i])
+				{
+					mFBBlueGhost[i]->SetPos(ghosts[2].pos, MazeLoader::RADIUS_GHOST);
+					mTouchedGhost[i] = true;
+					playGhostDeathSFX();
+					mGhostEatenCounter++;
+					//calcGhostScore();
+					//mScore += mGhostEatenPoints;
+					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+					mpfData[i]->posStart = XMFLOAT2(ghosts[2].pos.x, ghosts[2].pos.z);
+					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
+					mpfData[i]->thisThing = this;
+					for (int j = 0; i < mpfData[i]->waypoints.size(); ++j)
+					{
+						if (mpfData[i]->waypoints[j])
+						{
+							delete mpfData[i]->waypoints[j];
+							mpfData[i]->waypoints[j] = NULL;
+						}
+					}
+					mpfData[i]->waypoints.clear();
+
+					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);
+				}
+				break;
+			}
+			if (PuckManOrGhostTrapOverLap(clydePos, i) == true)
+			{
+				if (!mTouchedGhost[i])
+				{
+					mFBBlueGhost[i]->SetPos(ghosts[3].pos, MazeLoader::RADIUS_GHOST);
+					mTouchedGhost[i] = true;
+					playGhostDeathSFX();
+					mGhostEatenCounter++;
+					//calcGhostScore();
+					//mScore += mGhostEatenPoints;
+					MazeLoader::InitialPosition gPos = MazeLoader::GetInitialPos();
+					mpfData[i]->posStart = XMFLOAT2(ghosts[3].pos.x, ghosts[3].pos.z);
+					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
+					mpfData[i]->thisThing = this;
+					for (int j = 0; i < mpfData[i]->waypoints.size(); ++j)
+					{
+						if (mpfData[i]->waypoints[j])
+						{
+							delete mpfData[i]->waypoints[j];
+							mpfData[i]->waypoints[j] = NULL;
+						}
+					}
+					mpfData[i]->waypoints.clear();
+
+					mhThreadPathFinding[i] = CreateThread(NULL, 0, PathFindingStaticThreadStart, mpfData[i], 0, &mdwThreadIdPathFinding[i]);
+				}
+				break;
+			}
+
+
 		}
 		else
 		{
@@ -2133,7 +2273,33 @@ void PuckMan3D::AABoxTriggerPuckManGhostsOverLap(FXMVECTOR s1Center, FXMVECTOR s
 
 	}
 }
+bool PuckMan3D::PuckManOrGhostTrapOverLap(XMVECTOR s1Center, int trapIndex)
+{
+	float s1Radius = MazeLoader::RADIUS_PAC_MAN; // Ghosts have same radius as PuckMan
+	std::vector<MazeLoader::AABox> trapData = MazeLoader::GetTrapCollisionData();
+	float currOverLap = 0.0f;
 
+		XMVECTOR min = XMLoadFloat3(&trapData[trapIndex].min);
+		XMVECTOR max = XMLoadFloat3(&trapData[trapIndex].max);
+
+		XMVECTOR A = XMVectorClamp(s1Center, min, max);
+
+		XMVECTOR d = s1Center - A; //difference between the closest point on the box  and sphere center
+
+		float distance = sqrt((d.m128_f32[0] * d.m128_f32[0]) /*+ (d.m128_f32[1] * d.m128_f32[1])*/ + (d.m128_f32[2] * d.m128_f32[2])); //Magnitude of the difference
+
+		float overLap = s1Radius - distance;
+
+		if (overLap > currOverLap) // Have Collision
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+
+}
 XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 {
 	float s1Radius = MazeLoader::RADIUS_PAC_MAN;
@@ -2162,6 +2328,7 @@ XMVECTOR PuckMan3D::PacManAABoxOverLap(XMVECTOR s1Center)
 		}
 	}
 	return s1Center + correction;
+
 }
 
 bool PuckMan3D::PacManGhostOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
