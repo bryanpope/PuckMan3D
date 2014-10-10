@@ -1674,13 +1674,13 @@ void PuckMan3D::DrawWrapper()
 	{
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Reset High Score - (0)");
 		std::stringstream bloom;
-		bloom << "Bloom - (3) " << (mIsDisplayBlurred ? "On" : "Off");
+		bloom << "Foggy Bloom - (3) " << (mIsDisplayBlurred ? "On" : "Off");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 30, 75, 25, bloom.str());
 		std::stringstream crt;
 		crt << "CRT - (4) " << (mIsCRTShaderOn ? "On" : "Off");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, crt.str());
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, "Audio - (5)");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to return");
 	}
 	if (mGameState == GameState::GS_SOUNDOPTIONS)
 	{
@@ -1718,7 +1718,7 @@ void PuckMan3D::DrawWrapper()
 		{
 			mFont->DrawFont(md3dImmediateContext, XMVectorSet(30.0f, 360.0f, 0.0f, 0.0f), 20, 60, 45, "Mute Ghosts SFX - (5) - (off)");
 		}
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 150.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to return");
 	}
 	if (mGameState == GameState::GS_MAINMENU)
 	{
@@ -1735,7 +1735,7 @@ void PuckMan3D::DrawWrapper()
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "Brandon Coulthard");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 300.0f, 0.0f, 0.0f), 30, 75, 25, "Bryan Pope");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(40.0f, 200.0f, 0.0f, 0.0f), 30, 75, 25, "Shane Boorse");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to return");
 	}
 	if (mGameState == GameState::GS_INSTRUCTIONS)
 	{
