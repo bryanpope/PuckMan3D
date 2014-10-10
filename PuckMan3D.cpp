@@ -37,7 +37,7 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	XMVECTOR look = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-	mMainWndCaption = L"Box Demo";
+	mMainWndCaption = L"PuckMan 3D";
 	
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
