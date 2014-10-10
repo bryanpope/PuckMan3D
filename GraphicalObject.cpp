@@ -1,5 +1,4 @@
 #include "GraphicalObject.h"
-#include "Cube.h"
 
 GraphicalObject::GraphicalObject(void) : 
 mPos(0.0f, 0.0f, 0.0f),

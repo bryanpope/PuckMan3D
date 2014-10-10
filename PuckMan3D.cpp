@@ -23,8 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
-	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mTestTerrain(0),
-	mSkyBox(NULL), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
+	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
 	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), mGhostEatenCounter(0),
 	mHUDFruitGeometry2(0), mIsDisplayBlurred(false), mIsCRTShaderOn(false)
 {
@@ -57,22 +56,11 @@ PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	mTouchedGhost[3] = false;
 
 	srand((UINT)time(NULL));
-
-	AllocConsole();
-	freopen("CON", "w", stdout);
 }
 
 PuckMan3D::~PuckMan3D()
 {
 	Vertex::CleanLayouts();
-
-	/*for (int i = 0; i < mPuckMen.size(); ++i)
-	{
-		delete mPuckMen[i];
-	}*/
-
-	if(mTestTerrain)
-		delete mTestTerrain;
 
 	if (mLitMatInstanceEffect)
 		delete mLitMatInstanceEffect;
@@ -88,9 +76,6 @@ PuckMan3D::~PuckMan3D()
 
 	if (m2DCam)
 		delete m2DCam;
-
-	if (mSkyBox)
-		delete mSkyBox;
 
 	if (mParticleEffect)
 		delete mParticleEffect;
@@ -520,25 +505,6 @@ bool PuckMan3D::Init()
 
 	BuildSceneLights();
 
-	Terrain::InitInfo terrainInfo;
-	terrainInfo.cellHeight = 1.0f;
-	terrainInfo.cellWidth = 1.0f;
-	terrainInfo.height = 513;
-	terrainInfo.width = 513;
-	terrainInfo.heightMapFilename = L"Textures/terrain8.raw";
-	terrainInfo.layerMapFilename0 = L"Textures/frozen6d.png";
-	terrainInfo.layerMapFilename1 = L"Textures/rock1a.png";
-	terrainInfo.layerMapFilename2 = L"Textures/rock6b.png";
-	terrainInfo.layerMapFilename3 = L"Textures/frozen2c.png";
-	terrainInfo.blendMapFilename = L"Textures/splat1b.png";
-	terrainInfo.heightScale = 100.0f;
-	terrainInfo.texTilesWide = 20.0f;
-	terrainInfo.texTilesHigh = 20.0f;
-
-	mTestTerrain = new Terrain();
-	mTestTerrain->Init(md3dDevice, terrainInfo);
-
-	Vertex::InitTerrainVertLayout(md3dDevice, mTestTerrain->GetEffect()->GetTech());
 	Vertex::InitParticleVertLayout(md3dDevice, mParticleEffect->GetTech());
 	//Vertex::InitParticleVertLayout(md3dDevice, mFireBallEffect->GetTech());
 
@@ -1291,20 +1257,6 @@ void PuckMan3D::UpdateScene(float dt)
 
 	XMStoreFloat3(&mSpotLights[0].pos, mCam->GetPos());
 	XMStoreFloat3(&mSpotLights[0].direction, mCam->GetLook());
-	
-	for (int i = 0; i < mProjectiles.size(); ++i)
-	{
-		
-		mProjectiles[i]->Update(dt);
-
-		if (mProjectiles[i]->GetDistanceTravelled() >
-			mProjectiles[i]->MAX_DISTANCE)
-		{
-			delete mProjectiles[i];
-			mProjectiles.erase(mProjectiles.begin() + i);
-			i--;
-		}
-	}
 
 	for (int i = 0; i < mParticles.size(); ++i)
 	{
@@ -2087,31 +2039,6 @@ bool PuckMan3D::PacManPowerUpOverlapTest(XMVECTOR s1Center, XMVECTOR s2Center)
 	}
 }
 
-bool PuckMan3D::UpdateGroundCollision()
-{
-	return false;
-	XMVECTOR playerPos = mPuckMan->GetPos();
-	float terrainHeight = mTestTerrain->GetHeight(playerPos.m128_f32[0],
-							playerPos.m128_f32[2]);
-	//player is collided with the ground if the player's y is less than the terrain's y
-	mSlope = terrainHeight - playerPos.m128_f32[1];
-	if (mSlope > 0.05f)
-	{
-		return false;
-	}
-	/*if(playerPos.m128_f32[1] <= terrainHeight)
-	{
-		mPuckMan->SetPos(XMVectorSet(playerPos.m128_f32[0], terrainHeight,
-			playerPos.m128_f32[2], 1.0f));
-
-		mPuckMan->HitGround();
-	}
-	else
-	{
-		mPuckMan->LeaveGround();
-	}*/
-}
-
 void PuckMan3D::DrawParticles()
 {
 	XMVECTOR eyePos = mCam->GetPos();
@@ -2788,10 +2715,13 @@ void PuckMan3D::readFromTxtFile()
 	readTxtFile.open("highscores.txt");
 	while (std::getline(readTxtFile, temp))
 	{
-		HighScore.clear();
-		HighScore.str("");
-		HighScore >> mHighScore[highScoreCounter];
-		highScoreCounter++;
+		if (highScoreCounter < mHighScore.size())
+		{
+			HighScore.clear();
+			HighScore.str("");
+			HighScore >> mHighScore[highScoreCounter];
+			highScoreCounter++;
+		}
 	}
 	readTxtFile.close();
 }

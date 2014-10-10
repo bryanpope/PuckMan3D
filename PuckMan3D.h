@@ -8,19 +8,14 @@
 #include <vector>
 #include "randgen.h"
 #include "Vertex.h"
-#include "Quad.h"
 #include "Effects.h"
 #include "ThirdPersonCam.h"
-#include "Cube.h"
 #include "GraphicalObject.h"
-#include "Projectile.h"
 #include "Effect.h"
 #include "fmod.hpp"
 #include "fmod_errors.h"
 #include "FontRasterizer.h"
-#include "Terrain.h"
 #include "Player.h"
-#include "SkyBox.h"
 #include "GeometryGenerator.h"
 #include "Blinky.h"
 #include "Inky.h"
@@ -121,7 +116,6 @@ private:
 	void playKaSFX();
 	void updateGhosts(float dt);
 	void UpdateParticleVB();
-	bool UpdateGroundCollision();
 	void UpdateKeyboardInput(float dt);
 	void UpdateCollision();
 	void updateStringStream();
@@ -224,8 +218,6 @@ private:
 	SpotLightOptimized mSpotLights[9];
 
 	PuckMan* mPuckMan;
-	Terrain* mTestTerrain;
-	SkyBox* mSkyBox;
 	BasicModel* mBarnProjectile;
 	BasicModel* mFarmModel;
 	BasicModel* mMonsterModel;
@@ -235,10 +227,6 @@ private:
 	BasicModel* mMazeModelInstanced;
 	Character* mMazeCharacterInstanced;
 
-	//std::vector<Character*> mTestChars;
-	//std::vector<PuckMan*> mPuckMen;
-
-	std::vector<Projectile*> mProjectiles;
 
 	std::vector<TestParticle> mParticles;
 
