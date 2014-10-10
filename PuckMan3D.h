@@ -37,6 +37,8 @@
 #include <functional>
 #include "xnacollision.h"
 #include <algorithm>
+//using namespace std;
+
 struct TestParticle
 {
 	XMFLOAT3 pos;
@@ -402,7 +404,6 @@ private:
 	std::stringstream CurrScore;
 	std::ofstream writeTxtFile;
 	std::ifstream readTxtFile;
-	std::string mTemp;
 
 	ID3D11ShaderResourceView* mOffscreenSRV;
 	ID3D11UnorderedAccessView* mOffscreenUAV;

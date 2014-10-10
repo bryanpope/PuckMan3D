@@ -1711,11 +1711,11 @@ void PuckMan3D::DrawWrapper()
 	}
 	if (mGameState == GameState::GS_MAINMENU)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Highscore: " + mTemp);
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 500.0f, 0.0f, 0.0f), 40, 75, 25, "Play Game - (1)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 40, 75, 25, "Options - (2)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 40, 75, 25, "Credits - (3)");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 40, 75, 25, "Controls - (4)");
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 40, 75, 25, "HighScores - (5)");
 	}
 	if (mGameState == GameState::GS_CREDITS)
 	{
@@ -1733,11 +1733,16 @@ void PuckMan3D::DrawWrapper()
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 400.0f, 0.0f, 0.0f), 30, 75, 25, "A/Left Arrow - Move Left");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 300.0f, 0.0f, 0.0f), 30, 75, 30, "D/Right Arrow - Move Right");
 		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 200.0f, 0.0f, 0.0f), 30, 75, 30, "Escape - Close Game");
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
+
 	}
 	if (mGameState == GameState::GS_HIGHSCORE)
 	{
-		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Highscores");
+		std::vector<std::string> display;
+		std::stringstream displayScores;
+		copy(mHighScore.begin(), mHighScore.end(), std::ostream_iterator<int>(displayScores, " "));
+
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 600.0f, 0.0f, 0.0f), 30, 75, 25, "Highscore: " + displayScores.str());
+		mFont->DrawFont(md3dImmediateContext, XMVectorSet(20.0f, 100.0f, 0.0f, 0.0f), 30, 75, 35, "Press Backspace to retun");
 	}
 	md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
@@ -1846,7 +1851,7 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 	}
 	if (GetAsyncKeyState(VK_BACK) & 0x0001)
 	{
-		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_HIGHSCORE || mGameState == GS_INSTRUCTIONS || mGameState == GS_ATTRACT)
+		if (mGameState == GS_OPTIONS || mGameState == GS_CREDITS || mGameState == GS_HIGHSCORE || mGameState == GS_INSTRUCTIONS || mGameState == GS_ATTRACT || mGameState == GS_HIGHSCORE)
 		{
 			mGameState = GS_MAINMENU;
 		}
@@ -1955,6 +1960,10 @@ void PuckMan3D::UpdateKeyboardInput(float dt)
 		if (mGameState == GS_OPTIONS)
 		{
 			mGameState = GS_SOUNDOPTIONS;
+		}
+		if (mGameState == GS_MAINMENU)
+		{
+			mGameState = GS_HIGHSCORE;
 		}
 	}
 	if (GetAsyncKeyState('0') & 0x0001)
@@ -2773,22 +2782,16 @@ void PuckMan3D::BuildFruit()
 
 void PuckMan3D::readFromTxtFile()
 {
-	//read in text file to the stringstream object CurrScore
+	std::string temp;
+	int highScoreCounter = 0;
+
 	readTxtFile.open("highscores.txt");
-	std::sort(mHighScore.begin(), mHighScore.end(), std::greater<int>());
-	while (std::getline(readTxtFile, mTemp))
+	while (std::getline(readTxtFile, temp))
 	{
-		//string to int
 		HighScore.clear();
 		HighScore.str("");
-		HighScore.str(mTemp);
-		
-		for (int i = 0; i < mHighScore.size(); ++i)
-		{
-			HighScore >> mHighScore[i];
-		}
-		
-		mTemp = HighScore.str();
+		HighScore >> mHighScore[highScoreCounter];
+		highScoreCounter++;
 	}
 	readTxtFile.close();
 }
