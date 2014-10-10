@@ -747,6 +747,18 @@ void MazeLoader::RemovePowerUp(UINT index)
 	mMazeElementsModify[mazeIndex] = ME_NOTHING;
 }
 
+// The name of this function was decided by a committee
+void MazeLoader::SiezureInducingPowerUp()
+{
+	for (int i = 0; i < mPowerUps.size(); ++i)
+	{
+		if (mPowerUps[i].isCollider)
+		{
+			mPowerUps[i].isShown = !mPowerUps[i].isShown;
+		}
+	}
+}
+
 void MazeLoader::RemoveLastPacMan()
 {
 	for (int i = mPacMans.size() - 1; i >= 0; --i)

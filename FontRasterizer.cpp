@@ -84,22 +84,22 @@ void FontRasterizer::DrawFont(ID3D11DeviceContext* context, FXMVECTOR pos, float
 		{
 			y -= fontHeight;
 			x = pos.m128_f32[0];
-			charsDrawn = 0;
+			//charsDrawn = 0;
 			continue;
 		}
 
 		//draw a character
-		DrawCharacter(text[i], x, y, fontWidth, fontHeight, v, i);
+		DrawCharacter(text[i], x, y, fontWidth, fontHeight, v, charsDrawn);
 		++charsDrawn;
 
 		x += fontWidth;
 		//if (i % charsPerLine == charsPerLine - 1)
-		if (charsDrawn == charsPerLine)
+		/*if (charsDrawn % charsPerLine == charsPerLine - 1)
 		{
 			y -= fontHeight;
 			x = pos.m128_f32[0];
-			charsDrawn = 0;
-		}
+			//charsDrawn = 0;
+		}*/
 	}
 
 	context->Unmap(VB, 0);
@@ -118,7 +118,8 @@ void FontRasterizer::DrawFont(ID3D11DeviceContext* context, FXMVECTOR pos, float
 		vp, mFontImage);
 	mEffect->SetEffectTech("FontTech");
 
-	mEffect->Draw(context, VB, IB, text.size() * 6);
+	//mEffect->Draw(context, VB, IB, text.size() * 6);
+	mEffect->Draw(context, VB, IB, charsDrawn * 6);
 
 	
 }

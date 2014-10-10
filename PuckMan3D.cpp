@@ -533,7 +533,9 @@ bool PuckMan3D::Init()
 	mFont = new FontRasterizer(m2DCam, XMLoadFloat4x4(&m2DProj), mLitTexEffect, 10, 10, mFontTexture, md3dDevice);
 
 	mTimeGhostCurrent = 0.0f;
-	mTimeGhostNext = mTimeGhostCurrent + (1/30);
+	mTimeGhostNext = mTimeGhostCurrent + (1.0f/30.0f);
+	mPowerUpTimeCurr = 0.0f;
+	mPowerUpTimeNext = (1.0f / 5.0f);
 
 	return true;
 }
@@ -775,12 +777,12 @@ void PuckMan3D::UpdateScene(float dt)
 					mpfData[i]->posStart = XMFLOAT2(ghosts[i].pos.x, ghosts[i].pos.z);
 					mpfData[i]->posEnd = XMFLOAT2(gPos.pinky.x, gPos.pinky.z);
 					mpfData[i]->thisThing = this;
-					for (int i = 0; i < mpfData[i]->waypoints.size(); ++i)
+					for (int j = 0; i < mpfData[i]->waypoints.size(); ++j)
 					{
-						if (mpfData[i]->waypoints[i])
+						if (mpfData[i]->waypoints[j])
 						{
-							delete mpfData[i]->waypoints[i];
-							mpfData[i]->waypoints[i] = NULL;
+							delete mpfData[i]->waypoints[j];
+							mpfData[i]->waypoints[j] = NULL;
 						}
 					}
 					mpfData[i]->waypoints.clear();
@@ -920,6 +922,13 @@ void PuckMan3D::UpdateScene(float dt)
 			mScore += 50;
 			break;
 		}
+	}
+
+	mPowerUpTimeCurr += dt;
+	if (mPowerUpTimeCurr >= mPowerUpTimeNext)
+	{
+		mPowerUpTimeCurr = 0.0f;
+		MazeLoader::SiezureInducingPowerUp();
 	}
 
 	//// PowerUp SpotLights Rotation 

@@ -424,4 +424,7 @@ private:
 	BasicMeshGeometry *mHUDFruitGeometry;
 	BasicMeshGeometry *mHUDFruitGeometry2;
 	//BlurEffect* mBlurEffect;
+
+	float mPowerUpTimeCurr;
+	float mPowerUpTimeNext;
 };

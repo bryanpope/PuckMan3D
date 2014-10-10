@@ -143,6 +143,7 @@ public:
 	static void ResetPowerUps();
 	static void ResetPacMan();
 	static void ResetPacManPosition();
+	static void SiezureInducingPowerUp();
 
 	static UINT GetMazeWidth(){ return mMazeWidth; }
 	static UINT GetMazeHeight(){ return mMazeHeight; }
