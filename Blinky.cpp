@@ -207,6 +207,7 @@ void Blinky::Update(float dt, bool powerUpActivated, int levelNumber)
 void Blinky::Reset()
 {
 	this->mGhostStates = GHOST_STATES::SCATTER;
+	mTweenPoints.clear();
 	mChaseTimer = 0.0f;
 	mScatterTimer = 0.0f;
 	firstChasePathDrawn = false;
