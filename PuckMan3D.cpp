@@ -954,10 +954,13 @@ void PuckMan3D::UpdateScene(float dt)
 			mIsGameOver = false;
 			for (int i = mHighScore.size() - 1; i >= 0; ++i)
 			{
-				if (mHighScore[i] < mScore)
+				if (i != mHighScore.size())
 				{
-					mHighScore[i] = mScore;
-					break;
+					if (mHighScore[i] < mScore)
+					{
+						mHighScore[i] = mScore;
+						break;
+					}
 				}
 			}
 			writeToTxtFile();
