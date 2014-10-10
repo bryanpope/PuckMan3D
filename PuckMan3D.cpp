@@ -926,6 +926,8 @@ void PuckMan3D::UpdateScene(float dt)
 			mPelletCounter++;
 			MazeLoader::RemovePowerUp(i);
 			mScore += 50;
+			mSpotLights[i * 2].lightColour = XMFLOAT4(0.001f, 0.001f, 0.001f, 1.0f);
+			mSpotLights[(i * 2) + 1].lightColour = XMFLOAT4(0.001f, 0.001f, 0.001f, 1.0f);
 			break;
 		}
 	}
@@ -2505,6 +2507,11 @@ void PuckMan3D::resetGame()
 	ResetGhosts();
 	MazeLoader::ResetPellets();
 	MazeLoader::ResetPowerUps();
+	std::vector<MazeLoader::MazeElementSpecs> powerUps = MazeLoader::GetPowerUpData();
+	for (int i = 0; i < powerUps.size() * 2; ++i)
+	{
+		mSpotLights[i].lightColour = XMFLOAT4(0.001f, 1.0f, 0.001f, 1.0f);
+	}
 	//MazeLoader::ResetPacManPosition()
 	MazeLoader::InitialPosition pacPos = MazeLoader::GetInitialPos();
 	mPuckMan->SetPos(XMVectorSet(pacPos.pacMan.x, pacPos.pacMan.y, pacPos.pacMan.z, 0.0f));
