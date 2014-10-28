@@ -663,6 +663,11 @@ float angle = 0.0f;
 float timer = 0.0f;
 void PuckMan3D::UpdateScene(float dt)
 {
+	if (dt > 0.016666666667)
+	{
+		dt = 0.016666666667;
+	}
+
 	///for testing purposes
 	//mBlinky->isDead = true;
 	//mInky->isDead = true;
