@@ -3,7 +3,7 @@
 
 
 // Ambient, Diffuse, Specular, Reflect
-const Material Materials::GRID = Material(XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f), XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f));
+const Material Materials::GRID = Material(XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), XMFLOAT4(0.01f, 0.01f, 0.01f, 0.0f), XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f));
 const Material Materials::BOX = Material(XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f), XMFLOAT4(0.12f, 0.12f, 0.6f, 1.0f), XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f), XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f));
 const Material Materials::PELLET = Material(XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f), XMFLOAT4(1.0f, 0.72f, 0.68f, 1.0f), XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f), XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f));
 const Material Materials::POWERUP = Material(XMFLOAT4(1.0f, 0.9f, 0.9f, 1.0f), XMFLOAT4(1.0f, 0.9f, 0.9f, 1.0f), XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f), XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f));

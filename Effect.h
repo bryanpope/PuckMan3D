@@ -67,6 +67,8 @@ protected:
 	ID3DX11EffectVariable* mfxPointLight;
 	ID3DX11EffectVariable* mfxSpotLight;
 	ID3DX11EffectShaderResourceVariable* mfxDiffuseMap;
+	ID3DX11EffectShaderResourceVariable* mfxBlurMap;
+	ID3DX11EffectShaderResourceVariable* mfxLastFrameMap;
 
 public:
 	virtual ~LitTexEffect();
@@ -78,6 +80,8 @@ public:
 	virtual void SetPerObjectParams(CXMMATRIX world, CXMMATRIX invTranspose, CXMMATRIX wvp, ID3D11ShaderResourceView* texture);
 
 	virtual void SetDiffuseMap(ID3D11ShaderResourceView* texture);
+	virtual void SetBlurMap(ID3D11ShaderResourceView* texture);
+	virtual void SetLastFrameMap(ID3D11ShaderResourceView* texture);
 
 protected:
 	

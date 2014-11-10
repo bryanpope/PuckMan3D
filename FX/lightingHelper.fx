@@ -234,3 +234,24 @@ void CRTshader(float4 pixelPos, float4 inColour, out float4 outColour)
 	outColour += (brightness / 255);
 	outColour = outColour - contrast * (outColour - 1.0) * outColour * (outColour - 0.5);
 }
+
+float4 blend(float4 A, float4 B)
+{
+	float4 c;
+	//c.a = A.a + (1 - A.a) * B.a;
+	c.a = A.a;
+	//c.rgb = (1 / c.a) * (A.a * A.rgb + (1 - A.a) * B.a * B.rgb);
+	c.rgb = (A.rgb) + (B.rgb * (1 - A.a) * B.a);
+	//c.r = A.a;
+	//c.g = c.b = 0;
+	return c;
+}
+
+float4 blendDimB(float4 A, float4 B)
+{
+	float4 c;
+	c.a = A.a;
+	//c.rgb = (A.rgb) + (0.6f * B.rgb);
+	c.rgb = A.rgb;
+	return c;
+}

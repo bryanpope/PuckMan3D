@@ -199,6 +199,16 @@ void LitTexEffect::SetDiffuseMap(ID3D11ShaderResourceView* texture)
 	mfxDiffuseMap->SetResource(texture);
 }
 
+void LitTexEffect::SetBlurMap(ID3D11ShaderResourceView* texture)
+{
+	mfxBlurMap->SetResource(texture);
+}
+
+void LitTexEffect::SetLastFrameMap(ID3D11ShaderResourceView* texture)
+{
+	mfxLastFrameMap->SetResource(texture);
+}
+
 void LitTexEffect::LoadEffectParams()
 {
 	Effect::LoadEffectParams();
@@ -210,6 +220,8 @@ void LitTexEffect::LoadEffectParams()
 	mfxWorld = mEffect->GetVariableByName("gW")->AsMatrix();
 	mfxInvTranspose = mEffect->GetVariableByName("gInvTransposeW")->AsMatrix();
 	mfxDiffuseMap = mEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
+	mfxBlurMap = mEffect->GetVariableByName("gBlurMap")->AsShaderResource();
+	mfxLastFrameMap = mEffect->GetVariableByName("gLastFrameMap")->AsShaderResource();
 }
 
 LitMatEffect::~LitMatEffect()

@@ -47,6 +47,8 @@ private:
 
 	ID3D11ShaderResourceView* mBlurredOutputTexSRV;
 	ID3D11UnorderedAccessView* mBlurredOutputTexUAV;
+	ID3D11ShaderResourceView* mBlurredOutputTexSRVTwo;
+	ID3D11UnorderedAccessView* mBlurredOutputTexUAVTwo;
 
 	BlurEffect mBlurEffect;
 };

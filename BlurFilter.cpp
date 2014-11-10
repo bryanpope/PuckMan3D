@@ -6,7 +6,7 @@
 #include "Effect.h"
 
 BlurFilter::BlurFilter()
-  : mBlurredOutputTexSRV(0), mBlurredOutputTexUAV(0)
+	: mBlurredOutputTexSRV(0), mBlurredOutputTexUAV(0), mBlurredOutputTexSRVTwo(0), mBlurredOutputTexUAVTwo(0)
 {
 }
 
@@ -14,11 +14,14 @@ BlurFilter::~BlurFilter()
 {
 	ReleaseCOM(mBlurredOutputTexSRV);
 	ReleaseCOM(mBlurredOutputTexUAV);
+	ReleaseCOM(mBlurredOutputTexSRVTwo);
+	ReleaseCOM(mBlurredOutputTexUAVTwo);
 }
 
 ID3D11ShaderResourceView* BlurFilter::GetBlurredOutput()
 {
-	return mBlurredOutputTexSRV;
+	//return mBlurredOutputTexSRV;
+	return mBlurredOutputTexSRVTwo;
 }
 
 void BlurFilter::SetGaussianWeights(float sigma)
@@ -56,6 +59,8 @@ void BlurFilter::Init(ID3D11Device* device, UINT width, UINT height, DXGI_FORMAT
 	// Start fresh.
 	ReleaseCOM(mBlurredOutputTexSRV);
 	ReleaseCOM(mBlurredOutputTexUAV);
+	ReleaseCOM(mBlurredOutputTexSRVTwo);
+	ReleaseCOM(mBlurredOutputTexUAVTwo);
 
 	mWidth = width;
 	mHeight = height;
@@ -95,6 +100,24 @@ void BlurFilter::Init(ID3D11Device* device, UINT width, UINT height, DXGI_FORMAT
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 	uavDesc.Texture2D.MipSlice = 0;
 	HR(device->CreateUnorderedAccessView(blurredTex, &uavDesc, &mBlurredOutputTexUAV));
+
+	// Views save a reference to the texture so we can release our reference.
+	ReleaseCOM(blurredTex);
+
+
+	blurredTex = 0;
+	HR(device->CreateTexture2D(&blurredTexDesc, 0, &blurredTex));
+
+	srvDesc.Format = format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	HR(device->CreateShaderResourceView(blurredTex, &srvDesc, &mBlurredOutputTexSRVTwo));
+
+	uavDesc.Format = format;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = 0;
+	HR(device->CreateUnorderedAccessView(blurredTex, &uavDesc, &mBlurredOutputTexUAVTwo));
 
 	// Views save a reference to the texture so we can release our reference.
 	ReleaseCOM(blurredTex);

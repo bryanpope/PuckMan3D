@@ -155,7 +155,7 @@ private:
 	void MuteDeathSFX();
 	void MuteBackGroundSFX();
 	void DrawWrapper();
-	void DrawScreenQuad();
+	void DrawScreenQuad(ID3D11ShaderResourceView* tex, ID3D11ShaderResourceView* blurTex, ID3D11ShaderResourceView* lastFrameTex, bool addLastFrame);
 	void BuildFruit();
 	void readFromTxtFile();
 	void writeToTxtFile();
@@ -188,6 +188,7 @@ private:
 	LitMatEffect* mHUDFruit2;
 	LitMatEffect* mLitMatInstanceEffect;
 	LitTexEffect* mLitTexEffect;
+	LitTexEffect* mWrapperEffect;
 	ParticleEffect* mParticleEffect;
 	
 	FireBallParticles *mFireBallPac;
@@ -408,6 +409,8 @@ private:
 	std::ofstream writeTxtFile;
 	std::ifstream readTxtFile;
 
+	ID3D11ShaderResourceView* mOffscreenSRVLastFrame;
+	ID3D11ShaderResourceView* mOffscreenSRVCopy;
 	ID3D11ShaderResourceView* mOffscreenSRV;
 	ID3D11UnorderedAccessView* mOffscreenUAV;
 	ID3D11RenderTargetView* mOffscreenRTV;

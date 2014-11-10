@@ -24,8 +24,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 PuckMan3D::PuckMan3D(HINSTANCE hInstance)
 	: D3DApp(hInstance), mLitTexEffect(0), mMouseReleased(true), mCam(0), mPelletCounter(0), mLevelCounter(1), mPuckMan(0), mParticleEffect(NULL), mIsKeyPressed(false), mCountPellets(0), mLitMatInstanceEffect(0), mTimeGhostCurrent(0.0f), mTimeGhostNext(0.0f),
-	mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), mGhostEatenCounter(0),
-	mHUDFruitGeometry2(0), mIsDisplayBlurred(false), mIsCRTShaderOn(false)
+	mOffscreenSRVCopy(0), mOffscreenSRV(0), mOffscreenUAV(0), mOffscreenRTV(0), mGeometryQuadFullScreen(0), mCherryGeometry(0), mAppleGeometry(0), mGrapesGeometry(0), mPeachGeometry(0), mHUDFruitGeometry(0), mGhostEatenCounter(0),
+	mHUDFruitGeometry2(0), mIsDisplayBlurred(false), mIsCRTShaderOn(false), mWrapperEffect(0), mOffscreenSRVLastFrame(0)
 {
 	soundStates = SoundsState::SS_KA;
 	for (int i = 0; i < 8; ++i)
@@ -67,6 +67,9 @@ PuckMan3D::~PuckMan3D()
 	
 	if (mLitTexEffect)
 		delete mLitTexEffect;
+
+	if (mWrapperEffect)
+		delete mWrapperEffect;
 
 	if (mCherry)
 		delete mCherry;
@@ -189,6 +192,8 @@ PuckMan3D::~PuckMan3D()
 			delete mFBBlueGhost[i];
 	}*/
 
+	ReleaseCOM(mOffscreenSRVLastFrame);
+	ReleaseCOM(mOffscreenSRVCopy);
 	ReleaseCOM(mOffscreenSRV);
 	ReleaseCOM(mOffscreenUAV);
 	ReleaseCOM(mOffscreenRTV);
@@ -373,6 +378,9 @@ bool PuckMan3D::Init()
 
 	mLitTexEffect = new LitTexEffect();
 	mLitTexEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
+
+	mWrapperEffect = new LitTexEffect();
+	mWrapperEffect->LoadEffect(L"FX/lighting.fx", md3dDevice);
 
 	mApple = new LitMatEffect();
 	mApple->LoadEffect(L"FX/lighting.fx", md3dDevice);
@@ -1390,19 +1398,31 @@ void PuckMan3D::DrawScene()
 		// we normally use since our offscreen texture matches the dimensions.
 		md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
 
-		md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Black));
+		md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Clear));
 		md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 	else
 	{
-		md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+		md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
+
+		md3dImmediateContext->ClearRenderTargetView(mOffscreenRTV, reinterpret_cast<const float*>(&Colors::Clear));
 		md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+		//md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Clear));
+		//md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 
 	//
 	// Draw the scene to the offscreen texture
 	//
 	DrawWrapper();
+	ID3D11Resource *dest;
+	mOffscreenSRVCopy->GetResource(&dest);
+	ID3D11Resource *src;
+	mOffscreenSRV->GetResource(&src);
+	md3dImmediateContext->CopyResource(dest, src);
+	dest->Release();
+	src->Release();
 
 	if (mIsDisplayBlurred)
 	{
@@ -1422,9 +1442,26 @@ void PuckMan3D::DrawScene()
 		md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 		md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		DrawScreenQuad();
+		DrawScreenQuad(mOffscreenSRVCopy, mOffscreenSRV, mOffscreenSRVLastFrame, true);
+		//DrawScreenQuad(mOffscreenSRVCopy, mBlur.GetBlurredOutput());
+		//DrawScreenQuad(mOffscreenSRVCopy);
+	}
+	else
+	{
+		renderTargets[0] = mRenderTargetView;
+		md3dImmediateContext->OMSetRenderTargets(1, renderTargets, mDepthStencilView);
+		md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+		md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		DrawScreenQuad(mOffscreenSRVCopy, mOffscreenSRV, mOffscreenSRVLastFrame, false);
 	}
 
+	mOffscreenSRVLastFrame->GetResource(&dest);
+	mOffscreenSRVCopy->GetResource(&src);
+	md3dImmediateContext->CopyResource(dest, src);
+	dest->Release();
+	src->Release();
+
+	//mLitTexEffect->SetEffectTech("TestTech");
 	HR(mSwapChain->Present(1, 0));
 }
 
@@ -1808,7 +1845,7 @@ void PuckMan3D::DrawWrapper()
 	md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 }
 
-void PuckMan3D::DrawScreenQuad()
+void PuckMan3D::DrawScreenQuad(ID3D11ShaderResourceView* tex, ID3D11ShaderResourceView* blurTex, ID3D11ShaderResourceView* lastFrameTex, bool addLastFrame)
 {
 	md3dImmediateContext->IASetInputLayout(Vertex::GetNormalTexVertLayout());
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1817,9 +1854,23 @@ void PuckMan3D::DrawScreenQuad()
 	UINT offset = 0;
 
 	XMMATRIX identity = XMMatrixIdentity();
+	XMVECTOR ambient = XMLoadFloat4(&mAmbientColour);
+	XMVECTOR eyePos = XMVectorSet(mEyePosW.x, mEyePosW.y, mEyePosW.z, 0.0f);
 
-	mLitTexEffect->SetPerObjectParams(identity, identity, identity, mBlur.GetBlurredOutput());
-	mLitTexEffect->Draw(md3dImmediateContext, mGeometryQuadFullScreen->GetVB(), mGeometryQuadFullScreen->GetIB(), mGeometryQuadFullScreen->GetIndexCount());
+	//mLitTexEffect->SetPerObjectParams(identity, identity, identity, mBlur.GetBlurredOutput());
+	mWrapperEffect->SetPerFrameParams(ambient, eyePos, mPointLights[5], mSpotLights[0]);
+	mWrapperEffect->SetPerObjectParams(identity, identity, identity, tex);
+	mWrapperEffect->SetBlurMap(blurTex);
+	if (addLastFrame)
+	{
+		mWrapperEffect->SetLastFrameMap(lastFrameTex);
+		mWrapperEffect->SetEffectTech("FontTechBlurAfterImage");
+	}
+	else
+	{
+		mWrapperEffect->SetEffectTech("FontTechBlur");
+	}
+	mWrapperEffect->Draw(md3dImmediateContext, mGeometryQuadFullScreen->GetVB(), mGeometryQuadFullScreen->GetIB(), mGeometryQuadFullScreen->GetIndexCount());
 }
 
 void PuckMan3D::OnMouseDown(WPARAM btnState, int x, int y)
@@ -2845,6 +2896,8 @@ void PuckMan3D::BuildOffscreenViews()
 {
 	// We call this function everytime the window is resized so that the render target is a quarter
 	// the client area dimensions.  So Release the previous views before we create new ones.
+	ReleaseCOM(mOffscreenSRVLastFrame);
+	ReleaseCOM(mOffscreenSRVCopy);
 	ReleaseCOM(mOffscreenSRV);
 	ReleaseCOM(mOffscreenRTV);
 	ReleaseCOM(mOffscreenUAV);
@@ -2871,6 +2924,50 @@ void PuckMan3D::BuildOffscreenViews()
 	HR(md3dDevice->CreateShaderResourceView(offscreenTex, 0, &mOffscreenSRV));
 	HR(md3dDevice->CreateRenderTargetView(offscreenTex, 0, &mOffscreenRTV));
 	HR(md3dDevice->CreateUnorderedAccessView(offscreenTex, 0, &mOffscreenUAV));
+
+	// View saves a reference to the texture so we can release our reference.
+	ReleaseCOM(offscreenTex);
+
+	texDesc.Width = mClientWidth;
+	texDesc.Height = mClientHeight;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	offscreenTex = 0;
+	HR(md3dDevice->CreateTexture2D(&texDesc, 0, &offscreenTex));
+
+	// Null description means to create a view to all mipmap levels using 
+	// the format the texture was created with.
+	HR(md3dDevice->CreateShaderResourceView(offscreenTex, 0, &mOffscreenSRVCopy));
+
+	// View saves a reference to the texture so we can release our reference.
+	ReleaseCOM(offscreenTex);
+
+	texDesc.Width = mClientWidth;
+	texDesc.Height = mClientHeight;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	offscreenTex = 0;
+	HR(md3dDevice->CreateTexture2D(&texDesc, 0, &offscreenTex));
+
+	// Null description means to create a view to all mipmap levels using 
+	// the format the texture was created with.
+	HR(md3dDevice->CreateShaderResourceView(offscreenTex, 0, &mOffscreenSRVLastFrame));
 
 	// View saves a reference to the texture so we can release our reference.
 	ReleaseCOM(offscreenTex);

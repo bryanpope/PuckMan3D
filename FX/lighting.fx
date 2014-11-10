@@ -35,6 +35,8 @@ SamplerState mySampler
 };
 
 Texture2D gDiffuseMap;
+Texture2D gBlurMap;
+Texture2D gLastFrameMap;
 
 cbuffer cbPerObject
 {
@@ -91,13 +93,25 @@ VertexOut VS(VertexIn vin)
     return vout;
 }
 
-float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight, uniform bool gFontDisplay, uniform bool gUseCRTShader) : SV_Target
+float4 PS(VertexOut pin, uniform bool gUseTexture, uniform bool gUseSpotLight, uniform bool gFontDisplay, uniform bool gUseCRTShader, uniform bool gUseBlurTexture, uniform bool gDoAfterImage) : SV_Target
 {
 
 	Material mat;
 	if (gUseTexture)
 	{
-		mat.Diffuse = gDiffuseMap.Sample(mySampler, pin.Tex);
+		if (gUseBlurTexture)
+		{
+			mat.Diffuse = blend(gDiffuseMap.Sample(mySampler, pin.Tex), gBlurMap.Sample(mySampler, pin.Tex));
+			if (gDoAfterImage)
+			{
+				mat.Diffuse = blendDimB(mat.Diffuse, gLastFrameMap.Sample(mySampler, pin.Tex));
+			}
+		}
+		else
+		{
+			mat.Diffuse = gDiffuseMap.Sample(mySampler, pin.Tex);
+			//mat.Diffuse = gBlurMap.Sample(mySampler, pin.Tex);
+		}
 		mat.Specular = float4(0.75f, 0.75f, 0.75f, 1000.0f);
 	}
 	else
@@ -159,7 +173,7 @@ technique11 TestTech
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(true, true, false, false) ) );
+		SetPixelShader(CompileShader(ps_5_0, PS(true, true, false, false, false, false)));
 		
     }
 }
@@ -170,7 +184,7 @@ technique11 TestTechCRTShader
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(true, true, false, true)));
+		SetPixelShader(CompileShader(ps_5_0, PS(true, true, false, true, false, false)));
 
 	}
 }
@@ -181,7 +195,7 @@ technique11 LitMatTech
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(false, false, false, false)));
+		SetPixelShader(CompileShader(ps_5_0, PS(false, false, false, false, false, false)));
 
 	}
 }
@@ -192,7 +206,7 @@ technique11 LitMatTechCRTShader
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(false, false, false, true)));
+		SetPixelShader(CompileShader(ps_5_0, PS(false, false, false, true, false, false)));
 
 	}
 }
@@ -203,7 +217,29 @@ technique11 FontTech
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(true, false, true, false)));
+		SetPixelShader(CompileShader(ps_5_0, PS(true, false, true, false, false, false)));
+
+	}
+}
+
+technique11 FontTechBlur
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS(true, false, false, false, true, false)));
+
+	}
+}
+
+technique11 FontTechBlurAfterImage
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS(true, false, false, false, true, true)));
 
 	}
 }
@@ -214,7 +250,7 @@ technique11 FontTechCRTShader
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(true, false, true, true)));
+		SetPixelShader(CompileShader(ps_5_0, PS(true, false, true, true, false, false)));
 
 	}
 }
